@@ -1,1 +1,2 @@
-1.Trunk for BD.
+1.Trunk for BD
+2.Pick up.
