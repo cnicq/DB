@@ -7,14 +7,6 @@ nginx_path = "C:\\Git\Software\\nginx-1.5.0";
 dataapp_path = "C:\\Git\\DB";
 php_path = "C:\\Git\\software\\php-5.4.16-nts-Win32-VC9-x86";
 
-#shut down nignx
-nginxstar_cmd = "" + nginx_path + "\\nginx.exe -s quit";
-print("stop nginx... "+ nginxstar_cmd);
-os.system(nginxstar_cmd);
-time.sleep(2)
-
-#shut down php
-
 mongodbstar_cmd = "" + mongodb_path + "\\bin\\mongod --dbpath " + dataapp_path + "\\data"
 print("star mongodb... " + mongodbstar_cmd);
 subprocess.Popen(mongodbstar_cmd, shell=True) 
@@ -23,5 +15,6 @@ phpstar_cmd = "" + php_path + "\\php-cgi -b 127.0.0.1:9000 -c " + php_path + "\\
 print("star php... " + phpstar_cmd);
 subprocess.Popen(phpstar_cmd, shell=True) 
 time.sleep(3)
-
+nginxstar_cmd = "" + nginx_path + "\\nginx.exe -p " + nginx_path;
+print("star nginx... "+ nginxstar_cmd);
 subprocess.Popen(nginxstar_cmd, shell=True) 
