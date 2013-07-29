@@ -26,6 +26,8 @@ nginxstar_cmd = "" + nginx_path + "\\nginx.exe -p " + nginx_path;
 print("star nginx... "+ nginxstar_cmd);
 subprocess.Popen(nginxstar_cmd, shell=True) 
 time.sleep(3)
+'''
 node_cmd = "node app.js"
 print("star node... "+ node_cmd);
 subprocess.Popen(node_cmd, shell=True) 
+'''

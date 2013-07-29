@@ -3,6 +3,6 @@
 */
 var path = require('path');
 
-export.config = {
-
+exports.config = {
+	app_port : process.env.PORT || 3000
 };
