@@ -1,3 +1,4 @@
+return;
 var margin = {top: 20, right: 20, bottom: 20, left: 20},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;

@@ -1,0 +1,1 @@
+exports.Indicator = require('./indicator');
