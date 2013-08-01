@@ -8,42 +8,16 @@
 	<link rel="stylesheet" href="/d3.css" />
 	<script src="/d3.v3.min.js"></script>
 	<script src="/db.js"></script>
+	<script src="/d3.custom.js"></script>
   </script>
   </head>
   <body>
-  	<div data-role="page" data-add-back-btn="true" id="page1">
+  	<div data-role="page" id="page1">
 	  	<div data-role="header" data-position="fixed" >
 		    <span class="ui-title">推荐</span>
 		</div><!-- /header -->
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content1">
-
-			<h3>Nested List Example</h3>
-			<ul data-role="listview">
-			  <li>Restaurants
-			    <ul>
-			      <li>French
-			        <ul>
-			          <li>Le Central</li>
-			          <li>Bistro Vandome</li>
-			          <li>Antoine's</li>
-			        </ul>
-			      </li>
-			      <li>Cajun and Creole
-			        <ul>
-			          <li>Bayou Bob's</li>
-			          <li>Pappadeaux</li>
-			          <li>Lucile's</li>
-			        </ul>
-			      </li>
-			      <li>American
-			        <ul>
-			          <li>Dixon's</li>
-			          <li>Vesta Dipping Grill</li>
-			          <li>Steuben's</li>
-			        </ul>
-			      </li>
-			    </ul>
-			  </li>
+			<ul data-role="listview" id="list1">
 			</ul>
 
 		</div><!-- /content1 -->
@@ -61,15 +35,21 @@
 		</div><!-- /footer -->
 	</div><!-- /page1 -->
 
-	<div data-role="page" data-add-back-btn="true" id="page2">
+	<div data-role="page" id="page_d3">
+	  	<div data-role="header" data-position="fixed" >
+		    <span class="ui-title">推荐</span>
+		</div><!-- /header -->
+
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_d3" data-add-back-btn="true">
+			
+		</div><!-- /content_d3 -->
+	</div><!-- /page_d3 -->
+
+	<div data-role="page" id="page2">
 	  	<div data-role="header" data-position="fixed" >
 		    <a href="#" data-icon="gear" class="ui-btn-right">Options</a>
 		    <span class="ui-title"><%= title %></span>
 		</div><!-- /header -->
-
-   	    <div data-role="content" class="jqm-content jqm-fullwidth" id="content1">
-   	    	<script src="/d3.custom.js"></script>
-		</div><!-- /content1 -->
 
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content2">
 

@@ -6,7 +6,8 @@ exports.newest = function(req, res, next){
 		if (err) {
 		  return next(err);
 		}
-		res.send(console.log(indicators));
+
+		res.send(indicators);
 	});
 };
 

@@ -6,11 +6,9 @@ mongoose.connect(config.db, function (err) {
     console.error('connect to %s error: ', config.db, err.message);
     process.exit(1);
   }
-
-  	// models
-	require('./indicator');
-
-	exports.Indicator = mongoose.model('IndicatorData');
 });
 
+	// models
+require('./indicator');
 
+exports.Indicator = mongoose.model('IndicatorData');

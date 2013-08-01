@@ -8,4 +8,4 @@ var IndicatorDataSchema = new Schema({
   StrTargetID: { type: ObjectId },
 });
 
-mongoose.model('IndicatorData123', IndicatorDataSchema);
+mongoose.model('IndicatorData', IndicatorDataSchema, 'IndicatorData');
