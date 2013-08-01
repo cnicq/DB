@@ -1,7 +1,7 @@
 var Indicator = require('../proxy').Indicator;
 
 exports.newest = function(req, res, next){
-	var opt = {limit: 100};
+	var opt = {limit: 20};
 	Indicator.getIndicatorsByQuery({}, opt, function (err, indicators) {
 		if (err) {
 		  return next(err);

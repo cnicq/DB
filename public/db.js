@@ -12,9 +12,10 @@ $(document).ready(function(){
     url: '/indicator/newest',
     type: 'GET',
     success: function(data){
+      
       var $html_str = "";
       $(data).each(function(te, u) {
-        $html_str += (String.format("<a href=\"#page_d3\"><li class=\"ui-li ui-li-static ui-btn-up-c ui-first-child ui-last-child\">{0}</li></a>", u["NameLoc"][0]["Chinese"]));
+        $html_str += (String.format("<a href=\"#page_d3\" onclick=\"IndicatorListItemClicked('{0}')\" id={0}><li class=\"ui-li ui-li-static ui-btn-up-c ui-first-child ui-last-child\">{1}</li></a>", u['_id'], u["NameLoc"][0]["Chinese"]));
       });
 
       $("#list1").append($html_str);
@@ -22,15 +23,54 @@ $(document).ready(function(){
     },
     error: function(xmlHTTPRequest, status, error){
         alert("Error : " + error);
+    },
+    beforeSend: function(){
+      $.mobile.showPageLoadingMsg();
+    },
+    complete: function(){
+     $.mobile.hidePageLoadingMsg();
     }
   });
 
+  $("#page_recommand").bind("pageshow", function(event,ui){
+
+  });
+
+  $("#page_recommand").bind("pagehide", function(event,ui){
+     $.mobile.hidePageLoadingMsg();
+  });
+
+  $("#page_newest").bind("pageshow", function(event,ui){
+      ShowD3();
+  });
+
   $("#page_d3").bind("pageshow", function(event,ui){
-    ShowD3();
+      ShowD3();
   });
 
   $("#page_d3").bind("pagehide", function(event,ui){
-   // HideD3();
+     HideD3();
   });
 
 })
+
+function IndicatorListItemClicked(sID)
+{
+    $.ajax({
+    url: '/indicator/' + sID,
+    type: 'GET',
+    success: function(data){
+      
+    },
+    error: function(xmlHTTPRequest, status, error){
+      $.mobile.hidePageLoadingMsg();
+      alert("Error : " + error);
+    },
+    beforeSend: function(){
+      $.mobile.showPageLoadingMsg();
+    },
+    complete: function(){
+     $.mobile.hidePageLoadingMsg();
+    }
+  });
+}

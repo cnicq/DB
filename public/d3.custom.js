@@ -24,8 +24,7 @@ function ShowD3()
       .orient("left")
       .tickFormat(d3.format(".2s"));
 
-  alert(d3.select("#content_d3 svg"));
-  var svg = d3.select("#content_d3").append("svg")
+  var svg = d3.select("#svg_d3")
       .attr("viewBox", "0 0 " + width + " " + height )
       //.attr("preserveAspectRatio", "xMidYMid")
       //.attr("width", width + margin.left + margin.right)
@@ -94,4 +93,9 @@ function ShowD3()
         .text(function(d) { return d; });
 
   });
+}
+
+function HideD3()
+{
+
 }

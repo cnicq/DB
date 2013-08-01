@@ -8,7 +8,10 @@ mongoose.connect(config.db, function (err) {
   }
 });
 
-	// models
+// models
 require('./indicator');
+require('./area');
 
 exports.Indicator = mongoose.model('IndicatorData');
+exports.Meta = require('./meta').MetaModel;
+exports.Area = mongoose.model('AreaData');

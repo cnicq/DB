@@ -12,7 +12,7 @@
   </script>
   </head>
   <body>
-  	<div data-role="page" id="page1">
+  	<div data-role="page" id="page_recommand">
 	  	<div data-role="header" data-position="fixed" >
 		    <span class="ui-title">推荐</span>
 		</div><!-- /header -->
@@ -25,8 +25,8 @@
 		<div data-role="footer" data-id="foo1" data-position="fixed">
 			<div data-role="navbar">
 				<ul>
-					<li><a href="#page1" data-prefetch="true" data-transition="none" id="recom" data-icon="custom" class="ui-btn-active ui-state-persist">推荐</a></li>
-					<li><a href="#page2" data-prefetch="true" data-transition="none" id="newest" data-icon="custom">最新</a></li>
+					<li><a href="#page_recommand" data-prefetch="true" data-transition="none" id="recom" data-icon="custom" class="ui-btn-active ui-state-persist">推荐</a></li>
+					<li><a href="#page_newest" data-prefetch="true" data-transition="none" id="newest" data-icon="custom">最新</a></li>
 					<li><a href="#" data-prefetch="true" data-transition="none" id="fav" data-icon="custom">收藏</a></li>
 					<li><a href="#" data-prefetch="true" data-transition="none" id="cata" data-icon="custom">大全</a></li>
 					<li><a href="#" data-prefetch="true" data-transition="none" id="more" data-icon="custom">更多...</a></li>
@@ -35,17 +35,17 @@
 		</div><!-- /footer -->
 	</div><!-- /page1 -->
 
-	<div data-role="page" id="page_d3">
+	<div data-role="page" id="page_d3" data-add-back-btn="true">
 	  	<div data-role="header" data-position="fixed" >
 		    <span class="ui-title">推荐</span>
 		</div><!-- /header -->
 
-		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_d3" data-add-back-btn="true">
-			
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_d3" >
+			<svg id="svg_d3"></svg>
 		</div><!-- /content_d3 -->
 	</div><!-- /page_d3 -->
 
-	<div data-role="page" id="page2">
+	<div data-role="page" id="page_newest">
 	  	<div data-role="header" data-position="fixed" >
 		    <a href="#" data-icon="gear" class="ui-btn-right">Options</a>
 		    <span class="ui-title"><%= title %></span>
@@ -74,8 +74,8 @@
 		<div data-role="footer" data-id="foo1" data-position="fixed">
 			<div data-role="navbar">
 				<ul>
-					<li><a href="#page1" data-prefetch="true" data-transition="none" id="recom" data-icon="custom">推荐</a></li>
-					<li><a href="#page2" data-prefetch="true" data-transition="none" id="newest" data-icon="custom" class="ui-btn-active ui-state-persist">最新</a></li>
+					<li><a href="#page_recommand" data-prefetch="true" data-transition="none" id="recom" data-icon="custom">推荐</a></li>
+					<li><a href="#page_newest" data-prefetch="true" data-transition="none" id="newest" data-icon="custom" class="ui-btn-active ui-state-persist">最新</a></li>
 					<li><a href="#" data-prefetch="true" data-transition="none" id="fav" data-icon="custom">收藏</a></li>
 					<li><a href="#" data-prefetch="true" data-transition="none" id="cata" data-icon="custom">大全</a></li>
 					<li><a href="#" data-prefetch="true" data-transition="none" id="more" data-icon="custom">更多...</a></li>

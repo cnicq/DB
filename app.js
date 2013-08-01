@@ -7,7 +7,8 @@ var express = require('express')
   , routes = require('./routes')
   , http = require('http')
   , path = require('path')
-  , config = require('./config').config;
+  , config = require('./config').config
+  , global = require('./global');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.configure('development', function(){
 });
 
 routes(app);
+global(app);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
