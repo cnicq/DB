@@ -41,11 +41,11 @@ $(document).ready(function(){
   });
 
   $("#page_newest").bind("pageshow", function(event,ui){
-      ShowD3();
+      
   });
 
   $("#page_d3").bind("pageshow", function(event,ui){
-      ShowD3();
+      
   });
 
   $("#page_d3").bind("pagehide", function(event,ui){
@@ -59,8 +59,10 @@ function IndicatorListItemClicked(sID)
     $.ajax({
     url: '/indicator/' + sID,
     type: 'GET',
-    success: function(data){
-      
+    success: function(MetaDatas){
+
+    ShowBarChart(MetaDatas);
+
     },
     error: function(xmlHTTPRequest, status, error){
       $.mobile.hidePageLoadingMsg();
