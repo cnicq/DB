@@ -62,7 +62,7 @@ function IndicatorListItemClicked(sID)
     success: function(MetaDatas){
 
     ShowBarChart(MetaDatas);
-
+      alert(MetaDatas[0]._id);
     },
     error: function(xmlHTTPRequest, status, error){
       $.mobile.hidePageLoadingMsg();

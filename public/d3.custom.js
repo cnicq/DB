@@ -101,7 +101,7 @@ function type(d) {
 }
 
 function ShowBarChart(MetaDatas)
-{alert(0);
+{
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = window.innerWidth/2 - margin.left - margin.right,
     height = window.innerHeight/2 - margin.top - margin.bottom;
