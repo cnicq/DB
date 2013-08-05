@@ -5,6 +5,8 @@ var ObjectId = Schema.ObjectId;
 var MetaDataSchema = new Schema({
 	_id: { type: ObjectId, index: true },
 	AreaID: { type: ObjectId},
+	Period: { type: String},
+	AreaNameLoc: { type: String},
 });
 
 exports.MetaModel = function(id){

@@ -7,11 +7,11 @@ exports.id = function(req, res, next){
 		if (err) {
 		  return next(err);
 		}
-		
+		var datas = MetaDatas;
 		for (var i = MetaDatas.length - 1; i >= 0; i--) {
-	    	MetaDatas[i]['AreaNameLoc'] = Area.GetAreaChineseName(MetaDatas[i]['AreaID']);
+	    	datas[i]['AreaNameLoc'] = Area.GetAreaChineseName(datas[i]['AreaID']);
       	}
-
-		res.send(MetaDatas);
+      	
+		res.send(datas);
 	});
 };
