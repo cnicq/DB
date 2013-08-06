@@ -11,7 +11,9 @@ mongoose.connect(config.db, function (err) {
 // models
 require('./indicator');
 require('./area');
+require('./target');
 
 exports.Indicator = mongoose.model('IndicatorData');
 exports.Meta = require('./meta').MetaModel;
 exports.Area = mongoose.model('AreaData');
+exports.Target = mongoose.model('TargetData');

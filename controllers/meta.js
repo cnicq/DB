@@ -1,5 +1,7 @@
 var Meta = require('../proxy').Meta;
 var Area = require('./area');
+var Target = require('./target');
+var Indicator = require('../proxy').Indicator;
 
 exports.id = function(req, res, next){
 	var _id = req.params.id;
@@ -7,11 +9,20 @@ exports.id = function(req, res, next){
 		if (err) {
 		  return next(err);
 		}
-		var datas = MetaDatas;
+		
+		var datas = {};
 		for (var i = MetaDatas.length - 1; i >= 0; i--) {
-	    	datas[i]['AreaNameLoc'] = Area.GetAreaChineseName(datas[i]['AreaID']);
+	    	MetaDatas[i]['AreaNameLoc'] = Area.GetAreaChineseName(MetaDatas[i]['AreaID']);
+	    	MetaDatas[i]['Target1NameLoc'] = Target.GetTargetChineseName(MetaDatas[i]['Target1ID']);
+	    	MetaDatas[i]['Target2NameLoc'] = Target.GetTargetChineseName(MetaDatas[i]['Target2ID']);
       	}
-      	
-		res.send(datas);
+      	datas['MetaDatas'] = MetaDatas;
+      	Indicator.getIndicatorByID(_id, function(error, IndicatorData) {
+      		var data2 = {};
+      		data2['IndicatorData'] = IndicatorData;
+      		data2['MetaDatas'] = datas['MetaDatas'];
+      		res.send(data2);
+      	});
+		
 	});
 };

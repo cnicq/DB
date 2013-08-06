@@ -100,66 +100,99 @@ function type(d) {
   return d;
 }
 
-function ShowBarChart(MetaDatas)
+// Chart 1 : x for date, y1 for target1-1 value, y2 for target1_2 (line chart)
+
+// Chart 2 : bar chart,  pie chart
+function ShowBarChart(IndicatorData)
 {
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = window.innerWidth/2 - margin.left - margin.right,
-    height = window.innerHeight/2 - margin.top - margin.bottom;
+      width = window.innerWidth/2 - margin.left - margin.right,
+      height = window.innerHeight/2 - margin.top - margin.bottom;
 
-var formatPercent = d3.format(".0%");
+  // if has only one area data, show the area name in title
+  var title = IndicatorData.IndicatorData.NameLoc[0]['Chinese'];
+  var areaNames = [];
+  // chart 1(line chart): If has more than one area, take area as target1,  max to 2 target1
+  // the meta datas can have no target1
+  // Chart 2(can be pie chart,  bar chart and bubble chart):group by target1 or area
 
-var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
+  var strMetaDatas = 'undefined';
+  for (var i = IndicatorData.MetaDatas.length - 1; i >= 0; i--) {
+    if(IndicatorData.MetaDatas[i].AreaLocName != '')
+    {
+        alert(IndicatorData.MetaDatas[i].AreaLocName);
+        if(areaNames.indexOf(IndicatorData.MetaDatas[i].AreaLocName) == -1){
+          areaNames[IndicatorData.MetaDatas[i].AreaLocName] = IndicatorData.MetaDatas[i].AreaLocName;  
+        }
+    }
+  };
 
-var y = d3.scale.linear()
-    .range([height, 0]);
+  alert(IndicatorData.MetaDatas.length);
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
+  if(areaNames.length == 1)
+  {
+      title += areaNames[0];
+  }
 
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left")
-    .tickFormat(formatPercent);
+  $("#page_d3_title").html(title);
 
-var svg = d3.select("#svg_d3")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  var formatPercent = d3.format(".0%");
 
-d3.tsv("data.tsv", function(error, data) {
- 
-  x.domain(data.map(function(d) { return d.letter; }));
-  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+  var x = d3.scale.ordinal()
+      .rangeRoundBands([0, width], .1);
 
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+  var y = d3.scale.linear()
+      .range([height, 0]);
 
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Frequency");
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
 
-  svg.selectAll(".bar")
-      .data(data)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.letter); })
-      .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.frequency); })
-      .attr("height", function(d) { return height - y(d.frequency); });
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .tickFormat(formatPercent);
 
-});
+  var svg = d3.select("#svg_d3")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  /*
+  d3.tsv("data.tsv", function(error, data) {
+   
+    x.domain(data.map(function(d) { return d.letter; }));
+    y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Frequency");
+
+    svg.selectAll(".bar")
+        .data(data)
+      .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d) { return x(d.letter); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.frequency); })
+        .attr("height", function(d) { return height - y(d.frequency); });
+
+  });
+  */
 }
+
 function HideD3()
 {
 

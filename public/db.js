@@ -59,18 +59,21 @@ function IndicatorListItemClicked(sID)
     $.ajax({
     url: '/indicator/' + sID,
     type: 'GET',
-    success: function(MetaDatas){
-
-    ShowBarChart(MetaDatas);
-      alert(MetaDatas[0]._id);
+    
+    success: function(IndicatorData){
+      alert(IndicatorData.MetaDatas);
+    ShowBarChart(IndicatorData);
     },
+
     error: function(xmlHTTPRequest, status, error){
       $.mobile.hidePageLoadingMsg();
       alert("Error : " + error);
     },
+
     beforeSend: function(){
       $.mobile.showPageLoadingMsg();
     },
+    
     complete: function(){
      $.mobile.hidePageLoadingMsg();
     }
