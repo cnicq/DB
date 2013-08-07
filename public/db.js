@@ -61,7 +61,6 @@ function IndicatorListItemClicked(sID)
     type: 'GET',
     
     success: function(IndicatorData){
-      alert(IndicatorData.MetaDatas);
     ShowBarChart(IndicatorData);
     },
 

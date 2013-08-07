@@ -105,36 +105,40 @@ function type(d) {
 // Chart 2 : bar chart,  pie chart
 function ShowBarChart(IndicatorData)
 {
-  var margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = window.innerWidth/2 - margin.left - margin.right,
-      height = window.innerHeight/2 - margin.top - margin.bottom;
+ 
 
   // if has only one area data, show the area name in title
   var title = IndicatorData.IndicatorData.NameLoc[0]['Chinese'];
   var areaNames = [];
-  // chart 1(line chart): If has more than one area, take area as target1,  max to 2 target1
-  // the meta datas can have no target1
-  // Chart 2(can be pie chart,  bar chart and bubble chart):group by target1 or area
-
-  var strMetaDatas = 'undefined';
   for (var i = IndicatorData.MetaDatas.length - 1; i >= 0; i--) {
-    if(IndicatorData.MetaDatas[i].AreaLocName != '')
+    if(IndicatorData.MetaDatas[i].AreaNameLoc != '')
     {
-        alert(IndicatorData.MetaDatas[i].AreaLocName);
-        if(areaNames.indexOf(IndicatorData.MetaDatas[i].AreaLocName) == -1){
-          areaNames[IndicatorData.MetaDatas[i].AreaLocName] = IndicatorData.MetaDatas[i].AreaLocName;  
+        if(areaNames.indexOf(IndicatorData.MetaDatas[i].AreaNameLoc) == -1){
+          areaNames.push(IndicatorData.MetaDatas[i].AreaNameLoc);  
         }
     }
   };
 
-  alert(IndicatorData.MetaDatas.length);
+  // chart 1(line chart): If has more than one area, take area as target1,  max to two
+  // x for time, y-1 for value
 
-  if(areaNames.length == 1)
-  {
-      title += areaNames[0];
+  if (areaNames.length > 1) {
+
+  };
+  // Note that the meta datas can have no target1, so
+  // Chart 2(can be pie chart,  bar chart and bubble chart):group by target1 or area
+  
+
+  // set title of page_d3 
+  if(areaNames.length == 1) {
+      title = '(' + areaNames[0] + ') ' + title;
   }
 
   $("#page_d3_title").html(title);
+
+  var margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = window.innerWidth/2 - margin.left - margin.right,
+      height = window.innerHeight/2 - margin.top - margin.bottom;
 
   var formatPercent = d3.format(".0%");
 
