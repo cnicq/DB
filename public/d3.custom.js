@@ -157,12 +157,21 @@ function ShowBarChart(IndicatorData)
       .orient("left")
       .tickFormat(formatPercent);
 
+  var dataset = [1,2,3,4,5];
   var svg = d3.select("#svg_d3")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  svg.selectAll("rect")
+      .data(dataset)
+      .enter()
+      .append("rect")
+      .attr("x", function(d, i) { return (i * 100); })
+      .attr("y", 10)
+      .attr("width", 5)
+      .attr("height", 5);
   /*
   d3.tsv("data.tsv", function(error, data) {
    
