@@ -1,3 +1,116 @@
+
+function ShowChart(IndicatorData) {
+  if (IndicatorData.MetaDatas.length == 0) { return; }
+
+  var nMetaDatasNum = IndicatorData.MetaDatas.length;
+  // Set page_d3 title
+  var nAreaNum = SetTitle(IndicatorData);
+  // Set target1 in header options
+  $('#select_d3_target1 option').remove();
+  $('#select_d3_target2 option').remove();
+  for (var i = nMetaDatasNum - 1; i >= 0; i--) {
+    if (IndicatorData.MetaDatas[i].Target1NameLoc != undefined) {
+      $('#select_d3_target1').append("<option value=" + i + ">" + IndicatorData.MetaDatas[i].Target1NameLoc+ "</option>");
+    };
+    if (IndicatorData.MetaDatas[i].Target2NameLoc != undefined) {
+      $('#select_d3_target2').append("<option value=" + i + ">" + IndicatorData.MetaDatas[i].Target2NameLoc+ "</option>");
+    };
+  };
+  
+
+  if (nMetaDatasNum >= 1) {
+      ShowLineChart(IndicatorData);
+  };
+}
+
+function ShowLineChart(IndicatorData) {
+
+  var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+  var padding = 100;
+  var parseDate = d3.time.format("%Y.%m").parse;
+  for (var i = IndicatorData.MetaDatas[0].Datas.length - 1; i >= 0; i--) {
+      IndicatorData.MetaDatas[0].Datas[i].Date = parseDate(IndicatorData.MetaDatas[0].Datas[i].Date);
+  };
+
+  var x = d3.time.scale()
+      .range([0, width]);
+
+  var y = d3.scale.linear()
+      .range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+
+  var line = d3.svg.line()
+      .x(function(d) { return x(d.Date) + padding; })
+      .y(function(d) { return y(d.Value); });
+
+  $('#svg_d3').empty();
+  var svg = d3.select("#svg_d3");
+
+  svg.attr("width", width + margin.left + margin.right)
+     .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(d3.extent(IndicatorData.MetaDatas[0].Datas, function(d) { return d.Date; }));
+    y.domain(d3.extent(IndicatorData.MetaDatas[0].Datas, function(d) { return d.Value; }));
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(" + padding + "," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + padding  + ",0)")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".7em")
+        .style("text-anchor", "end")
+        .text("Value");
+
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", line(IndicatorData.MetaDatas[0].Datas))
+        .style({
+          "fill": "none",
+          "stroke": "#000",
+        });
+
+/*
+    var color = d3.scale.ordinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+    var legend = svg.selectAll(".legend")
+      .data(IndicatorData.MetaDatas)
+    .enter().append("g")
+      .attr("class", "legend");
+
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", color);
+
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(IndicatorData.MetaDatas[0].Target1NameLoc);
+        */
+}
+
 function ShowGroupBarChart(MetaDatas)
 {
   var margin = {top: 20, right: 20, bottom: 20, left: 20},
@@ -100,14 +213,9 @@ function type(d) {
   return d;
 }
 
-// Chart 1 : x for date, y1 for target1-1 value, y2 for target1_2 (line chart)
+function SetTitle(IndicatorData) {
 
-// Chart 2 : bar chart,  pie chart
-function ShowBarChart(IndicatorData)
-{
- 
-
-  // if has only one area data, show the area name in title
+   // if has only one area data, show the area name in title
   var title = IndicatorData.IndicatorData.NameLoc[0]['Chinese'];
   var areaNames = [];
   for (var i = IndicatorData.MetaDatas.length - 1; i >= 0; i--) {
@@ -119,22 +227,29 @@ function ShowBarChart(IndicatorData)
     }
   };
 
-  // chart 1(line chart): If has more than one area, take area as target1,  max to two
-  // x for time, y-1 for value
-
-  if (areaNames.length > 1) {
-
-  };
-  // Note that the meta datas can have no target1, so
-  // Chart 2(can be pie chart,  bar chart and bubble chart):group by target1 or area
-  
-
   // set title of page_d3 
   if(areaNames.length == 1) {
       title = '(' + areaNames[0] + ') ' + title;
   }
 
   $("#page_d3_title").html(title);
+
+  return areaNames.length;
+}
+
+function ShowBarChart(IndicatorData) {
+ 
+  var nAreaNum = SetTitle(IndicatorData);
+
+  // chart 1(line chart): If has more than one area, take area as target1,  max to two
+  // x for time, y-1 for value
+
+  if (nAreaNum > 1) {
+
+  };
+  // Note that the meta datas can have no target1, so
+  // Chart 2(can be pie chart,  bar chart and bubble chart):group by target1 or area
+  
 
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = window.innerWidth/2 - margin.left - margin.right,

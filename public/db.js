@@ -61,7 +61,7 @@ function IndicatorListItemClicked(sID)
     type: 'GET',
     
     success: function(IndicatorData){
-    ShowBarChart(IndicatorData);
+      ShowChart(IndicatorData);
     },
 
     error: function(xmlHTTPRequest, status, error){
