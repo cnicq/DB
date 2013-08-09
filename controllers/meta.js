@@ -19,7 +19,6 @@ exports.id = function(req, res, next){
       	datas['MetaDatas'] = MetaDatas;
       	Indicator.getIndicatorByID(_id, function(error, IndicatorData) {
       		datas['IndicatorData'] = IndicatorData;
-      		console.log(datas);
       		res.send(datas);
       	});
 		
