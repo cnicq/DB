@@ -60,8 +60,9 @@ function IndicatorListItemClicked(sID)
     url: '/indicator/' + sID,
     type: 'GET',
     
-    success: function(IndicatorData){
-      ShowChart(IndicatorData);
+    success: function(Data){
+      IndicatorData = Data
+      ShowChart();
     },
 
     error: function(xmlHTTPRequest, status, error){

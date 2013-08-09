@@ -1,37 +1,112 @@
+var IndicatorData;
+var Target1Data = [];
+var Target2Data = [];
+var AreaData = [];
 
-function ShowChart(IndicatorData) {
+function ShowChart() {
+
   if (IndicatorData.MetaDatas.length == 0) { return; }
 
   var nMetaDatasNum = IndicatorData.MetaDatas.length;
+
   // Set page_d3 title
-  var nAreaNum = SetTitle(IndicatorData);
+  var nAreaNum = SetTitle();
+
+  // Set datas for use
+  Target1Data.length = 0;
+  Target2Data.length = 0;
+  AreaData.length = 0;
+
+  for (var i = nMetaDatasNum - 1; i >= 0; i--) {
+    if (IndicatorData.MetaDatas[i].Target1NameLoc != undefined &&
+     Target1Data.indexOf(IndicatorData.MetaDatas[i].Target1NameLoc) == -1) {
+        Target1Data.push(IndicatorData.MetaDatas[i].Target1NameLoc);
+    };
+    if (IndicatorData.MetaDatas[i].Target2NameLoc != undefined &&
+     Target2Data.indexOf(IndicatorData.MetaDatas[i].Target2NameLoc) == -1) {
+      Target2Data.push(IndicatorData.MetaDatas[i].Target2NameLoc);
+    };
+    if(IndicatorData.MetaDatas[i].AreaNameLoc != undefined && 
+      AreaData.indexOf(IndicatorData.MetaDatas[i].AreaNameLoc) == -1) {
+      AreaData.push(IndicatorData.MetaDatas[i].AreaNameLoc);
+    };
+  }
+
   // Set target1 in header options
   $('#select_d3_target1 option').remove();
   $('#select_d3_target2 option').remove();
-  for (var i = nMetaDatasNum - 1; i >= 0; i--) {
-    if (IndicatorData.MetaDatas[i].Target1NameLoc != undefined) {
-      $('#select_d3_target1').append("<option value=" + i + ">" + IndicatorData.MetaDatas[i].Target1NameLoc+ "</option>");
+
+  if (Target1Data.length > 0) {
+    for (var i = Target1Data.length - 1; i >= 0; i--) {
+      $('#select_d3_target1').append("<option value=" + Target1Data[i] + ">" + Target1Data[i]+ "</option>");
     };
-    if (IndicatorData.MetaDatas[i].Target2NameLoc != undefined) {
-      $('#select_d3_target2').append("<option value=" + i + ">" + IndicatorData.MetaDatas[i].Target2NameLoc+ "</option>");
+  }
+  else{
+    for (var i = AreaData.length - 1; i >= 0; i--) {
+      $('#select_d3_target1').append("<option value=" + AreaData[i] + ">" + AreaData[i]+ "</option>");
+    };
+  }
+
+  if (Target2Data.length > 0) {
+    for (var i = Target2Data.length - 1; i >= 0; i--) {
+      $('#select_d3_target2').append("<option value=" + Target2Data[i] + ">" + Target2Data[i]+ "</option>");
     };
   };
-  
+
+  var myselect = $("#select_d3_target2");
+  myselect.val(0);
+  myselect.selectmenu("refresh");
+  myselect = $("#select_d3_target1");
+  myselect.val(0);
+  myselect.selectmenu("refresh");
+
+  $("#select_d3_target2").change(function () {
+    var $this = $(this),
+    val   = $this.val();
+    ShowLineChart(GetIndexByTarget2Name(val));
+  });
 
   if (nMetaDatasNum >= 1) {
-      ShowLineChart(IndicatorData);
+      ShowLineChart(0);
   };
 }
 
-function ShowLineChart(IndicatorData) {
+function GetIndexByTarget2Name(name) {
+  for (var i = IndicatorData.MetaDatas.length - 1; i >= 0; i--) {
+    if(IndicatorData.MetaDatas[i].Target2NameLoc == name){
+      return i;
+    }
+  };
+
+  return 0;
+}
+
+function ShowLineChart(nTarget2Index) {
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
   var padding = 100;
+  
+  // clone data
+  var MetaData = jQuery.extend(true, {}, IndicatorData.MetaDatas[nTarget2Index]);
+
   var parseDate = d3.time.format("%Y.%m").parse;
-  for (var i = IndicatorData.MetaDatas[0].Datas.length - 1; i >= 0; i--) {
-      IndicatorData.MetaDatas[0].Datas[i].Date = parseDate(IndicatorData.MetaDatas[0].Datas[i].Date);
+  switch (IndicatorData.MetaDatas[nTarget2Index].Period){
+    case 'year':
+      parseDate = d3.time.format("%Y").parse;
+      break;
+    case 'month':
+      parseDate = d3.time.format("%Y.%m").parse;
+      break;
+    case 'day':
+     parseDate = d3.time.format("%Y.%m.%d").parse;
+      break;
+    default:
+      break;
+  }
+  for (var i = MetaData.Datas.length - 1; i >= 0; i--) {
+      MetaData.Datas[i].Date = parseDate(MetaData.Datas[i].Date);
   };
 
   var x = d3.time.scale()
@@ -60,8 +135,8 @@ function ShowLineChart(IndicatorData) {
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain(d3.extent(IndicatorData.MetaDatas[0].Datas, function(d) { return d.Date; }));
-    y.domain(d3.extent(IndicatorData.MetaDatas[0].Datas, function(d) { return d.Value; }));
+    x.domain(d3.extent(MetaData.Datas, function(d) { return d.Date; }));
+    y.domain(d3.extent(MetaData.Datas, function(d) { return d.Value; }));
 
     svg.append("g")
         .attr("class", "x axis")
@@ -81,11 +156,13 @@ function ShowLineChart(IndicatorData) {
 
     svg.append("path")
         .attr("class", "line")
-        .attr("d", line(IndicatorData.MetaDatas[0].Datas))
+        .attr("d", line(MetaData.Datas))
         .style({
           "fill": "none",
           "stroke": "#000",
         });
+
+
 
 /*
     var color = d3.scale.ordinal()
@@ -213,7 +290,7 @@ function type(d) {
   return d;
 }
 
-function SetTitle(IndicatorData) {
+function SetTitle() {
 
    // if has only one area data, show the area name in title
   var title = IndicatorData.IndicatorData.NameLoc[0]['Chinese'];
@@ -237,9 +314,9 @@ function SetTitle(IndicatorData) {
   return areaNames.length;
 }
 
-function ShowBarChart(IndicatorData) {
+function ShowBarChart() {
  
-  var nAreaNum = SetTitle(IndicatorData);
+  var nAreaNum = SetTitle();
 
   // chart 1(line chart): If has more than one area, take area as target1,  max to two
   // x for time, y-1 for value
