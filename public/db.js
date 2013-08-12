@@ -49,7 +49,7 @@ $(document).ready(function(){
   });
 
   $("#page_d3").bind("pagehide", function(event,ui){
-     HideD3();
+     ResetChart();
   });
 
 })

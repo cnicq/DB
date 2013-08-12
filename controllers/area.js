@@ -13,5 +13,15 @@ exports.GetAreas = function() {
 };
 
 exports.GetAreaChineseName = function(id) {
+	var name = exports.Areas[id];
+	if (name == undefined) {
+		Area.getAreaByID(id, function (err, Data) {
+			if (err) {
+		      return name;
+		    }
+			exports.Areas[id] = Data.NameLoc[0]['Chinese'];
+		});
+	}
+
 	return exports.Areas[id];
 }
