@@ -9,13 +9,13 @@ $(document).ready(function(){
   };
 
   $.ajax({
-    url: '/indicator/newest',
+    url: '/combined/newest',
     type: 'GET',
     success: function(data){
       
       var $html_str = "";
       $(data).each(function(te, u) {
-        $html_str += (String.format("<a href=\"#page_d3\" onclick=\"IndicatorListItemClicked('{0}')\" id={0}><li class=\"ui-li ui-li-static ui-btn-up-c ui-first-child ui-last-child\">{1}</li></a>", u['_id'], u["NameLoc"][0]["Chinese"]));
+        $html_str += (String.format("<a href=\"#page_d3\" onclick=\"CombinedListItemClicked('{0}')\" id={0}><li class=\"ui-li ui-li-static ui-btn-up-c ui-first-child ui-last-child\">{1}</li></a>", u['_id'], u["NameLoc"][0]["Chinese"]));
       });
 
       $("#list1").append($html_str);
@@ -54,14 +54,14 @@ $(document).ready(function(){
 
 })
 
-function IndicatorListItemClicked(sID)
+function CombinedListItemClicked(sID)
 {
     $.ajax({
-    url: '/indicator/' + sID,
+    url: '/combined/' + sID,
     type: 'GET',
     
     success: function(Data){
-      IndicatorData = Data
+      CombinedData = Data
       ShowChart();
     },
 
