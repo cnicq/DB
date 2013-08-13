@@ -62,6 +62,10 @@ function CombinedListItemClicked(sID)
     
     success: function(Data){
       CombinedData = Data
+      if (CombinedData.MetaDatas.length == 0) {
+        $('#svg_d3_msg').text('No Data');
+        return;
+      }
       ShowChart();
     },
 

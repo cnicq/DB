@@ -1,4 +1,4 @@
-var IndicatorData;
+var CombinedData;
 var Target1Data = [];
 var Target2Data = [];
 var AreaData = [];
@@ -7,8 +7,9 @@ var Target1Index = 0, Target2Index = 0;
 var SelectedDate = undefined;
 
 function SetTitle() {
+
    // if has only one area data, show the area name in title
-  var title = IndicatorData.IndicatorData.NameLoc[0]['Chinese'];
+  var title = CombinedData.IndicatorData.NameLoc[0]['Chinese'];
 
   // set title of page_d3 
   if(AreaData.length == 1) {
@@ -22,22 +23,22 @@ function SetTitle() {
 
 function ShowChart() {
 
-  if (IndicatorData.MetaDatas.length == 0) { return; }
-  var nMetaDatasNum = IndicatorData.MetaDatas.length;
+  if (CombinedData.MetaDatas.length == 0) { return; }
+  var nMetaDatasNum = CombinedData.MetaDatas.length;
 
   for (var i = nMetaDatasNum - 1; i >= 0; i--) {
-    if (IndicatorData.MetaDatas[i].Target1NameLoc != undefined &&
-     Target1Data.indexOf(IndicatorData.MetaDatas[i].Target1NameLoc) == -1) {
+    if (CombinedData.MetaDatas[i].Target1NameLoc != undefined &&
+     Target1Data.indexOf(CombinedData.MetaDatas[i].Target1NameLoc) == -1) {
         
-        Target1Data.push(IndicatorData.MetaDatas[i].Target1NameLoc);
+        Target1Data.push(CombinedData.MetaDatas[i].Target1NameLoc);
     };
-    if (IndicatorData.MetaDatas[i].Target2NameLoc != undefined &&
-     Target2Data.indexOf(IndicatorData.MetaDatas[i].Target2NameLoc) == -1) {
-      Target2Data.push(IndicatorData.MetaDatas[i].Target2NameLoc);
+    if (CombinedData.MetaDatas[i].Target2NameLoc != undefined &&
+     Target2Data.indexOf(CombinedData.MetaDatas[i].Target2NameLoc) == -1) {
+      Target2Data.push(CombinedData.MetaDatas[i].Target2NameLoc);
     };
-    if(IndicatorData.MetaDatas[i].AreaNameLoc != undefined && 
-      AreaData.indexOf(IndicatorData.MetaDatas[i].AreaNameLoc) == -1) {
-      AreaData.push(IndicatorData.MetaDatas[i].AreaNameLoc);
+    if(CombinedData.MetaDatas[i].AreaNameLoc != undefined && 
+      AreaData.indexOf(CombinedData.MetaDatas[i].AreaNameLoc) == -1) {
+      AreaData.push(CombinedData.MetaDatas[i].AreaNameLoc);
     };
   }
 
@@ -122,16 +123,16 @@ function GetIndexByTarget2Name(name) {
 }
 
 function CloneMetaDataBySelectIndex() {
-  for (var i = IndicatorData.MetaDatas.length - 1; i >= 0; i--) {
+  for (var i = CombinedData.MetaDatas.length - 1; i >= 0; i--) {
     if (Target1IsArea) {
-        if(IndicatorData.MetaDatas[i].AreaNameLoc == AreaData[Target1Index] && 
-          IndicatorData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index])
-          return jQuery.extend(true, {}, IndicatorData.MetaDatas[i]);
+        if(CombinedData.MetaDatas[i].AreaNameLoc == AreaData[Target1Index] && 
+          CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index])
+          return jQuery.extend(true, {}, CombinedData.MetaDatas[i]);
     }
     else{
-       if(IndicatorData.MetaDatas[i].Target1NameLoc == Target1Data[Target1Index] && 
-          IndicatorData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index])
-          return jQuery.extend(true, {}, IndicatorData.MetaDatas[i]);
+       if(CombinedData.MetaDatas[i].Target1NameLoc == Target1Data[Target1Index] && 
+          CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index])
+          return jQuery.extend(true, {}, CombinedData.MetaDatas[i]);
     }
   };
   return undefined;
@@ -145,19 +146,19 @@ function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
 
   var MetaData = {};
 
-  for (var i = IndicatorData.MetaDatas.length - 1; i >= 0; i--) {
+  for (var i = CombinedData.MetaDatas.length - 1; i >= 0; i--) {
     if (IsTarget1Base) {
-      if ((Target1IsArea && IndicatorData.MetaDatas[i].AreaNameLoc == AreaData[Target1Index]) || 
-          (Target1Data.length > 0 && IndicatorData.MetaDatas[i].Target1NameLoc == Target1Data[Target1Index])) {
+      if ((Target1IsArea && CombinedData.MetaDatas[i].AreaNameLoc == AreaData[Target1Index]) || 
+          (Target1Data.length > 0 && CombinedData.MetaDatas[i].Target1NameLoc == Target1Data[Target1Index])) {
           
-          for (var j = IndicatorData.MetaDatas[i].Datas.length - 1; j >= 0; j--) {
-            if(IndicatorData.MetaDatas[i].Datas[j].Date == SelectedDate){
+          for (var j = CombinedData.MetaDatas[i].Datas.length - 1; j >= 0; j--) {
+            if(CombinedData.MetaDatas[i].Datas[j].Date == SelectedDate){
 
-              MetaData.AreaNameLoc = IndicatorData.MetaDatas[i].AreaNameLoc;
-              MetaData.Target1NameLoc = IndicatorData.MetaDatas[i].Target1NameLoc;
-              MetaData.Target2NameLoc = IndicatorData.MetaDatas[i].Target2NameLoc;
+              MetaData.AreaNameLoc = CombinedData.MetaDatas[i].AreaNameLoc;
+              MetaData.Target1NameLoc = CombinedData.MetaDatas[i].Target1NameLoc;
+              MetaData.Target2NameLoc = CombinedData.MetaDatas[i].Target2NameLoc;
               MetaData.Date = SelectedDate;
-              MetaData.Value = IndicatorData.MetaDatas[i].Datas[j].Value;
+              MetaData.Value = CombinedData.MetaDatas[i].Datas[j].Value;
 
               break;
             }
@@ -166,14 +167,14 @@ function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
       };
     }
     if (IsTarget2Base) {
-       if (IndicatorData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index]) {
-          for (var j = IndicatorData.MetaDatas[i].Datas.length - 1; j >= 0; j--) {
-            if(IndicatorData.MetaDatas[i].Datas[j].Date == SelectedDate){
-              MetaData.AreaNameLoc = IndicatorData.MetaDatas[i].AreaNameLoc;
-              MetaData.Target1NameLoc = IndicatorData.MetaDatas[i].Target1NameLoc;
-              MetaData.Target2NameLoc = IndicatorData.MetaDatas[i].Target2NameLoc;
+       if (CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index]) {
+          for (var j = CombinedData.MetaDatas[i].Datas.length - 1; j >= 0; j--) {
+            if(CombinedData.MetaDatas[i].Datas[j].Date == SelectedDate){
+              MetaData.AreaNameLoc = CombinedData.MetaDatas[i].AreaNameLoc;
+              MetaData.Target1NameLoc = CombinedData.MetaDatas[i].Target1NameLoc;
+              MetaData.Target2NameLoc = CombinedData.MetaDatas[i].Target2NameLoc;
               MetaData.Date = SelectedDate;
-              MetaData.Value = IndicatorData.MetaDatas[i].Datas[j].Value;
+              MetaData.Value = CombinedData.MetaDatas[i].Datas[j].Value;
               //alert(MetaData.Target1NameLoc + MetaData.Target2NameLoc);
                break;
             }
@@ -336,7 +337,7 @@ function ShowLineChart() {
     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
     var legend = svg.selectAll(".legend")
-      .data(IndicatorData.MetaDatas)
+      .data(CombinedData.MetaDatas)
     .enter().append("g")
       .attr("class", "legend");
 
@@ -351,7 +352,7 @@ function ShowLineChart() {
         .attr("y", 9)
         .attr("dy", ".35em")
         .style("text-anchor", "end")
-        .text(IndicatorData.MetaDatas[0].Target1NameLoc);
+        .text(CombinedData.MetaDatas[0].Target1NameLoc);
         */
 }
 
