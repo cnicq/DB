@@ -41,7 +41,7 @@ exports.byid = function(req, res, next){
 };
 
 exports.newest = function(req, res, next){
-	var opt = {limit: 20};
+	var opt = {limit: 10};
 
 	Combined.getCombinedsByQuery({}, opt, function (err, combineds) {
 		if (err) {

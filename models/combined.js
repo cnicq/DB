@@ -7,6 +7,8 @@ var CombinedDataSchema = new Schema({
 	NameLoc: { type: Array },
 	Conditions: { type: Array },
 	CombinedType: { type: Number },
+	UpdateTime: { type: String },
+	NoteLoc: { type: Array },
 });
 
 mongoose.model('CombinedData', CombinedDataSchema, 'CombinedData');

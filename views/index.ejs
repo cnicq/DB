@@ -15,25 +15,16 @@
   <body>
   	<div data-role="page" id="page_recommand">
 	  	<div data-role="header" data-position="fixed" >
-		    <span class="ui-title">推荐</span>
+		    <span class="ui-title">最近更新</span>
 		</div><!-- /header -->
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content1">
-			<ul data-role="listview" id="list1">
+
+			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list1">
+				<!-- <li data-role="list-divider"><a href="" onclick="OnClickPrevPage()">前一页</a> <a href="" onclick="OnClickPrevPage()">后一页</a><span class="ui-li-count"></span></li> -->
 			</ul>
 
 		</div><!-- /content1 -->
 
-		<div data-role="footer" data-id="foo1" data-position="fixed">
-			<div data-role="navbar">
-				<ul>
-					<li><a href="#page_recommand" data-prefetch="true" data-transition="none" id="recom" data-icon="custom" class="ui-btn-active ui-state-persist">推荐</a></li>
-					<li><a href="#page_newest" data-prefetch="true" data-transition="none" id="newest" data-icon="custom">最新</a></li>
-					<li><a href="#" data-prefetch="true" data-transition="none" id="fav" data-icon="custom">收藏</a></li>
-					<li><a href="#" data-prefetch="true" data-transition="none" id="cata" data-icon="custom">大全</a></li>
-					<li><a href="#" data-prefetch="true" data-transition="none" id="more" data-icon="custom">更多...</a></li>
-				</ul>
-			</div><!-- /navbar -->
-		</div><!-- /footer -->
 	</div><!-- /page1 -->
 
 	<div data-role="page" id="page_d3" data-add-back-btn="true">
@@ -61,8 +52,6 @@
 		<div data-role="panel" id="d3_right_panel" data-display="overlay" data-position="right" data-theme="c">
 	        <ul data-role="listview" data-theme="d" data-icon="false">
 	            <li data-icon="delete"><a href="#" data-rel="close">Close</a></li>
-	           
-
 	        </ul>
     	</div><!-- /right panel -->
 
@@ -70,25 +59,25 @@
 
 	<div data-role="page" id="page_newest">
 	  	<div data-role="header" data-position="fixed" >
-		    <a href="#" data-icon="gear" class="ui-btn-right">Options</a>
+		    <a href="#" data-icon="gear" class="ui-btn-right">账号</a>
 		    <span class="ui-title"><%= title %></span>
 		</div><!-- /header -->
 
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content2">
 
 			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages...">
-				<li data-role="list-divider">Friday, October 8, 2010 <span class="ui-li-count">2</span></li>
+				<!--<li data-role="list-divider">Catelog1 Catelog1 Catelog1 Catelog1<span class="ui-li-count">1</span></li> -->
 				<li><a href="#">
-					<h3>Stephen Weber</h3>
-					<p><strong>You've been invited to a meeting at Filament Group in Boston, MA</strong></p>
+					<h3>Combined Data Title</h3>
+					
 					<p>Hey Stephen, if you're available at 10am tomorrow, we've got a meeting with the jQuery team.</p>
-					<p class="ui-li-aside"><strong>6:24</strong>PM</p>
+					<p class="ui-li-aside"><strong>Update Date</strong></p>
 				</a></li>
 				<li><a href="#">
-					<h3>jQuery Team</h3>
-					<p><strong>Boston Conference Planning</strong></p>
+					<h3>Combined Data Title</h3>
+					
 					<p>In preparation for the upcoming conference in Boston, we need to start gathering a list of sponsors and speakers.</p>
-					<p class="ui-li-aside"><strong>9:18</strong>AM</p>
+					<p class="ui-li-aside"><strong>Update Date</strong></p>
 				</a></li>
 			</ul>
 
