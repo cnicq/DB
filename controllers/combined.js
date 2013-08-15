@@ -41,9 +41,14 @@ exports.byid = function(req, res, next){
 };
 
 exports.newest = function(req, res, next){
-	var opt = {limit: 10};
-
-	Combined.getCombinedsByQuery({}, opt, function (err, combineds) {
+	var limit = 10;
+	var page = req.params.page;
+	if (page == undefined) {
+		page = 0;
+	};
+	
+	var options = { skip: (page) * limit, limit: limit, sort: [ ['UpdateTime', 'desc' ]] };
+	Combined.getCombinedsByQuery({}, options, function (err, combineds) {
 		if (err) {
 			return next(err);
 		}

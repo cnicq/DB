@@ -5,7 +5,7 @@ var combined = require('./controllers/combined');
 module.exports = function(app){
 
   app.get('/', index.index);
-  app.get('/combined/newest', combined.newest);
+  app.get('/combined/newest/:page', combined.newest);
   app.get('/combined/:id', combined.byid);
   
   app.get('/mongodb', index.mongodb);
