@@ -13,5 +13,15 @@ exports.GetTargets = function() {
 };
 
 exports.GetTargetChineseName = function(id) {
+	var name = exports.Targets[id];
+	if (name == undefined) {
+		Target.getTargetByID(id, function (err, Data) {
+			if (err) {
+		      return name;
+		    }
+			exports.Targets[id] = Data.NameLoc[0]['Chinese'];
+		});
+	}
+
 	return exports.Targets[id];
 }
