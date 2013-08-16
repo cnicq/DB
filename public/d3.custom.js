@@ -15,8 +15,7 @@ function SetTitle() {
   if(AreaData.length == 1) {
       title = '(' + AreaData[0] + ') ' + title;
   }
-
-  $("#page_d3_title").html(title);
+  $("#page_d3_title").html(title + " - 浏览量:" + CombinedData.CombinedData['Views']);
 
   return AreaData.length;
 }

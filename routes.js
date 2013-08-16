@@ -6,6 +6,8 @@ module.exports = function(app){
 
   app.get('/', index.index);
   app.get('/combined/newest/:page', combined.newest);
+  app.get('/combined/hotest/:page', combined.hotest);
+  app.get('/combined/search/:keyword', combined.search);
   app.get('/combined/:id', combined.byid);
   
   app.get('/mongodb', index.mongodb);

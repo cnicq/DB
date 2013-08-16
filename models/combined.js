@@ -9,6 +9,7 @@ var CombinedDataSchema = new Schema({
 	CombinedType: { type: Number },
 	UpdateTime: { type: String },
 	NoteLoc: { type: Array },
+	Views:{ type:Number, default:0 }
 });
 
 mongoose.model('CombinedData', CombinedDataSchema, 'CombinedData');

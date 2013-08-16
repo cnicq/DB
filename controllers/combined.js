@@ -32,6 +32,14 @@ exports.byid = function(req, res, next){
 		      	Indicator.getIndicatorByID(data['Conditions'][0]['IndicatorID'] , function(error, IndicatorData) {
 		      		datas['IndicatorData'] = IndicatorData;
 		      		datas['CombinedData'] = data;
+
+		      		// add view
+		      		Combined.increaseViews(_id, function(err, numAffect){
+		      			if (err) {
+				  			return next(err);
+						}
+		      		});
+
 		      		return res.send(datas);
 		      	});
 			
@@ -53,6 +61,35 @@ exports.newest = function(req, res, next){
 			return next(err);
 		}
 
+		res.send(combineds);
+	});
+};
+
+exports.hotest = function(req, res, next){
+	var limit = 10;
+	var page = req.params.page;
+	if (page == undefined) {
+		page = 0;
+	};
+	
+	var options = { skip: (page) * limit, limit: limit, sort: [ ['Views', 'desc' ]] };
+	Combined.getCombinedsByQuery({}, options, function (err, combineds) {
+		if (err) {
+			return next(err);
+		}
+		res.send(combineds);
+	});
+};
+
+exports.search = function(req, res, next){
+	var keyword = req.params.keyword;
+	var regularExpression = new RegExp(".*" + keyword + ".*");
+	var conditions = { "NameLoc.Chinese" : regularExpression};
+	var options = { sort: [ ['UpdateTime', 'desc' ]] };
+	Combined.getCombinedsByQuery(conditions, options, function (err, combineds) {
+		if (err) {
+			return next(err);
+		}
 		res.send(combineds);
 	});
 };

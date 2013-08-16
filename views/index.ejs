@@ -15,20 +15,22 @@
   </script>
   </head>
   <body>
-  	<div data-role="page" id="page_recommand">
+  	<!-- page_combineddata start -->
+  	<div data-role="page" id="page_combineddata">
 	  	<div data-role="header" data-position="fixed" >
-		    <span class="ui-title">最近更新</span>
+		    <span class="ui-title">读数网络</span>
+		    <a href="#page_search" data-icon="search" class="ui-btn-right">搜索</a>
 		</div><!-- /header -->
-		
-		<div data-role="content" class="jqm-content jqm-fullwidth" id="content1">
-			
-			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list1">
-				<li data-role="list-divider">
-					<a href="" onclick="OnClickFirstPage()">首页</a>
-					<a href="" onclick="OnClickPrevPage()">前一页</a> 
-					<span id = "list1_page">第N页</span>
-					<a href="" onclick="OnClickNextPage()">后一页</a>
-					<span class="ui-li-count"></span></li>
+		 <div data-role="navbar" id="title_navbar">
+	        <ul>
+	            <li><a href="#" onclick="OnClickNewest()" class="ui-btn-active" id="title_newest">最新</a></li>
+	            <li><a href="#" onclick="OnClickHotest()" id="title_hotest">最热</a></li>
+	            <li><a href="#" onclick="OnClickCatalog()" id="title_catalog">分类</a></li>
+	        </ul>
+	  	  	</div><!-- /navbar -->
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_combineddata">
+
+			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_combineddata">
 			</ul>
 		</div><!-- /content1 -->
 
@@ -37,13 +39,42 @@
 				<li data-role="list-divider">
 					<a href="" onclick="OnClickFirstPage()">首页</a>
 					<a href="" onclick="OnClickPrevPage()">前一页</a> 
-					<span id = "list1_page">第N页</span>
+					<span id = "combineddata_page">第N页</span>
 					<a href="" onclick="OnClickNextPage()">后一页</a>
 					<span class="ui-li-count"></span></li>
 			</ul>
 		</div>
-	</div><!-- /page1 -->
+	</div>
+	<!-- page_combineddata end -->
 
+<!-- page_search start -->
+  	<div data-role="page" id="page_search" data-add-back-btn="true">
+	  	<div data-role="header" data-position="fixed" >
+		    <span class="ui-title">读数网络-搜索</span>
+		</div><!-- /header -->
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_search">
+			<div data-role="fieldcontain">
+		     <input type="search"  name="search_input" id="search_input" value="" placeholder="">
+		     <a href="#" data-role="button" data-inline="true" onclick="OnClickSearch()">搜索</a>
+		 	</div>
+			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_search">
+			</ul>
+		</div><!-- /content1 -->
+
+		<div data-role="footer" data-id="foo1" data-position="fixed">
+			<ul data-role="content" >
+				<li data-role="list-divider">
+					<a href="" onclick="OnClickFirstPage()">首页</a>
+					<a href="" onclick="OnClickPrevPage()">前一页</a> 
+					<span id = "search_page">第N页</span>
+					<a href="" onclick="OnClickNextPage()">后一页</a>
+					<span class="ui-li-count"></span></li>
+			</ul>
+		</div>
+	</div>
+	<!-- page_newst end -->
+
+	<!-- page_d3 tart -->
 	<div data-role="page" id="page_d3" data-add-back-btn="true">
 	  	<div data-role="header" data-position="fixed" >
 		    <span class="ui-title" id="page_d3_title">指数</span>
@@ -72,46 +103,7 @@
 	        </ul>
     	</div><!-- /right panel -->
 
-	</div><!-- /page_d3 -->
-
-	<div data-role="page" id="page_newest">
-	  	<div data-role="header" data-position="fixed" >
-		    <a href="#" data-icon="gear" class="ui-btn-right">账号</a>
-		    <span class="ui-title"><%= title %></span>
-		</div><!-- /header -->
-
-		<div data-role="content" class="jqm-content jqm-fullwidth" id="content2">
-
-			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages...">
-				<!--<li data-role="list-divider">Catelog1 Catelog1 Catelog1 Catelog1<span class="ui-li-count">1</span></li> -->
-				<li><a href="#">
-					<h3>Combined Data Title</h3>
-					
-					<p>Hey Stephen, if you're available at 10am tomorrow, we've got a meeting with the jQuery team.</p>
-					<p class="ui-li-aside"><strong>Update Date</strong></p>
-				</a></li>
-				<li><a href="#">
-					<h3>Combined Data Title</h3>
-					
-					<p>In preparation for the upcoming conference in Boston, we need to start gathering a list of sponsors and speakers.</p>
-					<p class="ui-li-aside"><strong>Update Date</strong></p>
-				</a></li>
-			</ul>
-
-		</div><!-- /content2 -->
-
-		<div data-role="footer" data-id="foo1" data-position="fixed">
-			<div data-role="navbar">
-				<ul>
-					<li><a href="#page_recommand" data-prefetch="true" data-transition="none" id="recom" data-icon="custom">推荐</a></li>
-					<li><a href="#page_newest" data-prefetch="true" data-transition="none" id="newest" data-icon="custom" class="ui-btn-active ui-state-persist">最新</a></li>
-					<li><a href="#" data-prefetch="true" data-transition="none" id="fav" data-icon="custom">收藏</a></li>
-					<li><a href="#" data-prefetch="true" data-transition="none" id="cata" data-icon="custom">大全</a></li>
-					<li><a href="#" data-prefetch="true" data-transition="none" id="more" data-icon="custom">更多...</a></li>
-				</ul>
-			</div><!-- /navbar -->
-		</div><!-- /footer -->
-
-	</div><!-- /page1 -->
+	</div>
+	<!-- page_d3 tart -->
  </body>
 </html>
