@@ -57,14 +57,17 @@ function LoadData(){
         </a>\
       </li>', 
       u['_id'], u['CombinedType'] == 0 ? "基础数据":"组合数据",
-      u["NameLoc"][0]["Chinese"],
-      u["NoteLoc"][0]['Chinese'],
+      u.NameLoc[0]["Chinese"],
+      u.NoteLoc[0]['Chinese'],
       u["Comments"],
       u["UpdateTime"]);
       });
       $("#list1 li").remove();
       $("#list1").append(html_content['/combined/newest']);
       $("#list1").listview('refresh');
+      if (data.length == 0) {
+        html_content_page['/combined/newest'] -= 1
+      };
       $("#list1_page").text("第" + (html_content_page['/combined/newest'] + 1) + "页");
     },
     error: function(xmlHTTPRequest, status, error){
