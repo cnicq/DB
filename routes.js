@@ -11,12 +11,14 @@ module.exports = function(app){
   app.get('/combined/hotest/:page', combined.hotest);
   app.get('/combined/search/:keyword', combined.search);
   app.get('/combined/catalog/:catalog', combined.catalog);
-  app.get('/combined/:id', combined.byid);
+  app.get('/combined/byid/:id', combined.byid);
   app.get('/catalog', catalog.datas);
   
 
   // management
   app.get('/management', management.index);
   app.get('/management/combineddata', management.combineddata);
-  app.get('/management/RemoveAllMetaCollections', management.mongodb_remove_meta_collections);
+  app.get('/management/combineddata/list/', management.combineddata_list);
+  app.get('/management/RemoveAllMetaCollections', management.remove_meta_collections);
+  app.post('/management/combineddata/update', management.combineddata_update);
 };

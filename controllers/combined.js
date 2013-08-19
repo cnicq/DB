@@ -5,7 +5,6 @@ var Target = require('./target');
 var Indicator = require('../proxy').Indicator;
 
 exports.byid = function(req, res, next){
-
 	var _id = req.params.id;
 	if (_id == "") {
 		return res.send('can not find');

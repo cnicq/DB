@@ -16,3 +16,13 @@ exports.getCountByCondition = function (query, opt, callback) {
 exports.increaseViews = function(id, callback){
 	Combined.update({_id: id}, {$inc:{Views:1}}, { multi: true }, callback);
 }
+
+exports.setCatalogName = function (id, name, callback) {
+
+	if (name == undefined || name == '' || name == "undefined") {
+		Combined.update({_id: id}, {$unset: {CatalogNames:1}}, { multi: false }, callback);
+	}
+	else{
+		Combined.update({_id: id}, {$addToSet: {CatalogNames:name}}, { multi: false }, callback);
+	}
+};

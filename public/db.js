@@ -7,7 +7,7 @@ var html_catalog_item = "/combined/catalog/"
 var html_search = "/combined/search/"
 var html_linkkeyworld = '';
 var html_catalogs = [];
-
+var html_index_keyword = ''
 $(document).ready(function(){
 
   String.format = function(src){
@@ -25,19 +25,20 @@ $(document).ready(function(){
   $("#page_combineddata").bind("pageshow", function(event,ui){
 
       $("#list_search li").remove();
-      if (html_linkkeyworld != html_newest && html_linkkeyworld != html_hotest ) {
-        html_linkkeyworld = html_newest;
+      if (html_index_keyword != html_newest && html_index_keyword != html_hotest ) {
+        html_index_keyword = html_newest;
       };
       $("#title_newest").removeClass($.mobile.activeBtnClass);
       $("#title_hotest").removeClass($.mobile.activeBtnClass);
   
-      if (html_linkkeyworld ==html_newest ) {
+      if (html_index_keyword ==html_newest ) {
           $("#title_newest").addClass($.mobile.activeBtnClass);
       };
-      if (html_linkkeyworld ==html_hotest ) {
+      if (html_index_keyword ==html_hotest ) {
         $("#title_hotest").addClass($.mobile.activeBtnClass);
       };
       $.mobile.hidePageLoadingMsg();
+      html_linkkeyworld=html_index_keyword;
   });
 
   $("#page_catalog").bind("pageshow", function(event,ui){
@@ -151,7 +152,7 @@ function LoadData(){
 function CombinedListItemClicked(sID)
 {
     $.ajax({
-    url: '/combined/' + sID,
+    url: '/combined/byid/' + sID,
     type: 'GET',
     
     success: function(Data){
@@ -197,11 +198,13 @@ function OnClickNextPage(){
 
 function OnClickNewest(){
   html_linkkeyworld = html_newest;
+  html_index_keyword = html_linkkeyworld;
   LoadData();
 }
 
 function OnClickHotest(){
   html_linkkeyworld = html_hotest;
+  html_index_keyword = html_linkkeyworld;
   LoadData();
 }
 

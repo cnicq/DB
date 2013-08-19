@@ -20,6 +20,7 @@ exports.GetCatalogs = function() {
 			}
 		}
 	});
+
 };
 
 exports.datas = function(req, res, next){

@@ -8,3 +8,4 @@ exports.getCatalogs = function (callback) {
 exports.getCatalogByID = function (id, callback) {
   	Catalog.findOne({'_id': id}, callback);
 };
+

@@ -1,15 +1,25 @@
 var mongoose = require('mongoose');
 var config = require('../config').config
+var Combined = require('../proxy/combined');
+var Catalog = require('../proxy').Catalog;
 
 exports.index = function(req, res){
   res.render('management/index', { title: config.app_title });
 };
 
 exports.combineddata = function(req, res){
-  res.render('management/combined', { title: config.app_title });
+  var option = '';
+  Catalog.getCatalogs(function (err, Datas) {
+    for (var i = Datas.length - 1; i >= 0; i--) {
+      if(Datas[i].ParentName != ""){
+        option += Datas[i].Name + ':' + Datas[i].NameLoc[0].Chinese + '-'+ Datas[i].Name + ';'; 
+      }
+    };
+    res.render('management/combined', { title: config.app_title, CatalogOptions: option });  
+  });
 };
 
-exports.mongodb_remove_meta_collections = function(req, res){
+exports.remove_meta_collections = function(req, res){
   	mongoose.connection.db.collectionNames(function (err, names) {
   		for (var i = names.length - 1; i >= 0; i--) {
   			var name = names[i].name.split('.')[1];
@@ -20,5 +30,30 @@ exports.mongodb_remove_meta_collections = function(req, res){
   			};
   		};
 	});
+};
+
+exports.combineddata_list = function(req, res){
+  var limit = req.query.rows;
+  var page = req.query.page - 1;
+
+  var options = { skip: (page) * limit, limit: limit };
+  Combined.getCombinedsByQuery({}, options, function (err, combineds) {
+    if (err) {
+      return next(err);
+    }
+
+    res.send(combineds);
+  });
+};
+
+exports.combineddata_update = function (req, res, next) {
+  var _id = (req.body._id);
+  var catalogName = (req.body.Catalog);
+
+  Combined.setCatalogName(_id, catalogName, function (err, rows) {
+
+    res.redirect('management/combineddata');
+  });
+  
 };
 
