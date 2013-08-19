@@ -9,7 +9,8 @@ var CombinedDataSchema = new Schema({
 	CombinedType: { type: Number },
 	UpdateTime: { type: String },
 	NoteLoc: { type: Array },
-	Views:{ type:Number, default:0 }
+	Views:{ type:Number, default:0 },
+	CatalogNames: { type: Array },
 });
 
 mongoose.model('CombinedData', CombinedDataSchema, 'CombinedData');

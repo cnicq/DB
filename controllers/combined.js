@@ -82,9 +82,23 @@ exports.hotest = function(req, res, next){
 };
 
 exports.search = function(req, res, next){
+
 	var keyword = req.params.keyword;
 	var regularExpression = new RegExp(".*" + keyword + ".*");
 	var conditions = { "NameLoc.Chinese" : regularExpression};
+	var options = { sort: [ ['UpdateTime', 'desc' ]] };
+	Combined.getCombinedsByQuery(conditions, options, function (err, combineds) {
+		if (err) {
+			return next(err);
+		}
+		res.send(combineds);
+	});
+};
+
+exports.catalog = function(req, res, next){
+
+	var catalog = req.params.catalog;
+	var conditions = { "CatalogNames" : {'$in' : [catalog]} };
 	var options = { sort: [ ['UpdateTime', 'desc' ]] };
 	Combined.getCombinedsByQuery(conditions, options, function (err, combineds) {
 		if (err) {

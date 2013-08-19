@@ -13,9 +13,11 @@ require('./indicator');
 require('./area');
 require('./target');
 require('./combined');
+require('./catalog');
 
 exports.Indicator = mongoose.model('IndicatorData');
 exports.Meta = require('./meta').MetaModel;
 exports.Area = mongoose.model('AreaData');
 exports.Target = mongoose.model('TargetData');
 exports.Combined = mongoose.model('CombinedData');
+exports.Catalog = mongoose.model('CatalogData');

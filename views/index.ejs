@@ -4,34 +4,44 @@
   	<meta charset="utf-8" />
     <title><%= title %></title>
     <link rel="stylesheet" href="/jquery.mobile-1.3.2.min.css" />
+
 	<script src="/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	$(document).bind("mobileinit", function() {
+	      $.mobile.page.prototype.options.addBackBtn = true;
+	 });
+ 	</script>
+
 	<script src="/jquery.mobile-1.3.2.js"></script>
 	<script src="/iscroll.js"></script>
 	<link rel="stylesheet" href="/d3.css" />
 	<script src="/d3.v3.min.js"></script>
 	<script src="/db.js"></script>
 	<script src="/d3.custom.js"></script>
-
-  </script>
   </head>
   <body>
   	<!-- page_combineddata start -->
   	<div data-role="page" id="page_combineddata">
 	  	<div data-role="header" data-position="fixed" >
-		    <span class="ui-title">读数网络</span>
-		    <a href="#page_search" data-icon="search" class="ui-btn-right">搜索</a>
+		    <span class="ui-title">数据百科</span>
+		   
+		   <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
+	     		<a href="#page_catalog" data-role="button" data-icon="grid">分类</a>
+	      		<a href="#page_search" data-role="button" data-icon="search">搜索</a>
+    		</div>
+
 		</div><!-- /header -->
 		 <div data-role="navbar" id="title_navbar">
 	        <ul>
 	            <li><a href="#" onclick="OnClickNewest()" class="ui-btn-active" id="title_newest">最新</a></li>
 	            <li><a href="#" onclick="OnClickHotest()" id="title_hotest">最热</a></li>
-	            <li><a href="#" onclick="OnClickCatalog()" id="title_catalog">分类</a></li>
 	        </ul>
 	  	  	</div><!-- /navbar -->
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_combineddata">
 
 			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_combineddata">
 			</ul>
+
 		</div><!-- /content1 -->
 
 		<div data-role="footer" data-id="foo1" data-position="fixed">
@@ -47,10 +57,35 @@
 	</div>
 	<!-- page_combineddata end -->
 
-<!-- page_search start -->
+	<!-- page_catalog tart -->
+	<div data-role="page" id="page_catalog" data-add-back-btn="true">
+	  	<div data-role="header" data-position="fixed" >
+		    <span class="ui-title" >数据百科 - 分类</span>
+		</div><!-- /header -->
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_catalog" >
+			<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_catalogs" >
+			</ul>
+		</div><!-- /content_catalog -->
+	</div>
+	<!-- page_catalog tart -->
+
+	<!-- page_catalog_list tart -->
+	<div data-role="page" id="page_catalog_list" data-add-back-btn="true">
+	  	<div data-role="header" data-position="fixed" >
+		    <span class="ui-title" id="title_catalog">数据百科 - 分类</span>
+		</div><!-- /header -->
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_catalog" >
+        	<ul data-role="listview" data-theme="d" data-dividertheme="e" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_catalog">
+			</ul>
+		</div><!-- /content_catalog -->
+		
+	</div>
+	<!-- page_catalog_list tart -->
+
+	<!-- page_search start -->
   	<div data-role="page" id="page_search" data-add-back-btn="true">
 	  	<div data-role="header" data-position="fixed" >
-		    <span class="ui-title">读数网络-搜索</span>
+		    <span class="ui-title">数据百科 - 搜索</span>
 		</div><!-- /header -->
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_search">
 			<div data-role="fieldcontain">
@@ -72,12 +107,12 @@
 			</ul>
 		</div>
 	</div>
-	<!-- page_newst end -->
+	<!-- page_search end -->
 
 	<!-- page_d3 tart -->
 	<div data-role="page" id="page_d3" data-add-back-btn="true">
 	  	<div data-role="header" data-position="fixed" >
-		    <span class="ui-title" id="page_d3_title">指数</span>
+		    <span class="ui-title" id="page_d3_title">数据百科 - 指数</span>
 			    <fieldset data-role="controlgroup" data-type="horizontal" class="ui-btn-right">
 			    	<label for="select_d3_target1">Target1</label>  
 				    <select name="select_d3_target1" id="select_d3_target1">
