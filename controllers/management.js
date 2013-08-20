@@ -15,6 +15,7 @@ exports.combineddata = function(req, res){
         option += Datas[i].Name + ':' + Datas[i].NameLoc[0].Chinese + '-'+ Datas[i].Name + ';'; 
       }
     };
+    console.log("combineddata");
     res.render('management/combined', { title: config.app_title, CatalogOptions: option });  
   });
 };
@@ -41,7 +42,7 @@ exports.combineddata_list = function(req, res){
     if (err) {
       return next(err);
     }
-
+    console.log("combineddata_list");
     res.send(combineds);
   });
 };
@@ -56,4 +57,17 @@ exports.combineddata_update = function (req, res, next) {
   });
   
 };
+
+exports.indicatordata = function(req, res){
+  var option = '';
+  Catalog.getCatalogs(function (err, Datas) {
+    for (var i = Datas.length - 1; i >= 0; i--) {
+      if(Datas[i].ParentName != ""){
+        option += Datas[i].Name + ':' + Datas[i].NameLoc[0].Chinese + '-'+ Datas[i].Name + ';'; 
+      }
+    };
+    res.render('management/indicator', { title: config.app_title, CatalogOptions: option });  
+  });
+};
+
 

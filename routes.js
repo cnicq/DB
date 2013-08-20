@@ -18,6 +18,7 @@ module.exports = function(app){
   // management
   app.get('/management', management.index);
   app.get('/management/combineddata', management.combineddata);
+  app.get('/management/indicatordata', management.indicatordata);
   app.get('/management/combineddata/list/', management.combineddata_list);
   app.get('/management/RemoveAllMetaCollections', management.remove_meta_collections);
   app.post('/management/combineddata/update', management.combineddata_update);

@@ -64,14 +64,14 @@ html, body {
 <script src="/jqgrid/js/jquery.contextmenu.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-  alert(123);
+
  $("#rowed3").jqGrid({
     url:'/management/combineddata/list/',
     datatype: "json",
     colNames:['ID','Name','Catalog', 'UpdateTime'],
     colModel:[
-      {name:'_id',index:'_id', width:20,jsonmap:"_id"},
-      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.0.Chinese",editable:true},
+      {name:'_id',index:'_id', width:155,jsonmap:"_id"},
+      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.0.Chinese"},
       {name:'Catalog',index:'Catalog', width:190, editable:true,edittype:"select", editoptions : {value:'<%= CatalogOptions %>'},jsonmap:"CatalogNames.0"},
       {name:'UpdateTime',index:'UpdateTime', width:100}
     ],
@@ -88,7 +88,7 @@ $(document).ready(function(){
     sortorder: "desc",
     editurl: "/management/combineddata/update",
     caption: "CombinedData",
-    multiselect: true,
+    multiselect: false,
     mtype: "GET", 
     ondblClickRow: function(rowid) {
     jQuery(this).jqGrid('editGridRow', rowid);
@@ -120,6 +120,6 @@ function createJSON(postdata) {
 </head>
 <body>
     <table id="rowed3"></table>
-    <div id="prowed3"></div>
+  <div id="prowed3"></div>
   </body>
 </html>
