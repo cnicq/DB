@@ -16,10 +16,17 @@ module.exports = function(app){
   
 
   // management
-  app.get('/management', management.index);
+  app.get('/management', management.combineddata);
   app.get('/management/combineddata', management.combineddata);
-  app.get('/management/indicatordata', management.indicatordata);
   app.get('/management/combineddata/list/', management.combineddata_list);
-  app.get('/management/RemoveAllMetaCollections', management.remove_meta_collections);
   app.post('/management/combineddata/update', management.combineddata_update);
+
+  app.get('/management/indicatordata', management.indicatordata);
+  app.get('/management/indicatordata/list/', management.indicatordata_list);
+  app.post('/management/indicatordata/update', management.indicatordata_update);
+  
+  app.get('/management/metadata', management.metadata);
+  app.get('/management/metadata/list/', management.metadata_list);
+  app.get('/management/metadata/update', management.remove_meta_collections);
+  
 };
