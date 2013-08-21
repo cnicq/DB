@@ -3,12 +3,11 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
  
 var CombinedDataSchema = new Schema({
-	_id: { type: ObjectId, index: true },
-	NameLoc: { type: Array },
+	NameLoc: { Chinese : {type:String}, English : {type:String} },
 	Conditions: { type: Array },
 	CombinedType: { type: Number },
 	UpdateTime: { type: String },
-	NoteLoc: { type: Array },
+	NoteLoc: { Chinese : {type:String}, English : {type:String} },
 	Views:{ type:Number, default:0 },
 	CatalogNames: { type: Array },
 });

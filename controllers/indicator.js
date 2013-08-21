@@ -14,3 +14,14 @@ exports.DelIndicator = function(id, callback){
 		Indicator.delIndicatorByID(id, callback);
 	});
 }
+
+exports.RefreshDefaultCombinedData = function(id, callback){
+	Indicator.getIndicatorByID(id, function(err, data1){
+		Combined.newAndSave(data1.NameLoc.Chinese, data1.NameLoc.Chinese, 0, {"IndicatorID" : id},
+		 function(err, data2){
+			Indicator.setCombinedDataID(id, data2._id, function(error, rows){
+				callback(err, data1);
+			});
+		});
+	});
+};

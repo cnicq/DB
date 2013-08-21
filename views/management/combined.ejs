@@ -6,12 +6,14 @@ $(document).ready(function(){
  $("#maingrid").jqGrid({
     url:"/management/combineddata/list/",
     datatype: "json",
-    colNames:['ID','Name','Catalog', 'UpdateTime'],
+    colNames:['ID','Name','Catalog', 'UpdateTime','CombinedType', 'Conditions'],
     colModel:[
       {name:'_id',index:'_id', width:20,jsonmap:"_id"},
-      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.0.Chinese",editable:true},
+      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.Chinese",editable:true},
       {name:'Catalog',index:'Catalog', width:190, editable:true,edittype:"select", editoptions : {value:'<%= CatalogOptions %>'},jsonmap:"CatalogNames.0"},
-      {name:'UpdateTime',index:'UpdateTime', width:100}
+      {name:'UpdateTime',index:'UpdateTime', width:100},
+      {name:'CombinedType',index:'CombinedType', width:100},
+      {name:'Conditions',index:'Conditions', width:100,jsonmap:"Conditions.0.IndicatorID"}
     ],
     jsonReader: {
         repeatitems: false,
@@ -29,7 +31,7 @@ $(document).ready(function(){
     caption: "CombinedData",
     multiselect: true,
     ondblClickRow: function(rowid) {
-    jQuery(this).jqGrid('editGridRow', rowid);
+        jQuery(this).jqGrid('editGridRow', rowid);
     }
 });
  

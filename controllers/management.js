@@ -12,7 +12,7 @@ exports.combineddata = function(req, res){
   Catalog.getCatalogs(function (err, Datas) {
     for (var i = Datas.length - 1; i >= 0; i--) {
       if(Datas[i].ParentName != ""){
-        option += Datas[i].Name + ':' + Datas[i].NameLoc[0].Chinese + '-'+ Datas[i].Name + ';'; 
+        option += Datas[i].Name + ':' + Datas[i].NameLoc.Chinese + '-'+ Datas[i].Name + ';'; 
       }
     };
     res.render('management/combined', { title: config.app_title, CatalogOptions: option });  
@@ -41,9 +41,9 @@ exports.combineddata_update = function (req, res, next) {
     var id =ids[i];
     switch(oper){
       case 'del':
-      Indicator.resetCombinedDataID(id, function (err, rows){
-        Combined.delCombinedByID(id, function (err, rows) {
-        });
+      Indicator.setCombinedDataID(id, null, function (err, rows){
+      });
+      Combined.delCombinedByID(id, function (err, rows) {
       });
       break;
       case 'edit':
@@ -90,6 +90,19 @@ exports.indicatordata_update = function (req, res, next) {
     
   };
   res.redirect('management/indicatordata');
+};
+
+exports.indicatordata_refreshcombined = function (req, res, next) {
+  var ids = req.params.ids.split(',');
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (ids[i] == undefined || ids[i] == '') {
+      continue;
+    };
+    var id = ids[i];
+    IndicatorCtrl.RefreshDefaultCombinedData(id, function (err, data) {});
+  };
+
+  res.send('');
 };
 
 // Meta data

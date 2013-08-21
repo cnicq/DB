@@ -3,8 +3,7 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
  
 var IndicatorDataSchema = new Schema({
-  _id: { type: ObjectId, index: true },
-  NameLoc: { type: Array },
+  NameLoc: { Chinese : {type:String}, English : {type:String} },
   StrTargetID: { type: ObjectId },
   CombinedDataID: { type: ObjectId },
 });

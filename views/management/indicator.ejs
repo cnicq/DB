@@ -9,7 +9,7 @@ $(document).ready(function(){
     colNames:['ID','Name','CombinedDataID', 'SrcTargetID'],
     colModel:[
       {name:'_id',index:'_id', width:20,jsonmap:"_id"},
-      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.0.Chinese",editable:true},
+      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.Chinese",editable:true},
       {name:'CombinedDataID',index:'CombinedDataID', width:190,jsonmap:"CombinedDataID"},
       {name:'SrcTargetID',index:'SrcTargetID', width:190,jsonmap:"SrcTargetID"}
     ],
@@ -123,10 +123,37 @@ jQuery("#subgrid2").jqGrid({
 });
 $("#subgrid2").jqGrid('navGrid',"#psubgrid2");
 
+jQuery("#RefreshCombinedData").click( function() {
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
+    if(strids != '')
+        OnRefreshCombinedData(strids);
 });
-  
+
+});
+function OnRefreshCombinedData(ids){
+    $.ajax({
+    url: "/management/indicatordata/refreshcombineddata/" + ids,
+    type: 'GET',
+    success: function(data){
+        jQuery("#maingrid").trigger('reloadGrid');
+      },
+    error: function(xmlHTTPRequest, status, error){
+        alert("Error : " + error);
+    },
+    beforeSend: function(){
+    },
+    complete: function(){
+    }
+  });
+}
 </script>
-main grid
+main grid<br>
+<a href="javascript:void(0)" id="RefreshCombinedData" >Refresh/Create default combined data</a> | 
     <table id="maingrid"></table>
     <div id="pmaingrid"></div>
     <br>

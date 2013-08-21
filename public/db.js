@@ -84,8 +84,8 @@ function LoadData(){
         </a>\
       </li>', 
       u['_id'], u['CombinedType'] == 0 ? "基础数据":"组合数据",
-      u.NameLoc[0]["Chinese"],
-      u.NoteLoc[0]['Chinese'],
+      u.NameLoc["Chinese"],
+      u.NoteLoc['Chinese'],
       u["Comments"],
       u["Views"],
       u["UpdateTime"]);
@@ -215,7 +215,7 @@ function OnClickCatalogItem(catalogName){
   for (key in html_catalogs){
     $(html_catalogs[key]).each(function(te, u) {
       if(u.Name == catalogName){
-          subtitle = u.NameLoc[0]['Chinese'];
+          subtitle = u.NameLoc['Chinese'];
           $("#title_catalog").text(subtitle); 
       }
     });
@@ -244,9 +244,9 @@ function OnClickCatalog(){
         
         $(data[key]).each(function(te, u) {
           if (u.ParentName == undefined || u.ParentName == '') {
-           title = '<li>' + u.NameLoc[0]['Chinese']}
+           title = '<li>' + u.NameLoc['Chinese']}
           else{
-            body += String.format('<li><a href="#page_catalog_list" onclick="OnClickCatalogItem(\'{0}\')">{1}</a></li>',u.Name, u.NameLoc[0]['Chinese']);
+            body += String.format('<li><a href="#page_catalog_list" onclick="OnClickCatalogItem(\'{0}\')">{1}</a></li>',u.Name, u.NameLoc['Chinese']);
           }
         });
         body += '</li></ul>';

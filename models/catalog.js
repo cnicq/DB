@@ -3,10 +3,9 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
  
 var CatalogDataSchema = new Schema({
-	_id: { type: ObjectId, index: true },
 	 Name: { type: String },
 	 ParentName: { type: String },
-	 NameLoc: { type: Array },
+	 NameLoc: { Chinese : {type:String}, English : {type:String} },
 });
 
 mongoose.model('CatalogData', CatalogDataSchema, 'CatalogData');

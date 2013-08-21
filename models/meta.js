@@ -3,15 +3,14 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
  
 var MetaDataSchema = new Schema({
-	_id: { type: ObjectId, index: true },
 	AreaID: { type: ObjectId},
 	Target1ID: { type: ObjectId},
 	Target2ID: { type: ObjectId},
 	Period: { type: String},
 	// for display
-	AreaNameLoc: { type: String},
-	Target1NameLoc: { type: String},
-	Target2NameLoc: { type: String},
+	AreaNameLoc: { Chinese : {type:String}, English : {type:String} },
+	Target1NameLoc: { Chinese : {type:String}, English : {type:String} },
+	Target2NameLoc: { Chinese : {type:String}, English : {type:String} },
 });
 
 exports.MetaModel = function(id){

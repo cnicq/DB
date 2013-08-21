@@ -29,3 +29,16 @@ exports.setCatalogName = function (id, name, callback) {
 exports.delCombinedByID = function(id, callback){
 	Combined.remove({_id:id}, callback);
 }
+
+exports.newAndSave = function (NameChinese, NoteChinese, CombinedType, Condition, callback) {
+  var com = new Combined();
+  console.log(com._id);
+  com.NameLoc.Chinese = NameChinese;
+  com.NoteLoc.Chinese = NoteChinese;
+  com.CombinedType = CombinedType;
+  com.Conditions.push(Condition);
+  com.UpdateTime = new Date();
+  com.save(function (err, com) {
+    callback(err, com);
+  });
+};

@@ -24,6 +24,8 @@ module.exports = function(app){
   app.get('/management/indicatordata', management.indicatordata);
   app.get('/management/indicatordata/list/', management.indicatordata_list);
   app.post('/management/indicatordata/update', management.indicatordata_update);
+  app.get('/management/indicatordata/refreshcombineddata/:ids', management.indicatordata_refreshcombined);
+  
   
   app.get('/management/metadata', management.metadata);
   app.get('/management/metadata/list/', management.metadata_list);

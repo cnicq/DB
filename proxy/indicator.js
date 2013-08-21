@@ -13,6 +13,7 @@ exports.delIndicatorByID = function(id, callback){
 	Indicator.remove({_id:id}, callback);
 }
 
-exports.resetCombinedDataID = function(combineddata_id, callback){
-	Indicator.update({CombinedDataID:combineddata_id}, {$set : {CombinedDataID : null}}, callback);
+exports.setCombinedDataID = function(combineddata_id, value, callback){
+	console.log(value);
+	Indicator.update({CombinedDataID:combineddata_id}, {$set : {CombinedDataID : value}}, callback);
 }

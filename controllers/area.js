@@ -7,7 +7,7 @@ exports.GetAreas = function() {
 	Area.getAreas(function (err, Datas) {
 		exports.Areas = {};
 		for (var i = Datas.length - 1; i >= 0; i--) {
-			exports.Areas[Datas[i]._id] = Datas[i].NameLoc[0]['Chinese'];
+			exports.Areas[Datas[i]._id] = Datas[i].NameLoc.Chinese;
 		}
 	});
 };
@@ -19,7 +19,7 @@ exports.GetAreaChineseName = function(id) {
 			if (err) {
 		      return name;
 		    }
-			exports.Areas[id] = Data.NameLoc[0]['Chinese'];
+			exports.Areas[id] = Data.NameLoc.Chinese;
 		});
 	}
 
