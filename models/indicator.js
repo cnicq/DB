@@ -6,6 +6,7 @@ var IndicatorDataSchema = new Schema({
   _id: { type: ObjectId, index: true },
   NameLoc: { type: Array },
   StrTargetID: { type: ObjectId },
+  CombinedDataID: { type: ObjectId },
 });
 
 mongoose.model('IndicatorData', IndicatorDataSchema, 'IndicatorData');

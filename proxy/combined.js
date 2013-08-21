@@ -18,7 +18,6 @@ exports.increaseViews = function(id, callback){
 }
 
 exports.setCatalogName = function (id, name, callback) {
-
 	if (name == undefined || name == '' || name == "undefined") {
 		Combined.update({_id: id}, {$unset: {CatalogNames:1}}, { multi: false }, callback);
 	}
@@ -26,3 +25,7 @@ exports.setCatalogName = function (id, name, callback) {
 		Combined.update({_id: id}, {$addToSet: {CatalogNames:name}}, { multi: false }, callback);
 	}
 };
+
+exports.delCombinedByID = function(id, callback){
+	Combined.remove({_id:id}, callback);
+}

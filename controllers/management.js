@@ -4,6 +4,7 @@ var Combined = require('../proxy/combined');
 var Indicator = require('../proxy/indicator');
 var Catalog = require('../proxy').Catalog;
 var Meta = require('../proxy/meta');
+var IndicatorCtrl = require('./indicator')
 
 // Combined data
 exports.combineddata = function(req, res){
@@ -31,14 +32,28 @@ exports.combineddata_list = function(req, res){
 };
 
 exports.combineddata_update = function (req, res, next) {
-  var _id = (req.body._id);
-  var catalogName = (req.body.Catalog);
+  var ids = (req.body._id).split(',');
+  var oper = req.body.oper;
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (ids[i] == undefined || ids[i] == '') {
+      continue;
+    };
+    var id =ids[i];
+    switch(oper){
+      case 'del':
+      Indicator.resetCombinedDataID(id, function (err, rows){
+        Combined.delCombinedByID(id, function (err, rows) {
+        });
+      });
+      break;
+      case 'edit':
+        Combined.setCatalogName(id, catalogName, function (err, rows) {
+        });
+      break;
+    }
+  }
 
-  Combined.setCatalogName(_id, catalogName, function (err, rows) {
-
-    res.redirect('management/combineddata');
-  });
-  
+  res.redirect('management/combineddata');
 };
 
 // Indicator data
@@ -59,15 +74,22 @@ exports.indicatordata_list = function(req, res){
 };
 
 exports.indicatordata_update = function (req, res, next) {
-  var _id = (req.body._id);
-  console.log(req.body);
-  console.log("indicatordata_update");
-  var catalogName = (req.body.Catalog);
-
-  Combined.setCatalogName(_id, catalogName, function (err, rows) {
-    res.redirect('management/indicatordata');
-  });
-  
+  var ids = (req.body._id).split(',');
+  var oper = req.body.oper;
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (ids[i] == undefined || ids[i] == '') {
+      continue;
+    };
+    var id = ids[i];
+    switch(oper){
+        case 'del':
+        IndicatorCtrl.DelIndicator(id, function (err, rows) {
+        });
+        break;
+    }
+    
+  };
+  res.redirect('management/indicatordata');
 };
 
 // Meta data
@@ -78,9 +100,10 @@ exports.metadata = function(req, res){
      if (err) {
       return next(err);
     }
-    console.log(Datas.length);
+   
     res.send(Datas);
   });
+  res.render('management/meta', { title: config.app_title});  
 };
 
 exports.metadata_list = function(req, res){
@@ -92,7 +115,7 @@ exports.remove_meta_collections = function(req, res){
       for (var i = names.length - 1; i >= 0; i--) {
         var name = names[i].name.split('.')[1];
         if (name.indexOf('MetaData_') >= 0) {
-          console.log("Delete start " + name);
+          console.log("Delete collection : " + name);
           mongoose.connection.db.dropCollection(name, function(err, result) {
               });
         };

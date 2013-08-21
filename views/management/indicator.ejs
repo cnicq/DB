@@ -38,8 +38,30 @@ $(document).ready(function(){
                 .trigger('reloadGrid');
     }
 });
- $("#maingrid").jqGrid('navGrid',"#pmaingrid");
 
+$("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},{}, {},{
+        //edit parameters
+        ajaxDelOptions: jsonOptions,
+        serializeDelData: delJSON,
+        closeAfterDel: true});
+
+var jsonOptions = {
+    type :"POST",
+    contentType :"application/json; charset=utf-8",
+    dataType :"json"
+};
+
+function delJSON(postdata) {
+    var ids = (postdata.id.split(','));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
+
+    postdata['_id'] = strids;
+    return (postdata);
+}
 
 var list = null;
 
@@ -73,7 +95,7 @@ jQuery("#subgrid1").jqGrid({
         jQuery("#subgrid2").trigger('reloadGrid');
     },
     loadComplete: function (data) {
-                    list = data;
+        list = data;
     }
 });
 $("#subgrid1").jqGrid('navGrid',"#psubgrid1");

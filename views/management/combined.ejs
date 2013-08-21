@@ -3,7 +3,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 
- $("#rowed3").jqGrid({
+ $("#maingrid").jqGrid({
     url:"/management/combineddata/list/",
     datatype: "json",
     colNames:['ID','Name','Catalog', 'UpdateTime'],
@@ -21,7 +21,7 @@ $(document).ready(function(){
     width:900,
     rowNum:100,
     rowList:[100,200,300],
-    pager: '#prowed3',
+    pager: '#pmaingrid',
     sortname: 'Name',
     viewrecords: true,
     sortorder: "desc",
@@ -33,14 +33,14 @@ $(document).ready(function(){
     }
 });
  
-$("#rowed3").jqGrid('navGrid',"#prowed3",{edit:true,add:false,del:false},{
-        //edit parameters
-        ajaxEditOptions: jsonOptions,
+$("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},
+        {ajaxEditOptions: jsonOptions,
         serializeEditData: createJSON,
-        closeAfterEdit: true
-});
-
-$("#rowed3").jqGrid('inlineNav',"#prowed3");
+        closeAfterEdit: true},
+        {},
+        {ajaxDelOptions: jsonOptions,
+        serializeDelData: delJSON,
+        closeAfterDel: true});
 
 var jsonOptions = {
     type :"POST",
@@ -49,15 +49,24 @@ var jsonOptions = {
 };
 
 function createJSON(postdata) {
-    var rowdata = $("#rowed3").jqGrid('getRowData', (postdata.id));
+    var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
     postdata['_id'] = (rowdata._id);
     return (postdata);
 }
+function delJSON(postdata) {
+    var ids = (postdata.id.split(','));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
 
-
+    postdata['_id'] = strids;
+    return (postdata);
+}
 });
   
 </script>
-    <table id="rowed3"></table>
-    <div id="prowed3"></div>
+    <table id="maingrid"></table>
+    <div id="pmaingrid"></div>
 <% include ./footer %>
