@@ -6,8 +6,9 @@ $(document).ready(function(){
  $("#maingrid").jqGrid({
     url:"/management/areadata/list/",
     datatype: "json",
-    colNames:['ChineseName','EnglishName', 'AreaType'],
+    colNames:['_id','ChineseName','EnglishName', 'AreaType'],
     colModel:[
+      {name:'_id',index:'_id'}, 
       {name:'ChineseName',index:'ChineseName', width:260,jsonmap:"NameLoc.Chinese",editable:true},
       {name:'EnglishName',index:'EnglishName', width:260,jsonmap:"NameLoc.English",editable:true},
       {name:'AreaType',index:'AreaType', width:100, editable:true, edittype:"select",editoptions:{value:"country:country;provience:provience;city:city"}},
@@ -27,11 +28,21 @@ $(document).ready(function(){
     editurl: "/management/areadata/update",
     caption: "CombinedData",
     multiselect: true,
-    ondblClickRow: function(rowid) {
-        jQuery(this).jqGrid('editGridRow', rowid);
-    }
+    ondblClickRow: function(id) {
+        if(id && id!==lastsel){
+            var lastrowdata = $("#maingrid").jqGrid('getRowData', (lastsel));
+            jQuery('#maingrid').jqGrid('saveRow',lastsel, { 
+                extraparam: {"_id" : lastrowdata._id}
+            });
+            jQuery('#maingrid').jqGrid('restoreRow',lastsel);
+            jQuery('#maingrid').jqGrid('editRow',id);
+            lastsel=id;
+        }
+    },
+
 });
  
+var lastsel;
 $("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},
         {ajaxEditOptions: jsonOptions,
         serializeEditData: createJSON,
@@ -48,10 +59,13 @@ var jsonOptions = {
 };
 
 function createJSON(postdata) {
+alert(123);
     var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
     postdata['_id'] = (rowdata._id);
+    
     return (postdata);
 }
+
 function delJSON(postdata) {
     var ids = (postdata.id.split(','));
     var strids = '';

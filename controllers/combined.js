@@ -16,7 +16,7 @@ exports.byid = function(req, res, next){
 		}
 
 		if (data['CombinedType'] == 0 && data['Conditions'][0]['IndicatorID'] != "") {
-			Meta.getMetaDataByID(data['Conditions'][0]['IndicatorID'] , function (err, MetaDatas) {
+			Meta.getMetaDataByID(data['Conditions'][0]['IndicatorID'],{}, {}, function (err, MetaDatas) {
 				if (err) {
 				  return next(err);
 				}

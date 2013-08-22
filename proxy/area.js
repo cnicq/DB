@@ -18,5 +18,5 @@ exports.getCountByQuery = function (query, callback) {
 };
 
 exports.setAreaType = function(id, type, callback){
-	Area.update({_id:id}, {$set : {AreaType : type}}, callback);
+	Area.update({_id:id}, {$set : {AreaType : type}}, { multi: false }, callback);
 }

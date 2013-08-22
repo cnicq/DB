@@ -13,8 +13,12 @@ exports.delIndicatorByID = function(id, callback){
 	Indicator.remove({_id:id}, callback);
 }
 
-exports.setCombinedDataID = function(combineddata_id, value, callback){
-	Indicator.update({CombinedDataID:combineddata_id}, {$set : {CombinedDataID : value}}, callback);
+exports.setCombinedDataIDByID = function(id, combineddata_id, callback){
+	Indicator.update({_id:id}, {$set : {CombinedDataID : combineddata_id}}, callback);
+}
+
+exports.setCombinedDataIDbyCombinedID = function(combineddata_id, newid, callback){
+	Indicator.update({CombinedDataID:combineddata_id}, {$set : {CombinedDataID : newid}}, callback);
 }
 
 exports.getCountByQuery = function (query, callback) {

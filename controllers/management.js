@@ -44,7 +44,7 @@ exports.combineddata_update = function (req, res, next) {
     var id =ids[i];
     switch(oper){
       case 'del':
-      Indicator.setCombinedDataID(id, null, function (err, rows){
+      Indicator.setCombinedDataIDbyCombinedID(id, null, function (err, rows){
       });
       Combined.delCombinedByID(id, function (err, rows) {
       });
@@ -79,7 +79,7 @@ exports.indicatordata_list = function(req, res){
     
     if (limit <= 0) {limit = 10;};
     var list = {};
-    Indicator.getCountByQuery({}, function(num){
+    Indicator.getCountByQuery({}, function(e, num){
       list['page'] = req.query.page;
       list['total'] = parseInt(num / limit) + 1;
       list['records'] = num;
@@ -134,7 +134,7 @@ exports.metadata_list = function(req, res){
   var limit = req.query.rows;
   var page = req.query.page - 1;
   var options = { skip: (page) * limit, limit: limit };
-  Meta.getMetaDataByID(indicatorid, function (err, Metas) {
+  Meta.getMetaDataByID(indicatorid, {}, options, function (err, Metas) {
      if (err) {
       return next(err);
     }
@@ -147,7 +147,7 @@ exports.metadata_list = function(req, res){
     
     if (limit <= 0) {limit = 10;};
     var list = {};
-    Meta.getCountByQuery(indicatorid, {}, function(num){
+    Meta.getCountByQuery(indicatorid, {}, function(e, num){
       list['page'] = req.query.page;
       list['total'] = parseInt(num / limit) + 1;
       list['records'] = num;
@@ -200,9 +200,7 @@ exports.areadata_list = function(req, res){
 };
 
 exports.areadata_update = function (req, res, next) {
-  console.log(req.body);
-  var ids = [];
-  ids.push(req.body._id);
+  var ids = req.body._id.split(',');
   var oper = req.body.oper;
   
   for (var i = ids.length - 1; i >= 0; i--) {

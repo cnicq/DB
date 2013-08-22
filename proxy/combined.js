@@ -36,7 +36,6 @@ exports.getCountByQuery = function (query, callback) {
 
 exports.newAndSave = function (NameChinese, NoteChinese, CombinedType, Condition, callback) {
   var com = new Combined();
-  console.log(com._id);
   com.NameLoc.Chinese = NameChinese;
   com.NoteLoc.Chinese = NoteChinese;
   com.CombinedType = CombinedType;

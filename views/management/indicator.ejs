@@ -69,8 +69,9 @@ jQuery("#subgrid1").jqGrid({
     height: 100,
     url:'',
     datatype: "json",
-    colNames:['AreaNameLoc','Target1ID', 'Target2ID', 'Period','Datas'],
+    colNames:['_id','AreaNameLoc','Target1ID', 'Target2ID', 'Period','Datas'],
     colModel:[
+        {name:'_id',index:'_id', width:80},
         {name:'AreaNameLoc',index:'AreaNameLoc', width:100, jsonmap:"AreaNameLoc"},
         {name:'Target1ID',index:'Target1ID', width:100,jsonmap:"Target1NameLoc.Chinese"},
         {name:'Target2ID',index:'Target2ID', width:100,jsonmap:"Target2NameLoc.Chinese"},
@@ -78,28 +79,29 @@ jQuery("#subgrid1").jqGrid({
         {name:'Datas',index:'Datas', width:180},
     ],
     height: 'auto',
-    rowNum:5,
-    rowList:[10,20,30],
+    rowList:[30,50,100],
     pager: '#psubgrid1',
     sortname: 'item',
     viewrecords: true,
     sortorder: "asc",
     multiselect: false,
     caption:"Metadata Detail1",
-     onSelectRow: function(ids) {
-        var rowdata = $("#subgrid1").jqGrid('getRowData', (ids));
+    onSelectRow: function(id) {
+        var rowdata = $("#subgrid1").jqGrid('getRowData', (id));
+        var j = $('#subgrid1').getGridParam('rowNum') * ($('#subgrid1').getGridParam('page') - 1) + id;
+        alert(j);
         $("#subgrid2").jqGrid("clearGridData", true);
-         for( i = 0; i < list[ids]["Datas"].length; ++i){
-            jQuery("#subgrid2").jqGrid('addRowData',i+1,list[ids]["Datas"][i]);
+         for( i = 0; i < list.rows[j]["Datas"].length; ++i){
+            jQuery("#subgrid2").jqGrid('addRowData',i+1,list.rows[j]["Datas"][i]);
          }
         jQuery("#subgrid2").trigger('reloadGrid');
+        jQuery("#area_name").text();
     },
     loadComplete: function (data) {
         list = data;
     }
 });
 $("#subgrid1").jqGrid('navGrid',"#psubgrid1");
-
 
 jQuery("#subgrid2").jqGrid({
     height: 100,
@@ -112,8 +114,7 @@ jQuery("#subgrid2").jqGrid({
         {name:'Value',index:'Value', width:200},
     ],
     height: 'auto',
-    rowNum:3,
-    rowList:[100,200,300],
+    rowList:[30,50,100],
     pager: '#psubgrid2',
     sortname: 'item',
     viewrecords: true,
@@ -161,7 +162,7 @@ indicator data<br>
     <table id="subgrid1"></table>
     <div id="psubgrid1"></div>
     <br>
-    MetaData - Datas
+    MetaData - Datas | Area <span id="area_name" />
     <table id="subgrid2"></table>
     <div id="psubgrid2"></div>
 <% include ./footer %>
