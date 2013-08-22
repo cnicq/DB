@@ -30,6 +30,10 @@ exports.delCombinedByID = function(id, callback){
 	Combined.remove({_id:id}, callback);
 }
 
+exports.getCountByQuery = function (query, callback) {
+  Combined.count(query, callback);
+};
+
 exports.newAndSave = function (NameChinese, NoteChinese, CombinedType, Condition, callback) {
   var com = new Combined();
   console.log(com._id);

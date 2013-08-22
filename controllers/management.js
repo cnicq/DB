@@ -4,8 +4,11 @@ var Combined = require('../proxy/combined');
 var Indicator = require('../proxy/indicator');
 var Catalog = require('../proxy').Catalog;
 var Meta = require('../proxy/meta');
-var IndicatorCtrl = require('./indicator')
-
+var IndicatorCtrl = require('./indicator');
+var Area = require('../proxy/area');
+var Target = require('../proxy/target');
+var TargetCtrl = require('./target');
+var AreaCtrl = require('./area');
 // Combined data
 exports.combineddata = function(req, res){
   var option = '';
@@ -69,7 +72,22 @@ exports.indicatordata_list = function(req, res){
     if (err) {
       return next(err);
     }
-    res.send(indicators);
+
+    for (var i = indicators.length - 1; i >= 0; i--) {
+      indicators[i]['SrcTargetName'] = TargetCtrl.GetTargetNameLoc(indicators[i].SrcTargetID, 'Chinese');
+    };
+    
+    if (limit <= 0) {limit = 10;};
+    var list = {};
+    Indicator.getCountByQuery({}, function(num){
+      list['page'] = req.query.page;
+      list['total'] = parseInt(num / limit) + 1;
+      list['records'] = num;
+      list['rows'] = indicators;
+
+      res.send(list);
+    });
+    
   });
 };
 
@@ -107,20 +125,36 @@ exports.indicatordata_refreshcombined = function (req, res, next) {
 
 // Meta data
 exports.metadata = function(req, res){
-  var indicatorid = req.query.indicatorid;
   
-  Meta.getMetaDataByID(indicatorid, function (err, Datas) {
-     if (err) {
-      return next(err);
-    }
-   
-    res.send(Datas);
-  });
   res.render('management/meta', { title: config.app_title});  
 };
 
 exports.metadata_list = function(req, res){
-  
+  var indicatorid = req.query.indicatorid;
+  var limit = req.query.rows;
+  var page = req.query.page - 1;
+  var options = { skip: (page) * limit, limit: limit };
+  Meta.getMetaDataByID(indicatorid, function (err, Metas) {
+     if (err) {
+      return next(err);
+    }
+   
+    for (var i = Metas.length - 1; i >= 0; i--) {
+      Metas[i]['AreaNameLoc'] = AreaCtrl.GetAreaNameLoc(Metas[i]['AreaID'], 'Chinese');
+      Metas[i]['Target1NameLoc'] = TargetCtrl.GetTargetNameLoc(Metas[i]['Target1ID'], 'Chinese');
+      Metas[i]['Target2NameLoc'] = TargetCtrl.GetTargetNameLoc(Metas[i]['Target2ID'], 'Chinese');
+    };
+    
+    if (limit <= 0) {limit = 10;};
+    var list = {};
+    Meta.getCountByQuery(indicatorid, {}, function(num){
+      list['page'] = req.query.page;
+      list['total'] = parseInt(num / limit) + 1;
+      list['records'] = num;
+      list['rows'] = Metas;
+      res.send(list);
+    });
+  });
 };
 
 exports.remove_meta_collections = function(req, res){
@@ -133,5 +167,88 @@ exports.remove_meta_collections = function(req, res){
               });
         };
       };
+  });
+
+    res.render('management/meta', { title: config.app_title}); 
+};
+
+// area data
+exports.areadata = function(req, res){
+  res.render('management/area', { title: config.app_title});  
+};
+
+exports.areadata_list = function(req, res){
+  var limit = req.query.rows;
+  var page = req.query.page - 1;
+  var options = { skip: (page) * limit, limit: limit };
+  Area.getAreasByQuery({}, options, function (err, areas) {
+    if (err) {
+      return next(err);
+    }
+
+    if (limit <= 0) {limit = 10;};
+    var list = {};
+    Area.getCountByQuery({}, function(e, num){
+      list['page'] = req.query.page;
+      list['total'] = parseInt(num / limit) + 1;
+      list['records'] = num;
+      list['rows'] = areas;
+      res.send(list);
+    });
+
+  });
+};
+
+exports.areadata_update = function (req, res, next) {
+  console.log(req.body);
+  var ids = [];
+  ids.push(req.body._id);
+  var oper = req.body.oper;
+  
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (ids[i] == undefined || ids[i] == '') {
+      continue;
+    };
+    var id = ids[i];
+    switch(oper){
+        case 'del':
+        IndicatorCtrl.DelIndicator(id, function (err, rows) {
+        });
+        break;
+        case 'edit':
+        Area.setAreaType(id, req.body.AreaType, function (err, rows) {
+        });
+        break;
+    }
+    
+  };
+  res.redirect('management/indicatordata');
+};
+
+// target data
+exports.targetdata = function(req, res){
+  res.render('management/target', { title: config.app_title});  
+};
+
+exports.targetdata_list = function(req, res){
+  var limit = req.query.rows;
+  
+  var page = req.query.page - 1;
+  var options = { skip: (page) * limit, limit: limit };
+  
+  Target.getTargetsByQuery({}, options, function (err, targets) {
+    if (err) {
+      return next(err);
+    }
+
+    if (limit <= 0) {limit = 10;};
+    var list = {};
+    var num = Object.keys(TargetCtrl.Targets).length;
+    list['page'] = req.query.page;
+    list['total'] = parseInt(num / limit) + 1;
+    list['records'] = num;
+    list['rows'] = targets;
+
+    res.send(list);
   });
 };

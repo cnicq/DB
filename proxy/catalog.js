@@ -9,3 +9,7 @@ exports.getCatalogByID = function (id, callback) {
   	Catalog.findOne({'_id': id}, callback);
 };
 
+exports.getCountByQuery = function (query, callback) {
+  Catalog.count(query, callback);
+};
+

@@ -12,14 +12,19 @@ exports.GetAreas = function() {
 	});
 };
 
-exports.GetAreaChineseName = function(id) {
+exports.GetAreaNameLoc = function(id, loc) {
 	var name = exports.Areas[id];
-	if (name == undefined) {
+	if (name == undefined || name == '') {
 		Area.getAreaByID(id, function (err, Data) {
 			if (err) {
 		      return name;
 		    }
-			exports.Areas[id] = Data.NameLoc.Chinese;
+			exports.Areas[id] = Data.NameLoc[loc];
+
+			if (exports.Areas[id] == undefined || exports.Areas[id] == '') {
+				if (loc == 'Chinese') {exports.Areas[id] = Data.NameLoc['English'];}
+				else {exports.Areas[id] = Data.NameLoc['Chinese'];}
+			};
 		});
 	}
 

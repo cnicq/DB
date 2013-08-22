@@ -12,7 +12,7 @@ exports.GetTargets = function() {
 	});
 };
 
-exports.GetTargetChineseName = function(id) {
+exports.GetTargetNameLoc = function(id, loc) {
 	if (id == '' || id == null || id == undefined) {
 		return undefined;
 	};
@@ -22,7 +22,14 @@ exports.GetTargetChineseName = function(id) {
 			if (err) {
 		      return name;
 		    }
-			exports.Targets[id] = Data.NameLoc.Chinese;
+		    if (Data.NameLoc != undefined) {exports.Targets[id] = Data.NameLoc[loc];}
+		    else exports.Targets[id] = undefined;
+
+		    if (exports.Targets[id] == undefined || exports.Targets[id] == '') {
+				if (loc == 'Chinese') {exports.Targets[id] = Data.NameLoc['English'];}
+				else {exports.Targets[id] = Data.NameLoc['Chinese'];}
+			};
+			
 		});
 	}
 

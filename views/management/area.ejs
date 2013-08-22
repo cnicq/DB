@@ -1,4 +1,71 @@
 <% include header %>
-    <table id="rowed3"></table>
-    <div id="prowed3"></div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+ $("#maingrid").jqGrid({
+    url:"/management/areadata/list/",
+    datatype: "json",
+    colNames:['ChineseName','EnglishName', 'AreaType'],
+    colModel:[
+      {name:'ChineseName',index:'ChineseName', width:260,jsonmap:"NameLoc.Chinese",editable:true},
+      {name:'EnglishName',index:'EnglishName', width:260,jsonmap:"NameLoc.English",editable:true},
+      {name:'AreaType',index:'AreaType', width:100, editable:true, edittype:"select",editoptions:{value:"country:country;provience:provience;city:city"}},
+    ],
+    jsonReader: {
+        repeatitems: false,
+        id: "id",
+    },
+    height: 'auto',
+    width:900,
+    rowNum:100,
+    rowList:[50,100,200],
+    pager: '#pmaingrid',
+    sortname: 'Name',
+    viewrecords: true,
+    sortorder: "desc",
+    editurl: "/management/areadata/update",
+    caption: "CombinedData",
+    multiselect: true,
+    ondblClickRow: function(rowid) {
+        jQuery(this).jqGrid('editGridRow', rowid);
+    }
+});
+ 
+$("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},
+        {ajaxEditOptions: jsonOptions,
+        serializeEditData: createJSON,
+        closeAfterEdit: true},
+        {},
+        {ajaxDelOptions: jsonOptions,
+        serializeDelData: delJSON,
+        closeAfterDel: true});
+
+var jsonOptions = {
+    type :"POST",
+    contentType :"application/json; charset=utf-8",
+    dataType :"json"
+};
+
+function createJSON(postdata) {
+    var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
+    postdata['_id'] = (rowdata._id);
+    return (postdata);
+}
+function delJSON(postdata) {
+    var ids = (postdata.id.split(','));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
+
+    postdata['_id'] = strids;
+    return (postdata);
+}
+});
+  
+</script>
+    <table id="maingrid"></table>
+    <div id="pmaingrid"></div>
 <% include ./footer %>

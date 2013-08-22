@@ -4,8 +4,12 @@ var ObjectId = Schema.ObjectId;
  
 var IndicatorDataSchema = new Schema({
   NameLoc: { Chinese : {type:String}, English : {type:String} },
-  StrTargetID: { type: ObjectId },
+  SrcTargetID: { type: ObjectId },
   CombinedDataID: { type: ObjectId },
+
+  // for display
+  SrcTargetName: { Chinese : {type:String}, English : {type:String} },
+
 });
 
 mongoose.model('IndicatorData', IndicatorDataSchema, 'IndicatorData');

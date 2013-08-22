@@ -6,12 +6,12 @@ $(document).ready(function(){
  $("#maingrid").jqGrid({
     url:"/management/indicatordata/list/",
     datatype: "json",
-    colNames:['ID','Name','CombinedDataID', 'SrcTargetID'],
+    colNames:['ID','Name','CombinedDataID', 'SrcTargetName'],
     colModel:[
       {name:'_id',index:'_id', width:20,jsonmap:"_id"},
       {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.Chinese",editable:true},
       {name:'CombinedDataID',index:'CombinedDataID', width:190,jsonmap:"CombinedDataID"},
-      {name:'SrcTargetID',index:'SrcTargetID', width:190,jsonmap:"SrcTargetID"}
+      {name:'SrcTargetName',index:'SrcTargetName', width:190,jsonmap:"SrcTargetName"}
     ],
     jsonReader: {
         repeatitems: false,
@@ -33,7 +33,7 @@ $(document).ready(function(){
     },
     onSelectRow: function(ids) {
         var rowdata = $("#maingrid").jqGrid('getRowData', (ids));
-        jQuery("#subgrid1").jqGrid('setGridParam',{url:"/management/metadata/?indicatorid="+rowdata["_id"],page:1});
+        jQuery("#subgrid1").jqGrid('setGridParam',{url:"/management/metadata/list/?indicatorid="+rowdata["_id"],page:1});
                 jQuery("#subgrid1").jqGrid('setCaption',"MetaData: "+rowdata["_id"])
                 .trigger('reloadGrid');
     }
@@ -69,11 +69,11 @@ jQuery("#subgrid1").jqGrid({
     height: 100,
     url:'',
     datatype: "json",
-    colNames:['AreaID','Target1ID', 'Target2ID', 'Period','Datas'],
+    colNames:['AreaNameLoc','Target1ID', 'Target2ID', 'Period','Datas'],
     colModel:[
-        {name:'AreaID',index:'AreaID', width:100},
-        {name:'Target1ID',index:'Target1ID', width:100},
-        {name:'Target2ID',index:'Target2ID', width:100},
+        {name:'AreaNameLoc',index:'AreaNameLoc', width:100, jsonmap:"AreaNameLoc"},
+        {name:'Target1ID',index:'Target1ID', width:100,jsonmap:"Target1NameLoc.Chinese"},
+        {name:'Target2ID',index:'Target2ID', width:100,jsonmap:"Target2NameLoc.Chinese"},
         {name:'Period',index:'Period', width:80},
         {name:'Datas',index:'Datas', width:180},
     ],
@@ -152,16 +152,16 @@ function OnRefreshCombinedData(ids){
   });
 }
 </script>
-main grid<br>
+indicator data<br>
 <a href="javascript:void(0)" id="RefreshCombinedData" >Refresh/Create default combined data</a> | 
     <table id="maingrid"></table>
     <div id="pmaingrid"></div>
     <br>
-    sub grid 1
+    MetaData
     <table id="subgrid1"></table>
     <div id="psubgrid1"></div>
     <br>
-    sub grid 2
+    MetaData - Datas
     <table id="subgrid2"></table>
     <div id="psubgrid2"></div>
 <% include ./footer %>

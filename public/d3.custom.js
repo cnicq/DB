@@ -9,7 +9,7 @@ var SelectedDate = undefined;
 function SetTitle() {
 
    // if has only one area data, show the area name in title
-  var title = CombinedData.IndicatorData.NameLoc[0]['Chinese'];
+  var title = CombinedData.IndicatorData.NameLoc['Chinese'];
 
   // set title of page_d3 
   if(AreaData.length == 1) {

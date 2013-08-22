@@ -16,19 +16,29 @@ module.exports = function(app){
   
 
   // management
+  // combined data
   app.get('/management', management.combineddata);
   app.get('/management/combineddata', management.combineddata);
   app.get('/management/combineddata/list/', management.combineddata_list);
   app.post('/management/combineddata/update', management.combineddata_update);
 
+  // indicator data
   app.get('/management/indicatordata', management.indicatordata);
   app.get('/management/indicatordata/list/', management.indicatordata_list);
   app.post('/management/indicatordata/update', management.indicatordata_update);
   app.get('/management/indicatordata/refreshcombineddata/:ids', management.indicatordata_refreshcombined);
   
-  
+  // meta data
   app.get('/management/metadata', management.metadata);
   app.get('/management/metadata/list/', management.metadata_list);
   app.get('/management/metadata/update', management.remove_meta_collections);
-  
+
+  // area data
+  app.get('/management/areadata', management.areadata);
+  app.get('/management/areadata/list/', management.areadata_list);
+  app.post('/management/areadata/update', management.areadata_update);
+
+  // target data
+  app.get('/management/targetdata', management.targetdata);
+  app.get('/management/targetdata/list/', management.targetdata_list);
 };

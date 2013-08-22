@@ -14,6 +14,9 @@ exports.delIndicatorByID = function(id, callback){
 }
 
 exports.setCombinedDataID = function(combineddata_id, value, callback){
-	console.log(value);
 	Indicator.update({CombinedDataID:combineddata_id}, {$set : {CombinedDataID : value}}, callback);
 }
+
+exports.getCountByQuery = function (query, callback) {
+  	Indicator.count(query, callback);
+};

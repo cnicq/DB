@@ -1,4 +1,71 @@
 <% include header %>
-    <table id="rowed3"></table>
-    <div id="prowed3"></div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+ $("#maingrid").jqGrid({
+    url:"/management/targetdata/list/",
+    datatype: "json",
+    colNames:['id','ChineseName','Type'],
+    colModel:[
+      {name:'_id',index:'_id', width:100},
+      {name:'ChineseName',index:'ChineseName', width:260,jsonmap:"NameLoc.Chinese",editable:true},
+      {name:'Type',index:'Type', width:100},
+    ],
+    jsonReader: {
+        repeatitems: false,
+        id: "id",
+    },
+    height: 'auto',
+    width:900,
+    rowNum:30,
+    rowList:[30,50,100],
+    pager: '#pmaingrid',
+    sortname: 'Name',
+    viewrecords: true,
+    sortorder: "desc",
+    editurl: "/management/targetdata/update",
+    caption: "CombinedData",
+    multiselect: true,
+    ondblClickRow: function(rowid) {
+        jQuery(this).jqGrid('editGridRow', rowid);
+    }
+});
+ 
+$("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},
+        {ajaxEditOptions: jsonOptions,
+        serializeEditData: createJSON,
+        closeAfterEdit: true},
+        {},
+        {ajaxDelOptions: jsonOptions,
+        serializeDelData: delJSON,
+        closeAfterDel: true});
+
+var jsonOptions = {
+    type :"POST",
+    contentType :"application/json; charset=utf-8",
+    dataType :"json"
+};
+
+function createJSON(postdata) {
+    var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
+    postdata['_id'] = (rowdata._id);
+    return (postdata);
+}
+function delJSON(postdata) {
+    var ids = (postdata.id.split(','));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
+
+    postdata['_id'] = strids;
+    return (postdata);
+}
+});
+  
+</script>
+    <table id="maingrid"></table>
+    <div id="pmaingrid"></div>
 <% include ./footer %>

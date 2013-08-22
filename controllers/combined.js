@@ -23,9 +23,9 @@ exports.byid = function(req, res, next){
 				
 				var datas = {};
 				for (var i = MetaDatas.length - 1; i >= 0; i--) {
-			    	MetaDatas[i]['AreaNameLoc'] = Area.GetAreaChineseName(MetaDatas[i]['AreaID']);
-			    	MetaDatas[i]['Target1NameLoc'] = Target.GetTargetChineseName(MetaDatas[i]['Target1ID']);
-			    	MetaDatas[i]['Target2NameLoc'] = Target.GetTargetChineseName(MetaDatas[i]['Target2ID']);
+			    	MetaDatas[i]['AreaNameLoc'] = Area.GetAreaNameLoc(MetaDatas[i]['AreaID'], 'Chinese');
+			    	MetaDatas[i]['Target1NameLoc'] = Target.GetTargetNameLoc(MetaDatas[i]['Target1ID'], 'Chinese');
+			    	MetaDatas[i]['Target2NameLoc'] = Target.GetTargetNameLoc(MetaDatas[i]['Target2ID'], 'Chinese');
 		      	}
 		      	datas['MetaDatas'] = MetaDatas;
 		      	Indicator.getIndicatorByID(data['Conditions'][0]['IndicatorID'] , function(error, IndicatorData) {
