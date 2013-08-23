@@ -11,7 +11,7 @@ exports.byid = function(req, res, next){
 	};
 
 	Combined.getCombinedByID(_id, function (err, data) {
-		if (err) {
+		if (err || data == null) {
 			return next(err);
 		}
 

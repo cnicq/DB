@@ -73,10 +73,10 @@ jQuery("#subgrid1").jqGrid({
     colModel:[
         {name:'_id',index:'_id', width:80},
         {name:'AreaNameLoc',index:'AreaNameLoc', width:100, jsonmap:"AreaNameLoc"},
-        {name:'Target1ID',index:'Target1ID', width:100,jsonmap:"Target1NameLoc.Chinese"},
-        {name:'Target2ID',index:'Target2ID', width:100,jsonmap:"Target2NameLoc.Chinese"},
+        {name:'Target1ID',index:'Target1ID', width:100,jsonmap:"Target1NameLoc"},
+        {name:'Target2ID',index:'Target2ID', width:100,jsonmap:"Target2NameLoc"},
         {name:'Period',index:'Period', width:80},
-        {name:'Datas',index:'Datas', width:180},
+        {name:'Datas',index:'Datas', width:180,jsonmap:"Datas.length"},
     ],
     height: 'auto',
     rowList:[30,50,100],
@@ -87,15 +87,12 @@ jQuery("#subgrid1").jqGrid({
     multiselect: false,
     caption:"Metadata Detail1",
     onSelectRow: function(id) {
-        var rowdata = $("#subgrid1").jqGrid('getRowData', (id));
-        var j = $('#subgrid1').getGridParam('rowNum') * ($('#subgrid1').getGridParam('page') - 1) + id;
-        alert(j);
         $("#subgrid2").jqGrid("clearGridData", true);
-         for( i = 0; i < list.rows[j]["Datas"].length; ++i){
-            jQuery("#subgrid2").jqGrid('addRowData',i+1,list.rows[j]["Datas"][i]);
+         for( i = 0; i < list.rows[id-1]["Datas"].length; ++i){
+            jQuery("#subgrid2").jqGrid('addRowData',i+1,list.rows[id-1]["Datas"][i]);
          }
         jQuery("#subgrid2").trigger('reloadGrid');
-        jQuery("#area_name").text();
+        jQuery("#area_name").text(list.rows[id-1].AreaNameLoc);
     },
     loadComplete: function (data) {
         list = data;
@@ -158,11 +155,14 @@ indicator data<br>
     <table id="maingrid"></table>
     <div id="pmaingrid"></div>
     <br>
-    MetaData
+    <table><tr><td>MetaData
     <table id="subgrid1"></table>
     <div id="psubgrid1"></div>
-    <br>
-    MetaData - Datas | Area <span id="area_name" />
+    </td><td>
+     MetaData - Datas | Area <span id="area_name" ></span>
     <table id="subgrid2"></table>
     <div id="psubgrid2"></div>
+    </td></tr></table>
+    
+   
 <% include ./footer %>

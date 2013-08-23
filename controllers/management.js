@@ -9,6 +9,8 @@ var Area = require('../proxy/area');
 var Target = require('../proxy/target');
 var TargetCtrl = require('./target');
 var AreaCtrl = require('./area');
+var CatalogCtrl = require('./catalog');
+
 // Combined data
 exports.combineddata = function(req, res){
   var option = '';
@@ -50,7 +52,7 @@ exports.combineddata_update = function (req, res, next) {
       });
       break;
       case 'edit':
-        Combined.setCatalogName(id, catalogName, function (err, rows) {
+        Combined.setCatalogName(id, req.body.Catalog, function (err, rows) {
         });
       break;
     }
@@ -249,4 +251,48 @@ exports.targetdata_list = function(req, res){
 
     res.send(list);
   });
+};
+
+// catalog data
+exports.catalogdata = function(req, res){
+  res.render('management/catalog', { title: config.app_title});  
+};
+
+exports.catalogdata_list = function(req, res){
+  var limit = req.query.rows;
+  var page = req.query.page - 1;
+  var options = { skip: (page) * limit, limit: limit };
+
+  Catalog.getCatalogsByQuery({}, options, function (err, catalogs) {
+    if (err) {
+      return next(err);
+    }
+
+    if (limit <= 0) {limit = 10;};
+    var list = {};
+    Catalog.getCountByQuery({}, function(e, num){
+      list['page'] = req.query.page;
+      list['total'] = parseInt(num / limit) + 1;
+      list['records'] = num;
+      list['rows'] = catalogs;
+      res.send(list);
+    });
+
+  });
+};
+
+exports.catalogdata_update = function (req, res, next) {
+  var oper = req.body.oper;
+  switch(oper){
+      case 'add':
+      Catalog.newAndSave(req.body.Name, req.body.ChineseName, 
+        req.body.ParentName, function (err, rows) {
+      });
+      break;
+      case 'edit':
+        Catalog.setCatalogName(req.body._id, req.body.Name, function (err, rows) {
+        });
+      break;
+  }
+  res.redirect('management/catalogdata');
 };

@@ -4,16 +4,14 @@
 $(document).ready(function(){
 
  $("#maingrid").jqGrid({
-    url:"/management/combineddata/list/",
+    url:"/management/catalogdata/list/",
     datatype: "json",
-    colNames:['ID','Name','Catalog', 'UpdateTime','CombinedType', 'Conditions'],
+    colNames:['_id','ChineseName','Name', 'ParentName'],
     colModel:[
-      {name:'_id',index:'_id', width:20,jsonmap:"_id"},
-      {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.Chinese",editable:true},
-      {name:'Catalog',index:'Catalog', width:190, editable:true,edittype:"select", editoptions : {value:'<%= CatalogOptions %>'},jsonmap:"CatalogNames.0"},
-      {name:'UpdateTime',index:'UpdateTime', width:100},
-      {name:'CombinedType',index:'CombinedType', width:100},
-      {name:'Conditions',index:'Conditions', width:100,jsonmap:"Conditions.0.IndicatorID"}
+      {name:'_id',index:'_id'}, 
+      {name:'ChineseName',index:'ChineseName', width:260,jsonmap:"NameLoc.Chinese",editable:true},
+      {name:'Name',index:'Name', width:260,editable:true},
+      {name:'ParentName',index:'ParentName', width:260,editable:true},
     ],
     jsonReader: {
         repeatitems: false,
@@ -22,12 +20,12 @@ $(document).ready(function(){
     height: 'auto',
     width:900,
     rowNum:100,
-    rowList:[100,200,300],
+    rowList:[50,100,200],
     pager: '#pmaingrid',
     sortname: 'Name',
     viewrecords: true,
     sortorder: "desc",
-    editurl: "/management/combineddata/update",
+    editurl: "/management/catalogdata/update",
     caption: "CombinedData",
     multiselect: true,
     ondblClickRow: function(id) {
@@ -41,10 +39,10 @@ $(document).ready(function(){
             lastsel=id;
         }
     },
+
 });
-
+ 
 var lastsel;
-
 $("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},
         {ajaxEditOptions: jsonOptions,
         serializeEditData: createJSON,
@@ -61,10 +59,13 @@ var jsonOptions = {
 };
 
 function createJSON(postdata) {
+alert(123);
     var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
     postdata['_id'] = (rowdata._id);
+    
     return (postdata);
 }
+
 function delJSON(postdata) {
     var ids = (postdata.id.split(','));
     var strids = '';

@@ -41,4 +41,9 @@ module.exports = function(app){
   // target data
   app.get('/management/targetdata', management.targetdata);
   app.get('/management/targetdata/list/', management.targetdata_list);
+
+  // catalog data
+  app.get('/management/catalogdata', management.catalogdata);
+  app.get('/management/catalogdata/list/', management.catalogdata_list);
+  app.post('/management/catalogdata/update', management.catalogdata_update);
 };
