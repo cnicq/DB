@@ -31,7 +31,8 @@ module.exports = function(app){
   // meta data
   app.get('/management/metadata', management.metadata);
   app.get('/management/metadata/list/', management.metadata_list);
-  app.get('/management/metadata/update', management.remove_meta_collections);
+  app.post('/management/metadata/update', management.metadata_update);
+  app.post('/management/metadata/values/update', management.metadata_values_update);
 
   // area data
   app.get('/management/areadata', management.areadata);
@@ -41,6 +42,7 @@ module.exports = function(app){
   // target data
   app.get('/management/targetdata', management.targetdata);
   app.get('/management/targetdata/list/', management.targetdata_list);
+  app.post('/management/targetdata/update', management.targetdata_update);
 
   // catalog data
   app.get('/management/catalogdata', management.catalogdata);

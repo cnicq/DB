@@ -7,6 +7,7 @@ var MetaDataSchema = new Schema({
 	Target1ID: { type: ObjectId},
 	Target2ID: { type: ObjectId},
 	Period: { type: String},
+	Datas:{ type:Array},
 	// for display
 	AreaNameLoc: { Chinese : {type:String}, English : {type:String} },
 	Target1NameLoc: { Chinese : {type:String}, English : {type:String} },

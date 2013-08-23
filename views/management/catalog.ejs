@@ -59,7 +59,6 @@ var jsonOptions = {
 };
 
 function createJSON(postdata) {
-alert(123);
     var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
     postdata['_id'] = (rowdata._id);
     
@@ -73,7 +72,6 @@ function delJSON(postdata) {
         var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
         strids += (rowdata._id) + ',';
     }
-
     postdata['_id'] = strids;
     return (postdata);
 }

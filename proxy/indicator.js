@@ -24,3 +24,17 @@ exports.setCombinedDataIDbyCombinedID = function(combineddata_id, newid, callbac
 exports.getCountByQuery = function (query, callback) {
   	Indicator.count(query, callback);
 };
+
+exports.updateByQuery = function(query, opt, callback){
+	Indicator.update(query, opt, callback);
+};
+
+exports.newAndSave = function (NameChinese, SrcTargetID, callback) {
+  var com = new Indicator();
+  com.NameLoc.Chinese = NameChinese;
+  com.SrcTargetID = SrcTargetID;
+
+  com.save(function (err, com) {
+    callback(err, com);
+  });
+};

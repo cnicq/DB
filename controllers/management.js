@@ -13,15 +13,16 @@ var CatalogCtrl = require('./catalog');
 
 // Combined data
 exports.combineddata = function(req, res){
+
   var option = '';
-  Catalog.getCatalogs(function (err, Datas) {
-    for (var i = Datas.length - 1; i >= 0; i--) {
-      if(Datas[i].ParentName != ""){
-        option += Datas[i].Name + ':' + Datas[i].NameLoc.Chinese + '-'+ Datas[i].Name + ';'; 
-      }
+  for(key in CatalogCtrl.Catalogs){
+    for (var i = CatalogCtrl.Catalogs[key].length - 1; i >= 0; i--) {
+      CatalogCtrl.Catalogs[key][i]
+      option += CatalogCtrl.Catalogs[key][i].Name + ':' + CatalogCtrl.Catalogs[key][i].NameLoc.Chinese + '-'+ CatalogCtrl.Catalogs[key][i].Name + ';'; 
     };
-    res.render('management/combined', { title: config.app_title, CatalogOptions: option });  
-  });
+  }
+  
+  res.render('management/combined', { title: config.app_title, CatalogOptions: option });  
 };
 
 exports.combineddata_list = function(req, res){
@@ -63,7 +64,16 @@ exports.combineddata_update = function (req, res, next) {
 
 // Indicator data
 exports.indicatordata = function(req, res){
-  res.render('management/indicator', { title: config.app_title});  
+  
+  var Areas = '', Targets;
+  for(key in AreaCtrl.Areas){
+    Areas += AreaCtrl.Areas[key]._id + ':' + AreaCtrl.Areas[key].NameLoc.Chinese + ';';
+  }
+
+  for(key in TargetCtrl.Targets){
+    Targets += TargetCtrl.Targets[key]._id + ':' + TargetCtrl.Targets[key].NameLoc.Chinese + ';';
+  }
+  res.render('management/indicator', { title: config.app_title, AreaOptions: Areas , TargetOptions : Targets});  
 };
 
 exports.indicatordata_list = function(req, res){
@@ -94,20 +104,28 @@ exports.indicatordata_list = function(req, res){
 };
 
 exports.indicatordata_update = function (req, res, next) {
-  var ids = (req.body._id).split(',');
   var oper = req.body.oper;
-  for (var i = ids.length - 1; i >= 0; i--) {
-    if (ids[i] == undefined || ids[i] == '') {
-      continue;
-    };
-    var id = ids[i];
-    switch(oper){
-        case 'del':
-        IndicatorCtrl.DelIndicator(id, function (err, rows) {
-        });
-        break;
+  if (oper == 'add') {
+    Indicator.newAndSave(req.body.Name, req.body.SrcTargetID, function (err, rows) {});
+  }else if (oper == 'edit') {
+    Indicator.updateByQuery({_id:req.body._id}, 
+      {$set : {'NameLoc.Chinese' : req.body.Name, SrcTargetID : req.body.SrcTargetID}}, function (err, rows) {
+      });
+  }else if(oper == 'del'){
+    var ids = (req.body._id).split(',');
+  
+    for (var i = ids.length - 1; i >= 0; i--) {
+      if (ids[i] == undefined || ids[i] == '') {
+        continue;
+      };
+      var id = ids[i];
+      switch(oper){
+          case 'del':
+          IndicatorCtrl.DelIndicator(id, function (err, rows) {
+          });
+          break;
+      } 
     }
-    
   };
   res.redirect('management/indicatordata');
 };
@@ -127,7 +145,6 @@ exports.indicatordata_refreshcombined = function (req, res, next) {
 
 // Meta data
 exports.metadata = function(req, res){
-  
   res.render('management/meta', { title: config.app_title});  
 };
 
@@ -159,6 +176,62 @@ exports.metadata_list = function(req, res){
   });
 };
 
+exports.metadata_update = function (req, res, next) {
+  var oper = req.body.oper;
+  var ids = req.body._id;
+  if (oper == 'del') {
+    ids = ids.split(',');
+    var ids = (req.body._id).split(',');
+    for (var i = ids.length - 1; i >= 0; i--) {
+      if (ids[i] == undefined || ids[i] == '') {
+        continue;
+      };
+      
+      Meta.delMetaDataByID(req.body.indicatorid, ids[i], function (err, rows) {});
+    }
+  };
+  switch(oper){
+      case 'add':
+      Meta.newAndSave(req.body.indicatorid, req.body.AreaID, req.body.Target1, req.body.Target2, req.body.Period,
+        function (err, rows) {
+      });
+      break;
+  }
+  res.redirect('management/indicatordata');
+};
+
+exports.metadata_values_update = function (req, res, next) {
+  console.log(req.body);
+  var oper = req.body.oper;
+  var ids = req.body._id;
+  if (oper == 'del') {
+    var Dates = (req.body.Dates).split(',');
+    for (var i = Dates.length - 1; i >= 0; i--) {
+      if (Dates[i] == undefined || Dates[i] == '') {
+        continue;
+      };
+      Meta.removeValue(req.body.indicatorid, req.body._id, Dates[i], function (err, rows) {});
+    }
+  };
+  switch(oper){
+      case 'add':
+      if(req.body.Date != ''){
+        Meta.addValue(req.body.indicatorid, req.body._id, req.body.Date, req.body.Value,
+          function (err, rows) {
+        });
+      }
+      break;
+      case 'edit':
+      Meta.updateValue(req.body.indicatorid, req.body._id, req.body.Date, req.body.Value,
+        function (err, rows) {
+          console.log(err);
+      });
+      break;
+  }
+  res.redirect('management/indicatordata');
+};
+
+/*
 exports.remove_meta_collections = function(req, res){
     mongoose.connection.db.collectionNames(function (err, names) {
       for (var i = names.length - 1; i >= 0; i--) {
@@ -173,7 +246,7 @@ exports.remove_meta_collections = function(req, res){
 
     res.render('management/meta', { title: config.app_title}); 
 };
-
+*/
 // area data
 exports.areadata = function(req, res){
   res.render('management/area', { title: config.app_title});  
@@ -253,6 +326,38 @@ exports.targetdata_list = function(req, res){
   });
 };
 
+exports.targetdata_update = function (req, res, next) {
+  var oper = req.body.oper;
+  var ids = req.body._id;
+
+  if (oper == 'del') {
+    ids = ids.split(',');
+  };
+  switch(oper){
+      case 'add':
+      Target.newAndSave(req.body.Type, req.body.ChineseName, 
+        '', function (err, rows) {
+      });
+      break;
+      case 'edit':
+        
+        Target.updateByQuery({_id:req.body._id}, 
+          {$set:{"NameLoc.Chinese":req.body.ChineseName, Type:req.body.Type}}, function (err, rows) {
+        });
+      break;
+      case 'del':
+      for (var i = ids.length - 1; i >= 0; i--) {
+        if (ids[i] == undefined || ids[i] == '') {
+          continue;
+        };
+        Target.delTargetByID(ids[i], function (err, rows) {
+        });
+      }
+      break;
+  }
+  res.redirect('management/targetdata');
+};
+
 // catalog data
 exports.catalogdata = function(req, res){
   res.render('management/catalog', { title: config.app_title});  
@@ -283,6 +388,10 @@ exports.catalogdata_list = function(req, res){
 
 exports.catalogdata_update = function (req, res, next) {
   var oper = req.body.oper;
+  var ids = req.body._id;
+  if (oper == 'del') {
+    ids = ids.split(',');
+  };
   switch(oper){
       case 'add':
       Catalog.newAndSave(req.body.Name, req.body.ChineseName, 
@@ -292,6 +401,15 @@ exports.catalogdata_update = function (req, res, next) {
       case 'edit':
         Catalog.setCatalogName(req.body._id, req.body.Name, function (err, rows) {
         });
+      break;
+      case 'del':
+      for (var i = ids.length - 1; i >= 0; i--) {
+        if (ids[i] == undefined || ids[i] == '') {
+          continue;
+        };
+        Catalog.delCatalogByID(ids[i], function (err, rows) {
+        });
+      }
       break;
   }
   res.redirect('management/catalogdata');

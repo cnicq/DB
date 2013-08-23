@@ -6,12 +6,13 @@ $(document).ready(function(){
  $("#maingrid").jqGrid({
     url:"/management/indicatordata/list/",
     datatype: "json",
-    colNames:['ID','Name','CombinedDataID', 'SrcTargetName'],
+    colNames:['ID','Name','CombinedDataID', 'SrcTargetName', 'SrcTargetID'],
     colModel:[
       {name:'_id',index:'_id', width:20,jsonmap:"_id"},
       {name:'Name',index:'Name', width:260,jsonmap:"NameLoc.Chinese",editable:true},
       {name:'CombinedDataID',index:'CombinedDataID', width:190,jsonmap:"CombinedDataID"},
-      {name:'SrcTargetName',index:'SrcTargetName', width:190,jsonmap:"SrcTargetName"}
+      {name:'SrcTargetName',index:'SrcTargetName', width:190,jsonmap:"SrcTargetName"},
+      {name:'SrcTargetID',index:'SrcTargetID', width:260,jsonmap:"SrcTargetID",editable:true},
     ],
     jsonReader: {
         repeatitems: false,
@@ -28,19 +29,18 @@ $(document).ready(function(){
     editurl: "/management/indicatordata/update",
     caption: "IndicatorData",
     multiselect: true,
-    ondblClickRow: function(rowid) {
-    jQuery(this).jqGrid('editGridRow', rowid);
-    },
     onSelectRow: function(ids) {
         var rowdata = $("#maingrid").jqGrid('getRowData', (ids));
         jQuery("#subgrid1").jqGrid('setGridParam',{url:"/management/metadata/list/?indicatorid="+rowdata["_id"],page:1});
-                jQuery("#subgrid1").jqGrid('setCaption',"MetaData: "+rowdata["_id"])
-                .trigger('reloadGrid');
+        jQuery("#subgrid1").jqGrid('setCaption', rowdata["_id"])
+            .trigger('reloadGrid');
     }
 });
 
-$("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},{}, {},{
-        //edit parameters
+$("#maingrid").jqGrid('navGrid',"#pmaingrid",{edit:true,add:true,del:true},
+        {ajaxEditOptions: jsonOptions,
+        serializeEditData: createJSON,
+        closeAfterEdit: true}, {},{
         ajaxDelOptions: jsonOptions,
         serializeDelData: delJSON,
         closeAfterDel: true});
@@ -50,6 +50,13 @@ var jsonOptions = {
     contentType :"application/json; charset=utf-8",
     dataType :"json"
 };
+
+function createJSON(postdata) {
+    var rowdata = $("#maingrid").jqGrid('getRowData', (postdata.id));
+    postdata['_id'] = (rowdata._id);
+    
+    return (postdata);
+}
 
 function delJSON(postdata) {
     var ids = (postdata.id.split(','));
@@ -64,18 +71,22 @@ function delJSON(postdata) {
 }
 
 var list = null;
+var sid = 0;
 
 jQuery("#subgrid1").jqGrid({
     height: 100,
     url:'',
     datatype: "json",
-    colNames:['_id','AreaNameLoc','Target1ID', 'Target2ID', 'Period','Datas'],
+    colNames:['_id','AreaID','Target1ID', 'Target2ID', 'Period','Datas'],
     colModel:[
         {name:'_id',index:'_id', width:80},
-        {name:'AreaNameLoc',index:'AreaNameLoc', width:100, jsonmap:"AreaNameLoc"},
-        {name:'Target1ID',index:'Target1ID', width:100,jsonmap:"Target1NameLoc"},
-        {name:'Target2ID',index:'Target2ID', width:100,jsonmap:"Target2NameLoc"},
-        {name:'Period',index:'Period', width:80},
+        {name:'AreaID',index:'AreaID', width:100, jsonmap:"AreaNameLoc", edittype:"select", editable:true,
+        editoptions : {value:'<%= AreaOptions %>'}},
+        {name:'Target1',index:'Target1', width:100,jsonmap:"Target1NameLoc", edittype:"select", editable:true,
+        editoptions : {value:'<%= TargetOptions %>'}},
+        {name:'Target2',index:'Target2', width:100,jsonmap:"Target2NameLoc", edittype:"select", editable:true,
+        editoptions : {value:'<%= TargetOptions %>'},},
+        {name:'Period',index:'Period', width:80, editable:true,edittype:"select", editoptions:{value:"year:year;season:season;month:month;day:day;none:none"}},
         {name:'Datas',index:'Datas', width:180,jsonmap:"Datas.length"},
     ],
     height: 'auto',
@@ -86,11 +97,15 @@ jQuery("#subgrid1").jqGrid({
     sortorder: "asc",
     multiselect: false,
     caption:"Metadata Detail1",
+    editurl: "/management/metadata/update",
     onSelectRow: function(id) {
+        sid = id;
         $("#subgrid2").jqGrid("clearGridData", true);
-         for( i = 0; i < list.rows[id-1]["Datas"].length; ++i){
-            jQuery("#subgrid2").jqGrid('addRowData',i+1,list.rows[id-1]["Datas"][i]);
-         }
+        if(list.rows[id-1].Datas != undefined){
+             for( i = 0; i < list.rows[id-1]["Datas"].length; ++i){
+                jQuery("#subgrid2").jqGrid('addRowData',i+1,list.rows[id-1]["Datas"][i]);
+             }
+        }
         jQuery("#subgrid2").trigger('reloadGrid');
         jQuery("#area_name").text(list.rows[id-1].AreaNameLoc);
     },
@@ -98,18 +113,53 @@ jQuery("#subgrid1").jqGrid({
         list = data;
     }
 });
-$("#subgrid1").jqGrid('navGrid',"#psubgrid1");
+$("#subgrid1").jqGrid('navGrid',"#psubgrid1",{edit:true,add:true,del:true},
+        {}, {
+        ajaxAddOptions: jsonOptions,
+        serializeEditData: addJSON,
+        closeAfterAdd: true
+        },{
+        serializeDelData: delSubgrid1JSON,
+        closeAfterDel: true});
+
+function addJSON(postdata) {
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    if(ids.length == 1)
+    {
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[0]));
+        postdata['indicatorid'] = rowdata._id;
+    } 
+    return (postdata);
+}
+function delSubgrid1JSON(postdata) {
+    var ids = (postdata.id.split(','));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#subgrid1").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
+    postdata['_id'] = strids;
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    if(ids.length == 1)
+    {
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[0]));
+        postdata['indicatorid'] = rowdata._id;
+    }    
+    return (postdata);
+}
 
 jQuery("#subgrid2").jqGrid({
     height: 100,
     url:'',
     datatype: "local",
-    colNames:['Date','UpdateDate', 'Value'],
+    colNames:['_id','Date','UpdateDate', 'Value'],
     colModel:[
-        {name:'Date',index:'Date', width:100},
-        {name:'UpdateDate',index:'UpdateDate', width:200},
-        {name:'Value',index:'Value', width:200},
+        {name:'_id',index:'_id', width:80},
+        {name:'Date',index:'Date', width:100,editable:true},
+        {name:'UpdateDate',index:'UpdateDate', width:200,editable:true},
+        {name:'Value',index:'Value', width:200,editable:true},
     ],
+    editurl: "/management/metadata/values/update",
     height: 'auto',
     rowList:[30,50,100],
     pager: '#psubgrid2',
@@ -117,9 +167,44 @@ jQuery("#subgrid2").jqGrid({
     viewrecords: true,
     sortorder: "asc",
     multiselect: false,
-    caption:"Metadata Detail2"
+    caption:"Metadata Detail2",
 });
-$("#subgrid2").jqGrid('navGrid',"#psubgrid2");
+$("#subgrid2").jqGrid('navGrid',"#psubgrid2",{edit:true,add:true,del:true},
+        {serializeEditData: addSubgrid2JSON}, {
+        ajaxAddOptions: jsonOptions,
+        serializeEditData: addSubgrid2JSON,
+        closeAfterAdd: true
+        },{
+        serializeDelData: delSubgrid2JSON,
+        closeAfterDel: true});
+
+function addSubgrid2JSON(postdata) {
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    if(ids.length == 1)
+    {
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[0]));
+        postdata['indicatorid'] = rowdata._id;
+    }
+    postdata['_id'] = list.rows[sid-1]['_id'];
+    return (postdata);
+}
+function delSubgrid2JSON(postdata) {
+    var ids = (postdata.id.split(','));
+    var dates = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#subgrid2").jqGrid('getRowData', (ids[i]));
+        dates += (rowdata.Date) + ',';
+    }
+    postdata['Dates'] = dates;
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    if(ids.length == 1)
+    {
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[0]));
+        postdata['indicatorid'] = rowdata._id;
+    } 
+    postdata['_id'] = list.rows[sid-1]['_id'];
+    return (postdata);
+}
 
 jQuery("#RefreshCombinedData").click( function() {
     var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));

@@ -10,7 +10,7 @@ $(document).ready(function(){
     colModel:[
       {name:'_id',index:'_id', width:100},
       {name:'ChineseName',index:'ChineseName', width:260,jsonmap:"NameLoc.Chinese",editable:true},
-      {name:'Type',index:'Type', width:100},
+      {name:'Type',index:'Type', width:100, editable:true, edittype:"select", editoptions:{value:"indicator:indicator;company:company;organization:organization"}},
     ],
     jsonReader: {
         repeatitems: false,

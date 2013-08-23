@@ -31,3 +31,7 @@ exports.setCatalogName = function(id, name, callback){
   Catalog.update({_id:id}, {$set : {Name : name}}, { multi: false }, callback);
 }
 
+exports.delCatalogByID = function(id, callback){
+  Catalog.remove({_id:id}, callback);
+}
+

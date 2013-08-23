@@ -16,3 +16,17 @@ exports.getTargetByID = function (id, callback) {
 exports.getCountByQuery = function (query, callback) {
   	Target.count(query, callback);
 };
+
+exports.updateByQuery = function(query, opt, callback){
+	Target.update(query, opt, callback);
+};
+
+exports.newAndSave = function (Type, NameChinese, NoteChinese, callback) {
+  var com = new Target();
+  com.NameLoc.Chinese = NameChinese;
+  com.Type = Type;
+  com.NoteLoc.Chinese = NoteChinese;
+  com.save(function (err, com) {
+    callback(err, com);
+  });
+};
