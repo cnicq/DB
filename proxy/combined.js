@@ -25,6 +25,9 @@ exports.setCatalogName = function (id, name, callback) {
 		Combined.update({_id: id}, {$addToSet: {CatalogNames:name}}, { multi: false }, callback);
 	}
 };
+exports.updateByQuery = function(query, opt, callback){
+  Combined.update(query, opt, callback);
+};
 
 exports.delCombinedByID = function(id, callback){
 	Combined.remove({_id:id}, callback);

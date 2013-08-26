@@ -21,6 +21,10 @@ exports.updateByQuery = function(query, opt, callback){
 	Target.update(query, opt, callback);
 };
 
+exports.delTargetByID = function(id, callback){
+  Target.remove({_id:id}, callback);
+}
+
 exports.newAndSave = function (Type, NameChinese, NoteChinese, callback) {
   var com = new Target();
   com.NameLoc.Chinese = NameChinese;

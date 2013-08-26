@@ -53,8 +53,14 @@ exports.combineddata_update = function (req, res, next) {
       });
       break;
       case 'edit':
-        Combined.setCatalogName(id, req.body.Catalog, function (err, rows) {
-        });
+       Combined.updateByQuery({_id:id}, {$unset: {CatalogNames:1}}, function(err, rows){
+         Combined.updateByQuery({_id:id}, {$addToSet: {CatalogNames:req.body.Catalog},
+         $set : {'NameLoc.Chinese':req.body.Name}}, 
+          function (err, rows) {
+            console.log(err);
+          });
+       });
+       
       break;
     }
   }
@@ -307,9 +313,9 @@ exports.targetdata_list = function(req, res){
   var limit = req.query.rows;
   
   var page = req.query.page - 1;
-  var options = { skip: (page) * limit, limit: limit };
+  var options = { skip: (page) * limit, limit: limit,sort: [ ['_id', 'desc' ]] };
   
-  Target.getTargetsByQuery({}, options, function (err, targets) {
+  Target.getTargetsByQuery({Type:{$nin:['indicator','Indicator']}}, options, function (err, targets) {
     if (err) {
       return next(err);
     }
