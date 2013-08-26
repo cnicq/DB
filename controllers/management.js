@@ -149,6 +149,19 @@ exports.indicatordata_refreshcombined = function (req, res, next) {
   res.send('');
 };
 
+exports.indicatordata_exporttocsv = function (req, res, next) {
+  var ids = req.params.ids.split(',');
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (ids[i] == undefined || ids[i] == '') {
+      continue;
+    };
+    var id = ids[i];
+    IndicatorCtrl.ExportToCSV(id, function (err, data) {});
+  };
+
+  res.send('');
+};
+
 // Meta data
 exports.metadata = function(req, res){
   res.render('management/meta', { title: config.app_title});  

@@ -1,5 +1,6 @@
 var models = require('../models');
 var Combined = models.Combined;
+var Utility = require('../lib/Utility');
 
 exports.getCombinedsByQuery = function (query, opt, callback) {
   	Combined.find(query, "", opt, callback);
@@ -43,7 +44,7 @@ exports.newAndSave = function (NameChinese, NoteChinese, CombinedType, Condition
   com.NoteLoc.Chinese = NoteChinese;
   com.CombinedType = CombinedType;
   com.Conditions.push(Condition);
-  com.UpdateTime = new Date();
+  com.UpdateTime = Utility.format_date(new Date());
   com.save(function (err, com) {
     callback(err, com);
   });

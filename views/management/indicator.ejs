@@ -217,6 +217,17 @@ jQuery("#RefreshCombinedData").click( function() {
         OnRefreshCombinedData(strids);
 });
 
+jQuery("#ImportToCSV").click( function() {
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    var strids = '';
+    for(var i = 0; i < ids.length; ++i){
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[i]));
+        strids += (rowdata._id) + ',';
+    }
+    if(strids != '')
+        OnImportToCSV(strids);
+});
+
 });
 function OnRefreshCombinedData(ids){
     $.ajax({
@@ -234,9 +245,27 @@ function OnRefreshCombinedData(ids){
     }
   });
 }
+
+function OnImportToCSV(ids){
+    $.ajax({
+    url: "/management/indicatordata/exporttocsv/" + ids,
+    type: 'GET',
+    success: function(data){
+        jQuery("#maingrid").trigger('reloadGrid');
+      },
+    error: function(xmlHTTPRequest, status, error){
+        alert("Error : " + error);
+    },
+    beforeSend: function(){
+    },
+    complete: function(){
+    }
+  });
+}
+
 </script>
 indicator data<br>
-<a href="javascript:void(0)" id="RefreshCombinedData" >Refresh/Create default combined data</a> | 
+<a href="javascript:void(0)" id="RefreshCombinedData" >Refresh/Create default combined data</a> | <a href="javascript:void(0)" id="ImportToCSV" >Export To CSV</a> | 
     <table id="maingrid"></table>
     <div id="pmaingrid"></div>
     <br>

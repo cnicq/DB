@@ -9,4 +9,5 @@ exports.config = {
 	app_version : "1.0.0",
 
 	db: 'mongodb://127.0.0.1/DBStore',
+	export_csv_path : __dirname + '\\csvs\\'
 };

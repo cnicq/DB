@@ -1,6 +1,7 @@
 var models = require('../models');
 var Meta = models.Meta;
 var mongoose = require('mongoose');
+var Utility = require('../lib/Utility');
 
 exports.getMetaDataByID = function (id, query, opt, callback) {
   	Meta(id).find(query, "", opt, callback);
@@ -31,12 +32,12 @@ exports.delMetaDataByID = function(indicatorid, id, callback){
 }
 
 exports.addValue = function(indicatorid, id, TheDate, TheValue, callback){
-	Meta(indicatorid).update({_id:id}, {$push : {Datas : {Date:TheDate,Value:TheValue, UpdateDate: new Date()}}}, callback);	
+	Meta(indicatorid).update({_id:id}, {$push : {Datas : {Date:TheDate,Value:TheValue, UpdateDate: Utility.format_date(new Date())}}}, callback);	
 }
 
 exports.updateValue = function(indicatorid, id, TheDate, NewValue, callback){
 	Meta(indicatorid).update({_id:id,Datas:{$elemMatch: {Date:TheDate}}}, 
-		{$set : {Datas : {Value:NewValue, Date:TheDate, UpdateDate: new Date()}}}, callback);	
+		{$set : {Datas : {Value:NewValue, Date:TheDate, UpdateDate: Utility.format_date(new Date())}}}, callback);	
 }
 
 exports.removeValue = function(indicatorid, id, TheDate, callback){
