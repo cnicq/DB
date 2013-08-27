@@ -71,7 +71,7 @@ exports.combineddata_update = function (req, res, next) {
 // Indicator data
 exports.indicatordata = function(req, res){
   
-  var Areas = '', Targets;
+  var Areas = '', Targets = '';
   for(key in AreaCtrl.Areas){
     Areas += AreaCtrl.Areas[key]._id + ':' + AreaCtrl.Areas[key].NameLoc.Chinese + ';';
   }
@@ -79,6 +79,7 @@ exports.indicatordata = function(req, res){
   for(key in TargetCtrl.Targets){
     Targets += TargetCtrl.Targets[key]._id + ':' + TargetCtrl.Targets[key].NameLoc.Chinese + ';';
   }
+
   res.render('management/indicator', { title: config.app_title, AreaOptions: Areas , TargetOptions : Targets});  
 };
 
@@ -162,6 +163,7 @@ exports.indicatordata_exporttocsv = function (req, res, next) {
   res.send('');
 };
 
+
 // Meta data
 exports.metadata = function(req, res){
   res.render('management/meta', { title: config.app_title});  
@@ -198,6 +200,7 @@ exports.metadata_list = function(req, res){
 exports.metadata_update = function (req, res, next) {
   var oper = req.body.oper;
   var ids = req.body._id;
+  console.log(req.body);
   if (oper == 'del') {
     ids = ids.split(',');
     var ids = (req.body._id).split(',');
@@ -208,19 +211,27 @@ exports.metadata_update = function (req, res, next) {
       
       Meta.delMetaDataByID(req.body.indicatorid, ids[i], function (err, rows) {});
     }
-  };
-  switch(oper){
-      case 'add':
-      Meta.newAndSave(req.body.indicatorid, req.body.AreaID, req.body.Target1, req.body.Target2, req.body.Period,
+  }
+  else if(oper == 'add'){
+    Meta.newAndSave(req.body.indicatorid, req.body.AreaID, req.body.Target1, req.body.Target2, req.body.Period,
         function (err, rows) {
       });
-      break;
   }
+  else if (oper == 'edit') {
+    var opt = {};
+    if (req.body.AreaID != '' ) {opt['AreaID'] = req.body.AreaID;};
+    if (req.body.Target1 != '' ) {opt['Target1ID'] = req.body.Target1;};
+    if (req.body.Target2 != '' ) {opt['Target2ID'] = req.body.Target2;};
+    console.log(opt);
+     Meta.updateByQuery(req.body.indicatorid, {_id:req.body.metaid}, {$set:opt}, function(err, rows){
+      console.log(err);
+    });
+  };
+ 
   res.redirect('management/indicatordata');
 };
 
 exports.metadata_values_update = function (req, res, next) {
-  console.log(req.body);
   var oper = req.body.oper;
   var ids = req.body._id;
   if (oper == 'del') {
@@ -324,11 +335,14 @@ exports.targetdata = function(req, res){
 
 exports.targetdata_list = function(req, res){
   var limit = req.query.rows;
-  
+  var type = req.query.type;
   var page = req.query.page - 1;
   var options = { skip: (page) * limit, limit: limit,sort: [ ['_id', 'desc' ]] };
-  
-  Target.getTargetsByQuery({Type:{$nin:['indicator','Indicator']}}, options, function (err, targets) {
+  var condition = {};
+  if (type != '' && type != undefined) {
+    condition = {Type:{$in:[type]}};
+  }
+  Target.getTargetsByQuery(condition, options, function (err, targets) {
     if (err) {
       return next(err);
     }

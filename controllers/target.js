@@ -18,7 +18,6 @@ exports.GetTargetNameLoc = function(id, loc) {
 	};
 	
 	var name = exports.Targets[id];
-
 	if(name != undefined){
 		return exports.Targets[id].NameLoc[loc];	
 	} 

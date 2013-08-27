@@ -114,13 +114,28 @@ jQuery("#subgrid1").jqGrid({
     }
 });
 $("#subgrid1").jqGrid('navGrid',"#psubgrid1",{edit:true,add:true,del:true},
-        {}, {
+        {
+        serializeEditData: addJSON2,
+        closeAfterAdd: true}, {
         ajaxAddOptions: jsonOptions,
         serializeEditData: addJSON,
         closeAfterAdd: true
         },{
         serializeDelData: delSubgrid1JSON,
         closeAfterDel: true});
+function addJSON2(postdata) {
+    var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));
+    if(ids.length == 1)
+    {
+        var rowdata = $("#maingrid").jqGrid('getRowData', (ids[0]));
+        postdata['indicatorid'] = rowdata._id;
+    }
+
+    var rowdata = $("#subgrid1").jqGrid('getRowData', (postdata["id"]));
+    postdata['metaid'] = rowdata._id;
+
+    return (postdata);
+}
 
 function addJSON(postdata) {
     var ids = (jQuery("#maingrid").jqGrid('getGridParam','selarrrow'));

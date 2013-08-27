@@ -27,6 +27,10 @@ exports.newAndSave = function (indicatorid, AreaID, Target1ID, Target2ID, Period
 	});
 };
 
+exports.updateByQuery = function(indicatorid, query, opt, callback){
+	Meta(indicatorid).update(query, opt, callback);
+};
+
 exports.delMetaDataByID = function(indicatorid, id, callback){
   Meta(indicatorid).remove({_id:id}, callback);
 }

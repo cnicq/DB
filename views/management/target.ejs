@@ -63,9 +63,21 @@ function delJSON(postdata) {
     postdata['_id'] = strids;
     return (postdata);
 }
+
+jQuery("#target_type").change( function() {
+    jQuery("#maingrid").jqGrid('setGridParam',{url:"/management/targetdata/list/?type="+jQuery("#target_type").val(),page:1}).trigger('reloadGrid');
 });
-  
+});
+
+
 </script>
+Select type : 
+<select id="target_type">
+    <option value="" selected>All</option>
+    <option value="company">company</option>
+    <option value="organization">organization</option>
+    <option value="indicator">indicator</option>
+</select>
     <table id="maingrid"></table>
     <div id="pmaingrid"></div>
 <% include ./footer %>
