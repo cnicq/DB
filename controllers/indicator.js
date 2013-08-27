@@ -6,7 +6,7 @@ var config = require('../config').config
 var csv = require('csv');
 var fs = require('fs');
 var TargetCtrl = require('./target');
-
+var AreaCtrl = require('./area');
 exports.DelIndicator = function(id, callback){
 	Indicator.getIndicatorByID(id, function(err, data){
 		// delete related combied data
@@ -51,26 +51,67 @@ exports.ExportToCSV = function(id, callback){
 					console.log(err3);
 					return next(err3);
 				};
-				Meta.getMetaDataByID(indicatorid, {}, options, function (err4, Metas) {
+				Meta.getMetaDataByID(indicatordata['_id'], {}, {}, function (err4, Metas) {
 				     if (err4) {
 				      return next(err4);
 				    }
 
 				    var data = [];
+				    var target1s = {};
+				    var target2s = {};
+				    var areas = {};
+				    var lines = {};
 					var line = '', NameLoc = '', NoteLoc = '', SrcTargetName;
+					var nAreas = 0, nTarget1s = 0, nTarget2s = 0;
 					if(indicatordata.NameLoc != undefined) {NameLoc = indicatordata.NameLoc.Chinese; }
 					if(combineddata.NoteLoc != undefined) {NoteLoc = combineddata.NameLoc.Chinese; }
 					if(targetdata.NameLoc != undefined) {SrcTargetName = targetdata.NameLoc.Chinese; }
+
 					// title
 					line = ',' + NameLoc + ',' + NoteLoc + ',' + SrcTargetName;
 					data.push(line);
 					for (var i = Metas.length - 1; i >= 0; i--) {
-				      Metas[i]['AreaNameLoc'] = AreaCtrl.GetAreaNameLoc(Metas[i]['AreaID'], 'Chinese');
-				      Metas[i]['Target1NameLoc'] = TargetCtrl.GetTargetNameLoc(Metas[i]['Target1ID'], 'Chinese');
-				      Metas[i]['Target2NameLoc'] = TargetCtrl.GetTargetNameLoc(Metas[i]['Target2ID'], 'Chinese');
+						if(Metas[i]['Datas'] == undefined || Metas[i]['Datas'].length == 0) continue;
+						var area = '', target1 = '', target2 = '';
+						area = areas[Metas[i]['AreaID']];
+						if (area == undefined) {
+							area = AreaCtrl.GetAreaNameLoc(Metas[i]['AreaID'], 'Chinese');
+							areas[Metas[i]['AreaID']] = nAreas;
+							nAreas += 1;
+						}
+						target1 = target1s[Metas[i]['Target1ID']] ;
+						if(target1 == undefined) {
+							target1 = TargetCtrl.GetTargetNameLoc(Metas[i]['Target1ID'], 'Chinese');
+							target1s[Metas[i]['Target1ID']] = target1;
+							nTarget1s += 1;
+						}
+
+						target2 = target1s[Metas[i]['Target2ID']] ;
+						if(target2 == undefined) {
+							target2 = TargetCtrl.GetTargetNameLoc(Metas[i]['Target2ID'], 'Chinese');
+							target2s[Metas[i]['Target2ID']] = target2;
+							nTarget2s += 1;
+						}
+				    }
+
+				    if (nTarget2s > 0) {
+				    	var key = '';
+				    	for (var i = Metas.length - 1; i >= 0; i--) {
+				    		for (var j = Metas[i]['Datas'].length - 1; j >= 0; j--) {
+				    			key = Metas[i]['Target1ID'] + ':' + Metas[i]['AreaID'];
+								if(lines[Metas[i]['Datas'][j].Date]['key'] == undefined){
+									lines[Metas[i]['Datas'][j].Date]['key'] = new array(nTarget2s);
+								}
+							}
+				    	}
 				    };
+
+				    
+				    console.log(areas);
+				    console.log(target1s);
+				    console.log(target2s);
 					var fout=fs.createWriteStream(config.export_csv_path + '\\' +NameLoc +'.csv');
-					fout.write(new Buffer('\xEF\xBB\xBF','binary'));//add utf-8 bom
+					fout.write(new Buffer('\xEF\xBB\xBF','binary')); //add utf-8 bom
 					csv() .from.array(data) .to(fout);
 				});
 			});
