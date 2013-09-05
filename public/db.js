@@ -93,7 +93,7 @@ function LoadData(){
 
       if (html_linkkeyworld == html_search) {
         if(html_content[html_linkkeyworld] == ''){
-          html_content[html_linkkeyworld] = '无记录'
+          html_content[html_linkkeyworld] = '<li>无记录</li>'
         }
         if (html_content[html_linkkeyworld] != '') {
         $("#list_search li").remove();
@@ -276,5 +276,6 @@ function OnClickSearch(){
   if(html_content_page[html_search] == '') return;
   html_linkkeyworld = html_search;
   LoadData();
+  html_content_page[html_search] = ''
 }
 

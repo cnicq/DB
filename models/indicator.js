@@ -6,8 +6,9 @@ var IndicatorDataSchema = new Schema({
   NameLoc: { Chinese : {type:String}, English : {type:String} },
   SrcTargetID: { type: ObjectId },
   CombinedDataID: { type: ObjectId },
-  SrcURL:{ type : String },
+  SrcURL:{ URL : {type : String }, MD5:{ type : String}},
   Keywords : {type : Array},
+
   // for display
   SrcTargetName: { Chinese : {type:String}, English : {type:String} },
 

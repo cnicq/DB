@@ -9,8 +9,12 @@ var TargetCtrl = require('./target');
 var AreaCtrl = require('./area');
 exports.DelIndicator = function(id, callback){
 	Indicator.getIndicatorByID(id, function(err, data){
+		if (err) {
+			console.log(err);
+			return next(err);
+		};
 		// delete related combied data
-		if (data['CombinedDataID'] != undefined ) {
+		if (data != null && data['CombinedDataID'] != undefined ) {
 			Combined.delCombinedByID(data['CombinedDataID'], function(err, rows){});
 		};
 		// drop related meta data collection
