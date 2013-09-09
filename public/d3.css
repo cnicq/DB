@@ -5,13 +5,19 @@
   shape-rendering: crispEdges;
 }
 
+svg {
+  font: 10px sans-serif;
+}
+
+.line {
+  stroke: steelblue;
+  stroke-width: 2;
+  fill: none;
+}
+
 .bar {
   fill: steelblue;
   fill-opacity: .9;
-}
-
-.x.axis path {
-  display: none;
 }
 
 div.tooltip {   
@@ -31,6 +37,11 @@ div.tooltip {
   stroke: #fff;
 }
 
+.data-point {
+  stroke: steelblue;
+  stroke-width: 2;
+  fill: #FFF;
+}
 
 /**
  *

@@ -211,6 +211,7 @@ function ShowLineChart() {
 
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
+  $('#svg_d3_2').hide();
 
   if(Target1Index == -1 || Target2Index == -1) return;
 
@@ -290,15 +291,11 @@ function ShowLineChart() {
         .attr("y", 6)
         .attr("dy", ".7em")
         .style("text-anchor", "end")
-        .text("Value");
+        .text("");
 
     svg.append("path")
         .attr("class", "line")
-        .attr("d", line(MetaData.Datas))
-        .style({
-          "fill": "none",
-          "stroke": "#000",
-        });
+        .attr("d", line(MetaData.Datas));
 
    var div = d3.select("body").append("div")   
     .attr("class", "tooltip")               
@@ -308,10 +305,10 @@ function ShowLineChart() {
         .data(MetaData.Datas)
       .enter().append("circle")
          .attr("stroke", "black")
-         .attr("fill", function(d, i) { return "blue" })
+         .attr('class', 'data-point')
          .attr("cx", function(d, i) { return x(d.Date) + padding })
          .attr("cy", function(d, i) { return y(d.Value) })
-         .attr("r", function(d, i) { return 10 })
+         .attr("r", function(d, i) { return 5 })
          .on("mouseover", function(d) {      
             div.transition()        
                 .duration(200)      
@@ -360,6 +357,7 @@ function ShowGroupBarChart()
   $('#svg_d3_2').empty();
 
   if(Target1Index == -1 || Target2Index == -1) return;
+   $('#svg_d3_2').show();
 
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
@@ -370,29 +368,37 @@ function ShowGroupBarChart()
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
-    height = 50*MetaData.length - margin.top - margin.bottom;
-  var padding = 100;
+    height = 50 * MetaData.length - margin.top - margin.bottom;
+  var padding = 200;
+  var PieChartWidth = 0.5 * width;
+  var radius = PieChartWidth * 0.25;
+
+  height = height < radius * 2 ? radius * 2 : height;
+  var barHeight = 30;
+  var barHeightMargin = 8;
+  var barHeightStar = 50;
 
   if (MetaData.length == 0) return;
 
   // Bar
+  var color = d3.scale.ordinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
   var BarChartWidth = width * 0.5;
   var x = d3.scale.linear()
       .range([0, BarChartWidth]);
 
-
   var xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom");
-
+  
   var svg = d3.select("#svg_d3_2").on("click", function(d) {});
-
   svg.attr("width", width + margin.left + margin.right)
      .attr("height", height + margin.top + margin.bottom)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain([0, d3.max(MetaData, function(d) { return d.Value; })]);
+    x.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
 
   svg.append("g")
       .attr("class", "x axis")
@@ -402,42 +408,37 @@ function ShowGroupBarChart()
   var barContainer = svg.append("g");
   barContainer.selectAll("rect").data(MetaData).enter().append("rect")
       .attr("class", "bar")
-      .attr("y", function(d, i) { return (50 + i * 40); })
+      .attr("y", function(d, i) { return (barHeightStar + i * barHeight); })
       .attr("height", 20)
       .attr("x", padding)
       .attr("width", function(d) { return x(d.Value);})
-      .style("fill", function(d, i) { return "#6b486b";});
+      .style("fill", function(d, i) { return color((IsTarget1Base ? MetaData[i].Target2NameLoc : MetaData[i].Target1NameLoc)); });
 
   barContainer.selectAll("text").data(MetaData).enter().append("text")
-      .attr("y", function(d, i) { return (50 + i * 40 + 10); })
+      .attr("y", function(d, i) { return (barHeightStar + i * barHeight + barHeightMargin); })
       .attr("x", padding)
       .attr("dy", ".35em") // vertical-align: middle
-      .attr("text-anchor", "front") // text-align: left
+      .attr("text-anchor", "end") // text-align: left
       .text(function(d) { return (IsTarget1Base ? d.Target2NameLoc : d.Target1NameLoc);});
 
   barContainer.selectAll(".rule").data(MetaData).enter().append("text")
-      .attr("y", function(d, i) { return (50 + i * 40 + 10); })
+      .attr("y", function(d, i) { return (barHeightStar + i * barHeight + barHeightMargin); })
       .attr("x", function(d) { return BarChartWidth + padding;})
       .attr("dy", ".35em") // vertical-align: middle
       .attr("text-anchor", "end") // text-align: right
       .text(function(d) { return d.Value; });
 
   // Pie
-  var PieChartWidth = 0.5 * width;
-  var color = d3.scale.ordinal()
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
+  
   var pie = d3.layout.pie()
     .sort(null)
     .value(function(d) { return d.Value; });
-
-var radius = PieChartWidth * 0.25;
 
   var g = svg.selectAll(".arc")
       .data(pie(MetaData))
     .enter().append("g")
       .attr("class", "arc")
-      .attr("transform", "translate(" + BarChartWidth * 1.75 + "," + radius * 1.2 + ")");
+      .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + radius * 1.2 + ")");
 
 var arc = d3.svg.arc()
     .outerRadius(radius - 10)
@@ -452,91 +453,6 @@ var arc = d3.svg.arc()
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
       .text(function(d,i) { return (IsTarget1Base ? MetaData[i].Target2NameLoc : MetaData[i].Target1NameLoc);});
-}
-
-
-function ShowBarChart() {
- 
-  var nAreaNum = SetTitle();
-
-  // chart 1(line chart): If has more than one area, take area as target1,  max to two
-  // x for time, y-1 for value
-
-  if (nAreaNum > 1) {
-
-  };
-  // Note that the meta datas can have no target1, so
-  // Chart 2(can be pie chart,  bar chart and bubble chart):group by target1 or area
-  
-
-  var margin = {top: 20, right: 20, bottom: 30, left: 40},
-      width = window.innerWidth/2 - margin.left - margin.right,
-      height = window.innerHeight/2 - margin.top - margin.bottom;
-
-  var formatPercent = d3.format(".0%");
-
-  var x = d3.scale.ordinal()
-      .rangeRoundBands([0, width], .1);
-
-  var y = d3.scale.linear()
-      .range([height, 0]);
-
-  var xAxis = d3.svg.axis()
-      .scale(x)
-      .orient("bottom");
-
-  var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left")
-      .tickFormat(formatPercent);
-
-  var dataset = [1,2,3,4,5];
-  var svg = d3.select("#svg_d3")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  svg.selectAll("rect")
-      .data(dataset)
-      .enter()
-      .append("rect")
-      .attr("x", function(d, i) { return (i * 100); })
-      .attr("y", 10)
-      .attr("width", 5)
-      .attr("height", 5);
-  /*
-  d3.tsv("data.tsv", function(error, data) {
-   
-    x.domain(data.map(function(d) { return d.letter; }));
-    y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
-
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-      .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text("Frequency");
-
-    svg.selectAll(".bar")
-        .data(data)
-      .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", function(d) { return x(d.letter); })
-        .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.frequency); })
-        .attr("height", function(d) { return height - y(d.frequency); });
-
-  });
-  */
 }
 
 function HideD3()
