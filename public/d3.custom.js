@@ -297,6 +297,30 @@ function ShowLineChart() {
         .attr("class", "line")
         .attr("d", line(MetaData.Datas));
 
+  // Draw X-axis grid lines
+    svg.selectAll("line.x")
+    .data(x.ticks(10))
+    .enter().append("line")
+    .attr("class", "x")
+    .attr("x1", x)
+    .attr("x2", x)
+    .attr("y1", 0)
+    .attr("y2", height)
+    .attr("transform", "translate(" + padding  + ",0)")
+    .style("stroke", "#ccc");
+   
+  // Draw Y-axis grid lines
+    svg.selectAll("line.y")
+    .data(y.ticks(10))
+    .enter().append("line")
+    .attr("class", "y")
+    .attr("x1", 0)
+    .attr("x2", width)
+    .attr("y1", y)
+    .attr("y2", y)
+    .attr("transform", "translate(" + padding  + ",0)")
+    .style("stroke", "#ccc");
+
    var div = d3.select("body").append("div")   
     .attr("class", "tooltip")               
     .style("opacity", 0);
@@ -365,18 +389,18 @@ function ShowGroupBarChart()
   if (Target2Data.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
   var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
+  var barHeight = 30;
+  var barHeightMargin = 8;
+  var barHeightStar = 50;
 
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
-    height = 50 * MetaData.length - margin.top - margin.bottom;
+    height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
   var padding = 200;
   var PieChartWidth = 0.5 * width;
   var radius = PieChartWidth * 0.25;
 
   height = height < radius * 2 ? radius * 2 : height;
-  var barHeight = 30;
-  var barHeightMargin = 8;
-  var barHeightStar = 50;
 
   if (MetaData.length == 0) return;
 
@@ -388,9 +412,16 @@ function ShowGroupBarChart()
   var x = d3.scale.linear()
       .range([0, BarChartWidth]);
 
+  var y = d3.scale.linear()
+      .range([height, 0]);
+
   var xAxis = d3.svg.axis()
       .scale(x)
-      .orient("bottom");
+      .orient("top");
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
   
   var svg = d3.select("#svg_d3_2").on("click", function(d) {});
   svg.attr("width", width + margin.left + margin.right)
@@ -398,12 +429,18 @@ function ShowGroupBarChart()
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
+  x.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
+  y.domain([0, 0]).nice();
 
   svg.append("g")
-      .attr("class", "x axis")
+      .attr("class", "axis")
       .attr("transform", "translate(" + padding + "," + 0 + ")")
       .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + (padding - 1) + "," + 0 + ")")
+      .call(yAxis);
 
   var barContainer = svg.append("g");
   barContainer.selectAll("rect").data(MetaData).enter().append("rect")
