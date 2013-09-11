@@ -113,17 +113,23 @@
 	<div data-role="page" id="page_d3" data-add-back-btn="true">
 	  	<div data-role="header" data-position="fixed" >
 		    <span class="ui-title" id="page_d3_title">数据百科 - 指数</span>
-			    <fieldset data-role="controlgroup" data-type="horizontal" class="ui-btn-right">
-			    	<label for="select_d3_target1">Target1</label>  
-				    <select name="select_d3_target1" id="select_d3_target1">
-				    </select>
-				    <label for="select_d3_target2">Target2</label>  
-				    <select name="select_d3_target2" id="select_d3_target2">
-				    </select>
-				</fieldset>
+		     <div class="ui-btn-right" data-role="controlgroup" data-type="horizontal">
+	     		<a href="#" data-role="button" data-icon="grid">评论</a>
+	      		<a href="#" data-role="button" data-icon="search">分享</a>
+    			</div>
 		</div><!-- /header -->
 
 		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_d3" >
+
+			<fieldset data-role="controlgroup" data-type="horizontal" class="ui-btn-mid">
+			    	<label for="select_d3_target1">Target1</label>  
+				    <select name="select_d3_target1" id="select_d3_target1" data-native-menu="false"  multiple="multiple">
+				    </select>
+				    <label for="select_d3_target2">Target2</label>  
+				    <select name="select_d3_target2" id="select_d3_target2" data-native-menu="false"  multiple="multiple">
+				    </select>
+			</fieldset>
+
 			<span class="ui-title" id="svg_d3_msg"></span>
 			<svg id="svg_d3"></svg>
 		</div><!-- /content_d3 -->

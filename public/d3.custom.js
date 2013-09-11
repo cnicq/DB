@@ -5,12 +5,11 @@ var AreaData = [];
 var Target1IsArea = false;
 var Target1Index = 0, Target2Index = 0;
 var SelectedDate = undefined;
+var Target1Indexs = [], Target2Indexs = []
 
 function SetTitle() {
-
    // if has only one area data, show the area name in title
   var title = CombinedData.IndicatorData.NameLoc['Chinese'];
-
   // set title of page_d3 
   if(AreaData.length == 1) {
       title = '(' + AreaData[0] + ') ' + title;
@@ -41,6 +40,9 @@ function ShowChart() {
     };
   }
 
+  // Initialize the params
+  Target1Indexs = [0]
+  Target2Indexs = [0]
   // Set page_d3 title
   SetTitle();
 
@@ -48,6 +50,7 @@ function ShowChart() {
   $('#select_d3_target1 option').remove();
   $('#select_d3_target2 option').remove();
 
+  // Add target1, target2 options
   if (Target1Data.length > 0) {
     for (var i = Target1Data.length - 1; i >= 0; i--) {
       $('#select_d3_target1').append("<option value=" + Target1Data[i] + ">" + Target1Data[i]+ "</option>");
@@ -66,14 +69,15 @@ function ShowChart() {
     };
   };
 
+  // Set default select option
   if (nMetaDatasNum >= 1) {
       var myselect = $("#select_d3_target1");
-      if (Target1IsArea) {myselect.val(AreaData[Target1Index]);}
-      else {myselect.val(Target1Data[Target1Index]);}
+      if (Target1IsArea) {myselect.val(AreaData[Target1Indexs[0]]);}
+      else {myselect.val(Target1Data[Target1Indexs[0]]);}
       myselect.selectmenu("refresh");
 
       myselect = $("#select_d3_target2");
-      myselect.val(Target2Data[Target1Index]);
+      myselect.val(Target2Data[Target2Indexs[0]]);
       myselect.selectmenu("refresh");
 
       ShowLineChart();
@@ -81,44 +85,61 @@ function ShowChart() {
 
   $("#select_d3_target1").change(function () {
     var $this = $(this);
-    Target1Index = GetIndexByTarget1Name($this.val());
+    SetIndexByTarget1Name($this.val());
     ShowLineChart();
   });
 
   $("#select_d3_target2").change(function () {
     var $this = $(this);
-    Target2Index = GetIndexByTarget2Name($this.val());
+    SetIndexByTarget2Name($this.val());
     ShowLineChart();
   });
 }
 
-function GetIndexByTarget1Name(name) {
-  
-  if (Target1IsArea) {
-    for (var i = AreaData.length - 1; i >= 0; i--) {
-      if(AreaData[i] == name){
-        return i;
+function SetIndexByTarget1Names(names) {
+  Target1Indexs = []
+  for(var j = names.length - 1; j >= 0; j--)
+  {
+    name = names[j];
+    if (Target1IsArea) {
+      for (var i = AreaData.length - 1; i >= 0; i--) {
+        if(AreaData[i] == name){
+          Target1Indexs.append(i);
+          break;
+        }
+      }
+    }
+    else {
+      for (var i = Target1Data.length - 1; i >= 0; i--) {
+        if(Target1Data[i] == name){
+          Target1Indexs.append(i);
+          break;
+        }
       }
     }
   }
-  else {
-    for (var i = Target1Data.length - 1; i >= 0; i--) {
-      if(Target1Data[i] == name){
-        return i;
-      }
-    }
-  }
   
-  return -1;
+  if (Target1Indexs.length == 0) {
+    Target1Indexs = [0]
+  };
 }
 
-function GetIndexByTarget2Name(name) {
-  for (var i = Target2Data.length - 1; i >= 0; i--) {
-    if(Target2Data[i] == name){
-      return i;
+function SetIndexByTarget2Names(names) {
+  Target2Indexs = []
+  for(var j = names.length - 1; j >= 0; j--)
+  {
+    name = names[j];
+    for (var i = Target2Data.length - 1; i >= 0; i--) {
+      if(Target2Data[i] == name){
+        Target2Indexs.append(i);
+        break;
+      }
     }
-  }
-  return -1;
+}
+
+  if (Target2Indexs.length == 0) {
+    Target2Indexs = [0]
+  };
 }
 
 function CloneMetaDataBySelectIndex() {
@@ -174,7 +195,6 @@ function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
               MetaData.Target2NameLoc = CombinedData.MetaDatas[i].Target2NameLoc;
               MetaData.Date = SelectedDate;
               MetaData.Value = CombinedData.MetaDatas[i].Datas[j].Value;
-              //alert(MetaData.Target1NameLoc + MetaData.Target2NameLoc);
                break;
             }
            
@@ -197,8 +217,8 @@ function ResetChart(){
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
 
-  Target1Index = 0; 
-  Target2Index = 0;
+  Target1Indexs = [0]; 
+  Target2Indexs = [0];
   Target1IsArea = false;
   SelectedDate = undefined;
 
