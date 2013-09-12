@@ -85,26 +85,29 @@ function ShowChart() {
 
   $("#select_d3_target1").change(function () {
     var $this = $(this);
-    SetIndexByTarget1Name($this.val());
+    SetIndexByTarget1Names($this.val());
     ShowLineChart();
   });
 
   $("#select_d3_target2").change(function () {
     var $this = $(this);
-    SetIndexByTarget2Name($this.val());
+    SetIndexByTarget2Names($this.val());
     ShowLineChart();
   });
 }
 
 function SetIndexByTarget1Names(names) {
   Target1Indexs = []
+  if (names == null) {
+    return;
+  };
   for(var j = names.length - 1; j >= 0; j--)
   {
     name = names[j];
     if (Target1IsArea) {
       for (var i = AreaData.length - 1; i >= 0; i--) {
         if(AreaData[i] == name){
-          Target1Indexs.append(i);
+          Target1Indexs.push(i);
           break;
         }
       }
@@ -112,7 +115,7 @@ function SetIndexByTarget1Names(names) {
     else {
       for (var i = Target1Data.length - 1; i >= 0; i--) {
         if(Target1Data[i] == name){
-          Target1Indexs.append(i);
+          Target1Indexs.push(i);
           break;
         }
       }
@@ -126,12 +129,15 @@ function SetIndexByTarget1Names(names) {
 
 function SetIndexByTarget2Names(names) {
   Target2Indexs = []
+  if (names == null) {
+    return;
+  };
   for(var j = names.length - 1; j >= 0; j--)
   {
     name = names[j];
     for (var i = Target2Data.length - 1; i >= 0; i--) {
       if(Target2Data[i] == name){
-        Target2Indexs.append(i);
+        Target2Indexs.push(i);
         break;
       }
     }
@@ -142,16 +148,16 @@ function SetIndexByTarget2Names(names) {
   };
 }
 
-function CloneMetaDataBySelectIndex() {
+function CloneMetaDataBySelectIndex(T1Index, T2Index) {
   for (var i = CombinedData.MetaDatas.length - 1; i >= 0; i--) {
     if (Target1IsArea) {
-        if(CombinedData.MetaDatas[i].AreaNameLoc == AreaData[Target1Index] && 
-          CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index])
+        if(CombinedData.MetaDatas[i].AreaNameLoc == AreaData[T1Index] && 
+          CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index])
           return jQuery.extend(true, {}, CombinedData.MetaDatas[i]);
     }
     else{
-       if(CombinedData.MetaDatas[i].Target1NameLoc == Target1Data[Target1Index] && 
-          CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[Target2Index])
+       if(CombinedData.MetaDatas[i].Target1NameLoc == Target1Data[T1Index] && 
+          CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index])
           return jQuery.extend(true, {}, CombinedData.MetaDatas[i]);
     }
   };
@@ -208,8 +214,6 @@ function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
     };
   };
 
-
-
   return MetaDatas;
 }
 
@@ -241,27 +245,40 @@ function ShowLineChart() {
   var padding = 100;
 
   // clone data
-  var MetaData = CloneMetaDataBySelectIndex(); 
-  if (MetaData == undefined) return;
-
-  var parseDate = d3.time.format("%Y.%m").parse;
-  switch (MetaData.Period){
-    case 'year':
-      parseDate = d3.time.format("%Y").parse;
-      break;
-    case 'month':
-      parseDate = d3.time.format("%Y.%m").parse;
-      break;
-    case 'day':
-     parseDate = d3.time.format("%Y.%m.%d").parse;
-      break;
-    default:
-      break;
-  }
-  for (var i = MetaData.Datas.length - 1; i >= 0; i--) {
-    MetaData.Datas[i].DateStr = (MetaData.Datas[i].Date);
-    MetaData.Datas[i].Date = parseDate(MetaData.Datas[i].Date);
+  var sTimePeriod = ''
+  var parseDate = undefined;
+  var MetaDataArr = [];
+  
+  for (var i = 0; i < Target1Indexs.length; i++) {
+    for (var j = 0; j < Target2Indexs.length; j++) {
+      MetaData = CloneMetaDataBySelectIndex(Target1Indexs[i], Target2Indexs[j]); 
+      sTimePeriod = MetaData.Period;
+      if (parseDate == undefined) {
+        switch (sTimePeriod){
+          case 'year':
+            parseDate = d3.time.format("%Y").parse;
+            break;
+          case 'month':
+            parseDate = d3.time.format("%Y.%m").parse;
+            break;
+          case 'day':
+           parseDate = d3.time.format("%Y.%m.%d").parse;
+            break;
+          default:
+            break;
+        }
+      };
+      for (var k = MetaData.Datas.length - 1; k >= 0; k--) {
+      MetaData.Datas[k].DateStr = (MetaData.Datas[k].Date);
+      MetaData.Datas[k].Date = parseDate(MetaData.Datas[k].Date);
+      };
+      MetaData.Target1Index = Target1Indexs[i];
+      MetaData.Target2Index = Target2Indexs[j];
+      MetaDataArr.push(MetaData); 
+    };
   };
+
+  if (MetaDataArr.length == 0) return;
 
   var x = d3.time.scale()
       .range([0, width]);
@@ -288,35 +305,34 @@ function ShowLineChart() {
      .attr("height", height + margin.top + margin.bottom)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  var maxValue, minValue;
-  maxValue = d3.max(MetaData.Datas, function(d) { return d.Value; });
-  minValue = d3.min(MetaData.Datas, function(d) { return d.Value; });
+
+  var maxValue = d3.max(MetaDataArr, function(m){ return d3.max(m.Datas, function(d) { return d.Value; })});
+  var minValue = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Value; })});
+
+  var maxValue = d3.max(MetaDataArr, function(m){ return })
   maxValue = maxValue + (maxValue - minValue)/5;
   minValue = minValue - (maxValue - minValue)/5
 
-    x.domain(d3.extent(MetaData.Datas, function(d) { return d.Date; }));
-    y.domain([minValue, maxValue]);
+  x.domain(d3.extent(MetaDataArr, function(m){ return d3.extent(m.Datas, function(d) { return d.Date; })}));
+  y.domain([minValue, maxValue]);
 
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(" + padding + "," + height + ")")
-        .call(xAxis);
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(" + padding + "," + height + ")")
+      .call(xAxis);
 
-    svg.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + padding  + ",0)")
-        .call(yAxis)
-      .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".7em")
-        .style("text-anchor", "end")
-        .text("");
+  svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + padding  + ",0)")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".7em")
+      .style("text-anchor", "end")
+      .text("");
 
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", line(MetaData.Datas));
-
+  
   // Draw X-axis grid lines
     svg.selectAll("line.x")
     .data(x.ticks(10))
@@ -345,33 +361,41 @@ function ShowLineChart() {
     .attr("class", "tooltip")               
     .style("opacity", 0);
 
-    var points = svg.selectAll(".point")
-        .data(MetaData.Datas)
-      .enter().append("circle")
-         .attr("stroke", "black")
-         .attr('class', 'data-point')
-         .attr("cx", function(d, i) { return x(d.Date) + padding })
-         .attr("cy", function(d, i) { return y(d.Value) })
-         .attr("r", function(d, i) { return 5 })
-         .on("mouseover", function(d) {      
-            div.transition()        
-                .duration(200)      
-                .style("opacity", .9);      
-            div .html(d.DateStr + "<br/>"  + d.Value)  
-                .style("left", (d3.event.pageX) + "px")     
-                .style("top", (d3.event.pageY - 28) + "px");    
-            })                  
-        .on("mouseout", function(d) {       
-            div.transition()        
-                .duration(500)      
-                .style("opacity", 0);   
-        })
-        .on("click", function(d) {
-          SelectedDate = d.DateStr;
-          ShowGroupBarChart();
-          //$('#d3_right_panel').panel( "open" );
-          //$('#d3_right_panel').trigger( "updatelayout" );
-        });
+  var IndicatorNodes = svg.selectAll(".IndicatorNodes")
+        .data(MetaDataArr)
+
+  var IndicatorNode = IndicatorNodes.enter().append("g")
+      .attr("class", "IndicatorNode")
+      .attr("id", function(d) { return d.name; });
+
+  IndicatorNode.append("path")
+    .attr("class", "line")
+    .attr("d", function(d) {return line(d.Datas); });
+
+  IndicatorNode.append("circle")
+    .datum(function(d) { return d.Datas; })
+     .attr("stroke", "black")
+     .attr('class', 'data-point')
+     .attr("cx", function(d, i) { return x(d.Date) + padding })
+     .attr("cy", function(d, i) { return y(d.Value) })
+     .attr("r", function(d, i) { return 5 })
+     .on("mouseover", function(d) {      
+        div.transition()        
+            .duration(200)      
+            .style("opacity", .9);      
+        div .html(d.DateStr + "<br/>"  + d.Value)  
+            .style("left", (d3.event.pageX) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px");    
+        })                  
+    .on("mouseout", function(d) {       
+        div.transition()        
+            .duration(500)      
+            .style("opacity", 0);   
+    })
+    .on("click", function(d) {
+      SelectedDate = d.DateStr;
+      ShowGroupBarChart();
+    });
 /*
     var color = d3.scale.ordinal()
     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
