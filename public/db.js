@@ -51,8 +51,7 @@ $(document).ready(function(){
       $("#list_catalog li").remove();
   });
 
-  $("#page_d3").bind("pagehide", function(event,ui){
-     ResetChart();
+  $("#page_d3").bind("pagehide", function(event,ui){    
   });
 
 })

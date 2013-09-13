@@ -46,6 +46,9 @@ div.tooltip {
 .IndicatorNodes {opacity: 0.2;}
 .IndicatorNodes:hover {opacity:1;}
 
+.underlay { visibility: hidden; pointer-events:all; }
+.underlay rect { fill:gray; opacity:.3; }
+
 /**
  *
  * Pull down styles
