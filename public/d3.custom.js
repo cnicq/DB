@@ -6,6 +6,8 @@ var Target1IsArea = false;
 var Target1Index = 0, Target2Index = 0;
 var SelectedDate = undefined;
 var Target1Indexs = [], Target2Indexs = []
+var CurChartTypeIndex = 1;
+
 
 function SetTitle() {
    // if has only one area data, show the area name in title
@@ -17,6 +19,32 @@ function SetTitle() {
   $("#page_d3_title").html(title + " - 浏览量:" + CombinedData.CombinedData['Views']);
 
   return AreaData.length;
+}
+
+function ShowPrevChartType(){
+  for (var i = 0; i < ShowChartFuncs.length; i++) {
+    if (i == CurChartTypeIndex) {
+      CurChartTypeIndex -= 1;
+      if (CurChartTypeIndex < 0) {
+        CurChartTypeIndex = ShowChartFuncs.length - 1;
+      }
+      break;
+    };
+  };
+  ShowChartFuncs[CurChartTypeIndex]() ;
+}
+
+function ShowNextChartType(){
+  for (var i = 0; i < ShowChartFuncs.length; i++) {
+    if (i == CurChartTypeIndex) {
+      CurChartTypeIndex += 1;
+      if (CurChartTypeIndex >= ShowChartFuncs.length) {
+        CurChartTypeIndex = 0;
+      }
+      break;
+    };
+  };
+  ShowChartFuncs[CurChartTypeIndex]() ;
 }
 
 function ShowChart() {
@@ -52,19 +80,19 @@ function ShowChart() {
 
   // Add target1, target2 options
   if (Target1Data.length > 0) {
-    for (var i = Target1Data.length - 1; i >= 0; i--) {
+    for (var i = 0; i <= Target1Data.length - 1; i++) {
       $('#select_d3_target1').append("<option value=" + Target1Data[i] + ">" + Target1Data[i]+ "</option>");
     };
   }
   else{
-    for (var i = AreaData.length - 1; i >= 0; i--) {
+    for (var i = 0; i <= AreaData.length - 1; i++) {
       Target1IsArea = true;
       $('#select_d3_target1').append("<option value=" + AreaData[i] + ">" + AreaData[i]+ "</option>");
     };
   }
 
   if (Target2Data.length > 0) {
-    for (var i = Target2Data.length - 1; i >= 0; i--) {
+    for (var i = 0; i <= Target2Data.length - 1; i++) {
       $('#select_d3_target2').append("<option value=" + Target2Data[i] + ">" + Target2Data[i]+ "</option>");
     };
   };
@@ -80,19 +108,19 @@ function ShowChart() {
       myselect.val(Target2Data[Target2Indexs[0]]);
       myselect.selectmenu("refresh");
 
-      ShowLineChart();
+      ShowChartFuncs[CurChartTypeIndex]();
   };
 
   $("#select_d3_target1").change(function () {
     var $this = $(this);
     SetIndexByTarget1Names($this.val());
-    ShowLineChart();
+    ShowChartFuncs[CurChartTypeIndex]();
   });
 
   $("#select_d3_target2").change(function () {
     var $this = $(this);
     SetIndexByTarget2Names($this.val());
-    ShowLineChart();
+    ShowChartFuncs[CurChartTypeIndex]();
   });
 }
 
@@ -101,11 +129,11 @@ function SetIndexByTarget1Names(names) {
   if (names == null) {
     return;
   };
-  for(var j = names.length - 1; j >= 0; j--)
+  for(var j = 0; j < names.length; j++)
   {
     name = names[j];
     if (Target1IsArea) {
-      for (var i = AreaData.length - 1; i >= 0; i--) {
+      for (var i = 0; i < AreaData.length; i++) {
         if(AreaData[i] == name){
           Target1Indexs.push(i);
           break;
@@ -113,7 +141,7 @@ function SetIndexByTarget1Names(names) {
       }
     }
     else {
-      for (var i = Target1Data.length - 1; i >= 0; i--) {
+      for (var i = 0; i < Target1Data.length; i++) {
         if(Target1Data[i] == name){
           Target1Indexs.push(i);
           break;
@@ -132,10 +160,10 @@ function SetIndexByTarget2Names(names) {
   if (names == null) {
     return;
   };
-  for(var j = names.length - 1; j >= 0; j--)
+  for(var j = 0; j < names.length; j++)
   {
     name = names[j];
-    for (var i = Target2Data.length - 1; i >= 0; i--) {
+    for (var i = 0; i < Target2Data.length; i++) {
       if(Target2Data[i] == name){
         Target2Indexs.push(i);
         break;
@@ -243,6 +271,10 @@ function ShowLineChart() {
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
   var padding = 100;
+  var color = d3.scale.category10(); 
+  for (var i = 0; i < Target2Data.length; i++) {
+      color(i);// store color by index
+  };
 
   // clone data
   var sTimePeriod = ''
@@ -271,9 +303,12 @@ function ShowLineChart() {
       for (var k = MetaData.Datas.length - 1; k >= 0; k--) {
       MetaData.Datas[k].DateStr = (MetaData.Datas[k].Date);
       MetaData.Datas[k].Date = parseDate(MetaData.Datas[k].Date);
+      MetaData.Datas[k].Target1Index = Target1Indexs[i];
+      MetaData.Datas[k].Target2Index = Target2Indexs[j];
       };
       MetaData.Target1Index = Target1Indexs[i];
       MetaData.Target2Index = Target2Indexs[j];
+      
       MetaDataArr.push(MetaData); 
     };
   };
@@ -309,11 +344,13 @@ function ShowLineChart() {
   var maxValue = d3.max(MetaDataArr, function(m){ return d3.max(m.Datas, function(d) { return d.Value; })});
   var minValue = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Value; })});
 
-  var maxValue = d3.max(MetaDataArr, function(m){ return })
   maxValue = maxValue + (maxValue - minValue)/5;
   minValue = minValue - (maxValue - minValue)/5
 
-  x.domain(d3.extent(MetaDataArr, function(m){ return d3.extent(m.Datas, function(d) { return d.Date; })}));
+  var maxDate = d3.max(MetaDataArr, function(m){ return d3.max(m.Datas, function(d) { return d.Date; })});
+  var minDate = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Date; })});
+ 
+  x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
   svg.append("g")
@@ -366,18 +403,27 @@ function ShowLineChart() {
 
   var IndicatorNode = IndicatorNodes.enter().append("g")
       .attr("class", "IndicatorNode")
-      .attr("id", function(d) { return d.name; });
+      //.attr("id", function(d) { return d.name; });
 
   IndicatorNode.append("path")
     .attr("class", "line")
-    .attr("d", function(d) {return line(d.Datas); });
+    .attr("d", function(d) {return line(d.Datas); })
+    .style("stroke", function(d) {return color(d.Target2Index); });
 
-  IndicatorNode.append("circle")
-    .datum(function(d) { return d.Datas; })
-     .attr("stroke", "black")
+  IndicatorNode.append("text")
+     .attr("class", "names")
+     .attr("transform", function(d) { return "translate(" + x(maxDate) + "," + y(d.Datas[0].Value) + ")"; })
+     .attr("x", 110)
+     .attr("dy", ".35em")
+     .text(function(d) {return d.Target2NameLoc; });
+
+  IndicatorNode.selectAll("circle")
+     .data(function(d) {return d.Datas; })
+     .enter().append("circle")
      .attr('class', 'data-point')
-     .attr("cx", function(d, i) { return x(d.Date) + padding })
-     .attr("cy", function(d, i) { return y(d.Value) })
+     .style("stroke", function(d) { return color(d.Target2Index); })
+     .attr("cx", function(d) { return x(d.Date) + padding })
+     .attr("cy", function(d) { return y(d.Value) })
      .attr("r", function(d, i) { return 5 })
      .on("mouseover", function(d) {      
         div.transition()        
@@ -393,8 +439,8 @@ function ShowLineChart() {
             .style("opacity", 0);   
     })
     .on("click", function(d) {
-      SelectedDate = d.DateStr;
-      ShowGroupBarChart();
+      //SelectedDate = d.DateStr;
+      //ShowBarChart();
     });
 /*
     var color = d3.scale.ordinal()
@@ -420,19 +466,21 @@ function ShowLineChart() {
         */
 }
 
-function ShowGroupBarChart()
+function ShowBarChart()
 {
-  $('#svg_d3_2').empty();
+   $('#svg_d3').empty();
+   $('#svg_d3').show();
 
-  if(Target1Index == -1 || Target2Index == -1) return;
-   $('#svg_d3_2').show();
-
+   // Temp
+   SelectedDate = CombinedData.MetaDatas[0].Datas[0].Date;
+   
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Data.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
   if (Target2Data.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
   var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
+
   var barHeight = 30;
   var barHeightMargin = 8;
   var barHeightStar = 50;
@@ -467,7 +515,7 @@ function ShowGroupBarChart()
       .scale(y)
       .orient("left");
   
-  var svg = d3.select("#svg_d3_2").on("click", function(d) {});
+  var svg = d3.select("#svg_d3").on("click", function(d) {});
   svg.attr("width", width + margin.left + margin.right)
      .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -536,7 +584,13 @@ var arc = d3.svg.arc()
       .text(function(d,i) { return (IsTarget1Base ? MetaData[i].Target2NameLoc : MetaData[i].Target1NameLoc);});
 }
 
+function ShowMapChart()
+{
+  
+}
 function HideD3()
 {
 
 }
+
+var ShowChartFuncs = [ShowLineChart, ShowBarChart, ShowMapChart];

@@ -43,6 +43,9 @@ div.tooltip {
   fill: #FFF;
 }
 
+.IndicatorNodes {opacity: 0.2;}
+.IndicatorNodes:hover {opacity:1;}
+
 /**
  *
  * Pull down styles
