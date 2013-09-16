@@ -648,7 +648,7 @@ function ShowTimeChart_Play() {
 
   SelectedDate = DataDates[CurTimeIndex].DateStr
   ShowBarChart();
-  
+  alert(1);
   //setTimeout(ShowTimeChart_Play(), 3000) 
 };
 
