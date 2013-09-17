@@ -5,7 +5,7 @@ var AreaData = [];
 var Target1IsArea = false;
 var SelectedDate = undefined;
 var Target1Indexs = [], Target2Indexs = []
-var CurChartTypeIndex = 1;
+var CurChartTypeIndex = 2;
 var color = d3.scale.category10(); 
 var maxDate, minDate;
 var maxValue, minValue;
@@ -286,7 +286,7 @@ function ResetChart(){
   Target1Data.length = 0;
   Target2Data.length = 0;
   AreaData.length = 0;
-  CurChartTypeIndex = 1;
+  CurChartTypeIndex = 2;
   MetaDataArr = [];
   parseDate = undefined;
 }
@@ -786,7 +786,37 @@ var ShowTimeChart_MouseOver = function() {
 
 function ShowMapChart()
 {
+  $('#svg_d3').empty();
+  $('#svg_d3_2').empty();
+  $('#svg_d3_2').hide();
+
+  var width = 960,
+  height = 500;
+  //var proj = d3.geo.mercator().center([100, 0]).scale(500);
+  //var path = d3.geo.path().projection(proj);
+  var path = d3.geo.path()
+
+  var svg = d3.select("#svg_d3")
+      .attr("width", width)
+      .attr("height", height)
+
+  d3.json("china_topo.json", function(error, topology) {
+  svg.selectAll("path")
+      .data(topojson.feature(topology, topology.objects.china).features)
+    .enter().append("path")
+      .attr("d", path)
+      .attr("class", "states");
+
+      svg.selectAll("text")
+      .data(topojson.feature(topology, topology.objects.china).features)
+    .enter().append("text")
+      .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .text(function(d) {return d.id; });
+  });
+
   
+
 }
 
 function HideD3()

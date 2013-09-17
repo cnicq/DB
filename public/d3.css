@@ -104,3 +104,15 @@ div.tooltip {
 .ui-field-contain {
     border-bottom-width: 0;
 }
+
+
+
+.counties {
+  fill: none;
+}
+
+.states {
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: .5px;
+}

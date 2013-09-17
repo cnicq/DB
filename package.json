@@ -10,6 +10,7 @@
     "ejs": "*",
     "stylus": "*",
     "mongoose": "*",
-    "node-csv":"*"
+    "node-csv":"*",
+    "topojson":"*"
   }
 }
