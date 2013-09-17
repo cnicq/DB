@@ -792,9 +792,9 @@ function ShowMapChart()
 
   var width = 960,
   height = 500;
-  //var proj = d3.geo.mercator().center([100, 0]).scale(500);
-  //var path = d3.geo.path().projection(proj);
-  var path = d3.geo.path()
+  var proj = d3.geo.mercator().center([100, 0]).scale(500);
+  var path = d3.geo.path().projection(proj);
+  //var path = d3.geo.path()
 
   var svg = d3.select("#svg_d3")
       .attr("width", width)
