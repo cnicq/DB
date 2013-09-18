@@ -116,3 +116,7 @@ div.tooltip {
   stroke: #fff;
   stroke-width: .5px;
 }
+
+path:hover {
+  fill: red;
+}

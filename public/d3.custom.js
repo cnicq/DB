@@ -792,7 +792,7 @@ function ShowMapChart()
 
   var width = 960,
   height = 500;
-  var proj = d3.geo.mercator().center([100, 0]).scale(500);
+  var proj = d3.geo.mercator().center([120, 40]).scale(500);
   var path = d3.geo.path().projection(proj);
   //var path = d3.geo.path()
 
@@ -814,9 +814,6 @@ function ShowMapChart()
       .attr("dy", ".35em")
       .text(function(d) {return d.id; });
   });
-
-  
-
 }
 
 function HideD3()
