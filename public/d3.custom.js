@@ -6,12 +6,14 @@ var Target1IsArea = false;
 var SelectedDate = undefined;
 var Target1Indexs = [], Target2Indexs = []
 var CurChartTypeIndex = 2;
-var color = d3.scale.category10(); 
+var color = d3.scale.category20(); 
 var maxDate, minDate;
 var maxValue, minValue;
 var MetaDataArr = [];
 var parseDate = undefined;
 var DataDates = [];
+var CurTimeIndex = 0;
+var PlayTimerID = -1;
 
 function SetTitle() {
    // if has only one area data, show the area name in title
@@ -289,6 +291,10 @@ function ResetChart(){
   CurChartTypeIndex = 2;
   MetaDataArr = [];
   parseDate = undefined;
+
+  clearInterval(PlayTimerID);
+  PlayTimerID = -1;
+  CurTimeIndex = 0;
 }
 
 function PrepareData(){
@@ -324,7 +330,7 @@ function PrepareData(){
             break;
         }
       };
-      for (var k = MetaData.Datas.length - 1; k >= 0; k--) {
+      for (var k = 0; k <= MetaData.Datas.length - 1; k++) {
         
         MetaData.Datas[k].DateStr = MetaData.Datas[k].Date;
         MetaData.Datas[k].Date = parseDate(MetaData.Datas[k].Date);
@@ -388,7 +394,7 @@ function ShowLineChart() {
   var svg = d3.select("#svg_d3")
       .on("click", function(d) {});
 
-  svg.attr("width", width + margin.left + margin.right + padding)
+  svg.attr("width", width + margin.left + margin.right + padding * 2)
      .attr("height", height + margin.top + margin.bottom)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -447,19 +453,31 @@ function ShowLineChart() {
 
   var IndicatorNode = IndicatorNodes.enter().append("g")
       .attr("class", "IndicatorNode")
-      //.attr("id", function(d) { return d.name; });
 
   IndicatorNode.append("path")
     .attr("class", "line")
     .attr("d", function(d) {return line(d.Datas); })
     .style("stroke", function(d) {return color(d.Target2Index); });
 
-  IndicatorNode.append("text")
-     .attr("class", "names")
-     .attr("transform", function(d) { return "translate(" + x(maxDate) + "," + y(d.Datas[0].Value) + ")"; })
-     .attr("x", 110)
-     .attr("dy", ".35em")
-     .text(function(d) {return d.Target2NameLoc; });
+  // the legend color guide
+  IndicatorNode.append("rect")
+    .attr({
+      width: 25,
+      height: 12,
+      x: width + 100,
+      y: function(d, i) { return (10 + i*20); }
+    })
+    .style("fill", function(d) { return color(d.Target2Index); });
+  
+  
+  // legend labels  
+    IndicatorNode.append("text")
+    .attr({
+      x: width + 130,
+      y: function(d, i) { return (20 + i*20); },
+    })
+    .text(function(d) { return d.Target2NameLoc; });
+
 
   IndicatorNode.selectAll("circle")
      .data(function(d) {return d.Datas; })
@@ -494,7 +512,7 @@ function ShowBarChart()
    $('#svg_d3').show();
 
    if (SelectedDate == undefined) {
-      SelectedDate = DataDates[0].DateStr
+      SelectedDate = DataDates[DataDates.length - 1].DateStr
    };
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
@@ -609,13 +627,14 @@ var arc = d3.svg.arc()
   g.append("path")
       .attr("d", arc)
       .style("fill", function(d, i) { return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));})
-      
+   
+   /*  
   g.append("text")
       .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
       .text(function(d,i) { return (IsTarget1Base ? MetaData[i].Target2NameLoc : MetaData[i].Target1NameLoc);});
-
+  */
   // show dates
   /*
   g.append("circle")
@@ -635,21 +654,24 @@ var arc = d3.svg.arc()
   ShowTimeChart();
 }
 
-var CurTimeIndex = 0;
+
 
 function ShowTimeChart_Play() {
-
-  CurTimeIndex += 1;
-
   if (CurTimeIndex >= DataDates.length) {
     CurTimeIndex = 0;
+    clearInterval(PlayTimerID);
+    PlayTimerID = -1;
     return;
   };
-
   SelectedDate = DataDates[CurTimeIndex].DateStr
-  ShowBarChart();
-  alert(1);
-  //setTimeout(ShowTimeChart_Play(), 3000) 
+  ShowChartFuncs[CurChartTypeIndex]();
+  CurTimeIndex += 1;
+}
+
+function ShowTimeChart_OnClick() {
+  clearInterval(PlayTimerID);
+  ShowTimeChart_Play();
+  PlayTimerID = setInterval(ShowTimeChart_Play, 1200)
 };
 
 function ShowTimeChart() {
@@ -748,7 +770,7 @@ function ShowTimeChart() {
     .attr("class", "underlay");
 
   underlayEnter.append("rect")
-    .attr("x", function(d, i) { return x(d.Date) - underlayWidth/2; })
+    .attr("x", function(d, i) { return x(d.Date) - underlayWidth/2 + padding; })
     .attr("width", underlayWidth)
     .attr("y", 0)
     .attr("height", height);
@@ -766,8 +788,15 @@ function ShowTimeChart() {
   underlay.on("click", ShowTimeChart_Click)
 }
 
+var selectHoverRect = undefined;
+
 var ShowTimeChart_Click = function() {
+  if (selectHoverRect != undefined) {
+    selectHoverRect.style("visibility", "hidden");
+  };
   var hoverRect = d3.select(this)
+  selectHoverRect = hoverRect;
+  selectHoverRect.style("visibility", "visible")
   var hoverYear = hoverRect.datum()
   SelectedDate = hoverYear.DateStr;
   ShowBarChart();
@@ -775,7 +804,10 @@ var ShowTimeChart_Click = function() {
 
 var ShowTimeChart_MouseOut = function() {
   var hoverRect = d3.select(this)
-  hoverRect.style("visibility", "hidden");
+  if (hoverRect.datum().DateStr != selectHoverRect.datum().DateStr) {
+
+    hoverRect.style("visibility", "hidden")  
+  };
 }
 
 var ShowTimeChart_MouseOver = function() {
@@ -784,14 +816,48 @@ var ShowTimeChart_MouseOver = function() {
   var hoverYear = hoverRect.datum()
 }
 
+function GetValueByAreas(theDate, T2Index, minR, maxR){
+  values = {};
+
+  if (Target1IsArea == false) {return values};
+  for (var i = CombinedData.MetaDatas.length - 1; i >= 0; i--) {
+        if(CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index]){
+          var bFind = false;
+          for (var j = 0; j < CombinedData.MetaDatas[i].Datas.length; j++) {
+            if (CombinedData.MetaDatas[i].Datas[j].Date == theDate) {
+              
+              values[CombinedData.MetaDatas[i].AreaNameLoc] = CombinedData.MetaDatas[i].Datas[j].Value;
+              bFind = true;
+              break;
+            };
+          };
+          if (bFind == false) {
+            values[CombinedData.MetaDatas[i].AreaNameLoc] = 0;
+          };
+        }
+  };
+
+  var keys = Object.keys(values);
+  values['max'] = Math.max.apply(null, keys.map(function(v) {return values[v]; }));
+  values['min'] = Math.min.apply(null, keys.map(function(v) {return values[v]; }));
+
+  for (key in values){
+    values[key] = minR + (values[key] - values.min)  * (maxR - minR) / (values.max - values.min);
+  }
+  return values;
+}
+
 function ShowMapChart()
 {
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
 
-  var width = 960,
-  height = 500;
+  if(Target1IsArea == false) { return;}
+
+  var values = GetValueByAreas(DataDates[0].DateStr, 0, 2, 200);
+  var width = 960,  height = 500;
+  
   var proj = d3.geo.mercator().center([120, 40]).scale(500);
   var path = d3.geo.path().projection(proj);
   //var path = d3.geo.path()
@@ -801,18 +867,37 @@ function ShowMapChart()
       .attr("height", height)
 
   d3.json("china_topo.json", function(error, topology) {
+
+    var p = topojson.feature(topology, topology.objects.china);
+cscale = d3.scale.pow().exponent(.5).domain([0, values.max])
+                        .range(["#fae893", "#756518"]);
   svg.selectAll("path")
-      .data(topojson.feature(topology, topology.objects.china).features)
+      .data(p.features)
     .enter().append("path")
       .attr("d", path)
-      .attr("class", "states");
+      .attr("class", "states")
+      .attr("fill", function(d,i) { 
+        if (values[d.properties.name] == undefined) { return '#fff';}
 
-      svg.selectAll("text")
-      .data(topojson.feature(topology, topology.objects.china).features)
+        return cscale(values[d.properties.name]); })
+
+    svg.selectAll("text")
+      .data(p.features)
     .enter().append("text")
-      .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+      .attr("transform", function(d) {return "translate(" + path.centroid(d) + ")"; })
       .attr("dy", ".35em")
-      .text(function(d) {return d.id; });
+      
+      .text(function(d) { return d.properties.name; });
+  
+      svg.selectAll("circle")
+        .data(p.features)
+      .enter().append("circle")
+        .attr("cx", function(d) { return path.centroid(d)[0]; })
+        .attr("cy", function(d) { return path.centroid(d)[1]; })
+        .attr("r", function(d,i) { 
+          if (d.properties == undefined || d.properties.name == undefined) { return 0;};
+          if (values[d.properties.name] == undefined) { return 0;}
+          return Math.sqrt(values[d.properties.name]); })
   });
 }
 

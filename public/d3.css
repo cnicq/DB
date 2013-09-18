@@ -112,11 +112,13 @@ div.tooltip {
 }
 
 .states {
-  fill: #ccc;
   stroke: #fff;
   stroke-width: .5px;
 }
 
-path:hover {
-  fill: red;
+
+circle {
+  fill: steelblue;
+  fill-opacity: .8;
+  stroke: #fff;
 }
