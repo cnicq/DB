@@ -588,6 +588,7 @@ function ShowBarChart()
   var barContainer = svg.append("g");
 
   barContainer.selectAll("rect").data(MetaData).enter().append("rect")
+      .transition().duration(2000).delay(200)
       .attr("class", "bar")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight); })
       .attr("height", 20)
