@@ -277,6 +277,7 @@ function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
 }
 
 function ResetChart(){
+  $("#svg_d3_msg").html('');
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
 
@@ -573,12 +574,6 @@ function ShowBarChart()
       .attr("transform", "translate(" + padding + "," + (barHeightStart / 2) + ")")
       .call(xAxis);
 
-  /*
-  svg.append("g")
-      .attr("class", "t axis")
-      .attr("transform", "translate(" + padding + "," + height * 0.8 + ")")
-      .call(tAxis);
-  */
   svg.append("g")
       .attr("class", "y axis")
     .append("svg:line")
@@ -588,7 +583,6 @@ function ShowBarChart()
   var barContainer = svg.append("g");
 
   barContainer.selectAll("rect").data(MetaData).enter().append("rect")
-      .transition().duration(2000).delay(200)
       .attr("class", "bar")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight); })
       .attr("height", 20)
@@ -655,6 +649,9 @@ var arc = d3.svg.arc()
   ShowTimeChart();
 }
 
+function RedrawBarChart(){
+
+}
 
 
 function ShowTimeChart_Play() {
@@ -821,6 +818,7 @@ function GetValueByAreas(theDate, T2Index, minR, maxR){
   values = {};
 
   if (Target1IsArea == false) {return values};
+  
   for (var i = CombinedData.MetaDatas.length - 1; i >= 0; i--) {
         if(CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index]){
           var bFind = false;
@@ -840,8 +838,10 @@ function GetValueByAreas(theDate, T2Index, minR, maxR){
 
   var keys = Object.keys(values);
   values['max'] = Math.max.apply(null, keys.map(function(v) {return values[v]; }));
-  values['min'] = Math.min.apply(null, keys.map(function(v) {return values[v]; }));
-
+  values['min'] = values['max'];
+  values['min'] = Math.min.apply(null, keys.map(function(v) {
+    if(values[v] > 0) return values[v]; 
+    else return values['min'];}));
   for (key in values){
     values[key] = minR + (values[key] - values.min)  * (maxR - minR) / (values.max - values.min);
   }
@@ -853,10 +853,17 @@ function ShowMapChart()
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
+  
+  if(Target1IsArea == false || DataDates[0] == undefined || DataDates[0].DateStr == undefined || AreaData.length <= 1) { 
+     $("#svg_d3_msg").html('不支持显示地图数据');
+    return;
+  }
+  if (Target2Indexs.length != 1) {
+     $("#svg_d3_msg").html('只能选择一种数据显示');
+    return;
+  };
 
-  if(Target1IsArea == false) { return;}
-
-  var values = GetValueByAreas(DataDates[0].DateStr, 0, 2, 200);
+  var values = GetValueByAreas(DataDates[0].DateStr, Target2Indexs[0], 20, 200);
   var width = 960,  height = 500;
   
   var proj = d3.geo.mercator().center([120, 40]).scale(500);
@@ -887,11 +894,10 @@ cscale = d3.scale.pow().exponent(.5).domain([0, values.max])
     .enter().append("text")
       .attr("transform", function(d) {return "translate(" + path.centroid(d) + ")"; })
       .attr("dy", ".35em")
-      
       .text(function(d) { return d.properties.name; });
   
-      svg.selectAll("circle")
-        .data(p.features)
+    svg.selectAll("circle")
+       .data(p.features)
       .enter().append("circle")
         .attr("cx", function(d) { return path.centroid(d)[0]; })
         .attr("cy", function(d) { return path.centroid(d)[1]; })

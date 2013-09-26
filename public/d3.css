@@ -122,3 +122,17 @@ circle {
   fill-opacity: .8;
   stroke: #fff;
 }
+
+#vue_chronologie {
+  position: absolute;
+  height: 10px;
+  width: 1270px;
+  top: 620px;
+  font-size: 7px;
+}
+
+#slider_time {}
+#slider_axe {
+  position: absolute;
+  top: 12px;
+}
