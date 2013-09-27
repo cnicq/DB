@@ -240,6 +240,23 @@ function GetTarget2IndexByName(Target2NameLoc){
 
   return 0;
 }
+
+function GetTarget1IndexByName(Target1NameLoc, Target1IsArea){
+  if (Target1IsArea) {
+    for (var i = 0; i < Target1Indexs.length; i++) {
+      if(AreaData[Target1Indexs[i]] == Target1NameLoc) return Target1Indexs[i];
+    }; 
+  }
+  else{
+    for (var i = 0; i < Target1Indexs.length; i++) {
+      if(Target1Data[Target1Indexs[i]] == Target1NameLoc) return Target1Indexs[i];
+    };  
+  }
+
+  return 0;
+}
+
+
 function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
   var MetaDatas = [];
 
@@ -370,8 +387,14 @@ function ShowLineChart() {
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
   var padding = 100;
-
+  
+  var IsTarget1Base = false, IsTarget2Base = true;
+  if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
+  if (Target2Indexs.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
+ 
   if (MetaDataArr.length == 0) return;
+  if (Target1Indexs.length > 1 && Target2Indexs.length != 1) { 
+  };
 
   var x = d3.time.scale()
       .range([0, width]);
@@ -458,7 +481,7 @@ function ShowLineChart() {
   IndicatorNode.append("path")
     .attr("class", "line")
     .attr("d", function(d) {return line(d.Datas); })
-    .style("stroke", function(d) {return color(d.Target2Index); });
+    .style("stroke", function(d) { if(IsTarget1Base) return color(d.Target2Index); else return color(d.Target1Index); });
 
   // the legend color guide
   IndicatorNode.append("rect")
@@ -468,8 +491,7 @@ function ShowLineChart() {
       x: width + 100,
       y: function(d, i) { return (10 + i*20); }
     })
-    .style("fill", function(d) { return color(d.Target2Index); });
-  
+    .style("fill", function(d) { if(IsTarget1Base) return color(d.Target2Index); else return color(d.Target1Index); });
   
   // legend labels  
     IndicatorNode.append("text")
@@ -477,17 +499,22 @@ function ShowLineChart() {
       x: width + 130,
       y: function(d, i) { return (20 + i*20); },
     })
-    .text(function(d) { return d.Target2NameLoc; });
-
+    .text(function(d) { 
+      if(IsTarget1Base) 
+        return d.Target2NameLoc;
+      else {
+        if (Target1IsArea) return ("(" + d.AreaNameLoc + ")" + d.Target2NameLoc);
+        else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
+      }});
 
   IndicatorNode.selectAll("circle")
      .data(function(d) {return d.Datas; })
      .enter().append("circle")
      .attr('class', 'data-point')
-     .style("stroke", function(d) { return color(d.Target2Index); })
+     .style("stroke", function(d) { if(IsTarget1Base) return color(d.Target2Index); else return color(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
-     .attr("r", function(d, i) { return 5 })
+     .attr("r", function(d, i) { return 2 })
      .on("mouseover", function(d) {      
         div.transition()        
             .duration(200)      
@@ -502,8 +529,6 @@ function ShowLineChart() {
             .style("opacity", 0);   
     })
     .on("click", function(d) {
-      //SelectedDate = d.DateStr;
-      //ShowBarChart();
     });
 }
 
@@ -517,8 +542,8 @@ function ShowBarChart()
    };
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
-  if (Target1Data.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
-  if (Target2Data.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
+  if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
+  if (Target2Indexs.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
   var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
   if(MetaData.length == 0)
@@ -581,21 +606,35 @@ function ShowBarChart()
       .attr("y1", "100%");
 
   var barContainer = svg.append("g");
-
+  
   barContainer.selectAll("rect").data(MetaData).enter().append("rect")
       .attr("class", "bar")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight); })
       .attr("height", 20)
       .attr("x", padding)
       .attr("width", function(d) { return x(d.Value);})
-      .style("fill", function(d, i) {return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));})
+      .style("fill", function(d, i) {
+        if(IsTarget1Base){
+          return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
+        }
+        else{
+            if (Target1IsArea) {return color(GetTarget1IndexByName(MetaData[i].AreaNameLoc, true));}
+            else {return color(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
+          }
+        })
 
   barContainer.selectAll("text").data(MetaData).enter().append("text")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight + barHeightMargin); })
       .attr("x", padding)
       .attr("dy", ".35em") // vertical-align: middle
       .attr("text-anchor", "end") // text-align: left
-      .text(function(d) { return (IsTarget1Base ? d.Target2NameLoc : d.Target1NameLoc);});
+      .text(function(d) { 
+      if(IsTarget1Base) 
+        return d.Target2NameLoc;
+      else {
+        if (Target1IsArea) return ("(" + d.AreaNameLoc + ")" + d.Target2NameLoc);
+        else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
+      }});
 
   barContainer.selectAll(".rule").data(MetaData).enter().append("text")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight + barHeightMargin); })
@@ -621,7 +660,15 @@ var arc = d3.svg.arc()
 
   g.append("path")
       .attr("d", arc)
-      .style("fill", function(d, i) { return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));})
+      .style("fill", function(d, i) {
+        if(IsTarget1Base){
+          return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
+        }
+        else{
+            if (Target1IsArea) {return color(GetTarget1IndexByName(MetaData[i].AreaNameLoc, true));}
+            else {return color(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
+          }
+        })
    
    /*  
   g.append("text")
