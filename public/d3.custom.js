@@ -540,6 +540,7 @@ function ShowBarChart()
    if (SelectedDate == undefined) {
       SelectedDate = DataDates[DataDates.length - 1].DateStr
    };
+
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
@@ -669,29 +670,26 @@ var arc = d3.svg.arc()
             else {return color(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
           }
         })
-   
-   /*  
+  
+  var vTotal = 0;
+  for (var i = 0; i < MetaData.length; i++) {
+    vTotal += MetaData[i].Value;
+  };
   g.append("text")
-      .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+      .attr("transform", function(d) { 
+        return "translate(" + ( (radius - 12) * Math.sin( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + "," + ( -1 * (radius - 12) * Math.cos( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + ")"; })
       .attr("dy", ".35em")
-      .style("text-anchor", "middle")
-      .text(function(d,i) { return (IsTarget1Base ? MetaData[i].Target2NameLoc : MetaData[i].Target1NameLoc);});
-  */
-  // show dates
-  /*
-  g.append("circle")
-     .data(DataDates)
-     .enter().append("circle")
-     .attr('class', 'data-point')
-     .attr("cx", function(d) { return t(d.Date) + padding; })
-     .attr("cy", function(d) { return  barHeightStart *0.2 ;})
-     .attr("r", function(d, i) { return 4 })
-     .on("click", function(d) {
-        alert('click');
-        SelectedDate = d.DateStr;
-        ShowBarChart();
-    });
-  */
+      .style("text-anchor", "left")
+      .text(function(d,i) {
+      return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; 
+      if(IsTarget1Base) 
+        return MetaData[i].Target2NameLoc;
+      else {
+        alert(MetaData[i].Target2NameLoc);
+        if (Target1IsArea) return ("(" + MetaData[i].AreaNameLoc + ")" + MetaData[i].Target2NameLoc);
+        else return ("(" + MetaData[i].Target1NameLoc + ")" + dMetaData[i].Target2NameLoc);
+      }});
+ 
 
   ShowTimeChart();
 }
@@ -818,7 +816,8 @@ function ShowTimeChart() {
     .attr("x", function(d, i) { return x(d.Date) - underlayWidth/2 + padding; })
     .attr("width", underlayWidth)
     .attr("y", 0)
-    .attr("height", height);
+    .attr("height", height)
+    .attr("id", function(d, i) { return ("underlay_" + d.DateStr)})
     
   // update and move underlays; auto-reduce width to chart width / data length
   var underlayUpdate = d3.transition(underlay);
@@ -844,10 +843,12 @@ var ShowTimeChart_Click = function() {
   selectHoverRect.style("visibility", "visible")
   var hoverYear = hoverRect.datum()
   SelectedDate = hoverYear.DateStr;
-  ShowBarChart();
+  ShowChartFuncs[CurChartTypeIndex]();
 }
 
 var ShowTimeChart_MouseOut = function() {
+  if (selectHoverRect == undefined) { return; }
+
   var hoverRect = d3.select(this)
   if (hoverRect.datum().DateStr != selectHoverRect.datum().DateStr) {
 
@@ -909,8 +910,11 @@ function ShowMapChart()
      $("#svg_d3_msg").html('只能选择一种数据显示');
     return;
   };
+   if (SelectedDate == undefined) {
+      SelectedDate = DataDates[DataDates.length - 1].DateStr;
+   };
 
-  var values = GetValueByAreas(DataDates[0].DateStr, Target2Indexs[0], 20, 200);
+  var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
   var width = 960,  height = 500;
   
   var proj = d3.geo.mercator().center([120, 40]).scale(500);
@@ -924,7 +928,7 @@ function ShowMapChart()
   d3.json("china_topo.json", function(error, topology) {
 
     var p = topojson.feature(topology, topology.objects.china);
-cscale = d3.scale.pow().exponent(.5).domain([0, values.max])
+    cscale = d3.scale.pow().exponent(.5).domain([0, values.max])
                         .range(["#fae893", "#756518"]);
   svg.selectAll("path")
       .data(p.features)
