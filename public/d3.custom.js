@@ -5,7 +5,7 @@ var AreaData = [];
 var Target1IsArea = false;
 var SelectedDate = undefined;
 var Target1Indexs = [], Target2Indexs = []
-var CurChartTypeIndex = 2;
+var CurChartTypeIndex = 0;
 var color = d3.scale.category20(); 
 var maxDate, minDate;
 var maxValue, minValue;
@@ -306,7 +306,7 @@ function ResetChart(){
   Target1Data.length = 0;
   Target2Data.length = 0;
   AreaData.length = 0;
-  CurChartTypeIndex = 2;
+  CurChartTypeIndex = 0;
   MetaDataArr = [];
   parseDate = undefined;
 
@@ -317,6 +317,7 @@ function ResetChart(){
 
 function PrepareData(){
 
+ $('#svg_d3_msg').html('');
   if (MetaDataArr.length > 0) return;
 
   for (var i = 0; i < Target2Data.length; i++) {
@@ -549,7 +550,7 @@ function ShowBarChart()
   var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
   if(MetaData.length == 0)
   {
-     $("#svg_d3_msg").html('无数据');
+     $("#svg_d3_msg").html('没有数据可供显示');
     
     return;
   }
@@ -568,7 +569,7 @@ function ShowBarChart()
   height = height < radius * 2 ? radius * 2 : height;
 
   if (MetaData.length == 0) return;
-  $("#svg_d3_msg").html(SelectedDate);
+
   // Bar
   var BarChartWidth = width * 0.5;
   var x = d3.scale.linear()
@@ -657,7 +658,15 @@ function ShowBarChart()
 
 var arc = d3.svg.arc()
     .outerRadius(radius - 10)
-    .innerRadius(0);
+    .innerRadius((radius - 10)/3);
+
+  g.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", ".3em")
+      .attr("x", 0)
+      .attr("y", 0)
+      .text(function(d) { return SelectedDate; })
+      .style("font-size", "16px")
 
   g.append("path")
       .attr("d", arc)
@@ -798,11 +807,18 @@ function ShowTimeChart() {
       .attr("class", "IndicatorNode")
       //.attr("id", function(d) { return d.name; });
 
+  IndicatorNode.append("image")
+      .attr("xlink:href", "https://github.com/favicon.ico")
+      .attr("x", padding/2)
+      .attr("y", height/2)
+      .attr("width", 16)
+      .attr("height", 16)
+      .on("click", ShowTimeChart_OnClick);
+
   IndicatorNode.append("path")
     .attr("class", "line")
     .attr("d", function(d) {return line(d.Datas); })
     .style("stroke", function(d) {return color(d.Target2Index); });
-
 
   // create rect underlays that will be used for mouseovers
   var underlay = svg.selectAll(".underlay").data(DataDates);
@@ -903,7 +919,7 @@ function ShowMapChart()
   $('#svg_d3_2').hide();
   
   if(Target1IsArea == false || DataDates[0] == undefined || DataDates[0].DateStr == undefined || AreaData.length <= 1) { 
-     $("#svg_d3_msg").html('不支持显示地图数据');
+     $("#svg_d3_msg").html('不支持地图显示');
     return;
   }
   if (Target2Indexs.length != 1) {

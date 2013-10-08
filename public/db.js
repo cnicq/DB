@@ -157,7 +157,7 @@ function CombinedListItemClicked(sID)
     success: function(Data){
       CombinedData = Data
       if (CombinedData.MetaDatas.length == 0) {
-        $('#svg_d3_msg').text('No Data');
+        $('#svg_d3_msg').html('没有数据可供显示');
         return;
       }
       ShowChart();
