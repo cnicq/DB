@@ -6,7 +6,8 @@ var Target1IsArea = false;
 var SelectedDate = undefined;
 var Target1Indexs = [], Target2Indexs = []
 var CurChartTypeIndex = 0;
-var color = d3.scale.category20(); 
+var color1 = d3.scale.category20(); 
+var color2 = d3.scale.category20(); 
 var maxDate, minDate;
 var maxValue, minValue;
 var MetaDataArr = [];
@@ -298,6 +299,8 @@ function ResetChart(){
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
 
+  clearInterval(PlayTimerID);
+
   Target1Indexs = [0]; 
   Target2Indexs = [0];
   Target1IsArea = false;
@@ -318,10 +321,16 @@ function ResetChart(){
 function PrepareData(){
 
  $('#svg_d3_msg').html('');
+ clearInterval(PlayTimerID);
+ 
   if (MetaDataArr.length > 0) return;
+  for (var i = 0; i < Target1Data.length; i++) {
+      color1(i);// store color by index
+      
+  };
 
   for (var i = 0; i < Target2Data.length; i++) {
-      color(i);// store color by index
+      color2(i);// store color by index
   };
 
   // clone data
@@ -391,11 +400,9 @@ function ShowLineChart() {
   
   var IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
-  if (Target2Indexs.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
+  if (Target2Indexs.length <= 1 && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
  
   if (MetaDataArr.length == 0) return;
-  if (Target1Indexs.length > 1 && Target2Indexs.length != 1) { 
-  };
 
   var x = d3.time.scale()
       .range([0, width]);
@@ -482,7 +489,7 @@ function ShowLineChart() {
   IndicatorNode.append("path")
     .attr("class", "line")
     .attr("d", function(d) {return line(d.Datas); })
-    .style("stroke", function(d) { if(IsTarget1Base) return color(d.Target2Index); else return color(d.Target1Index); });
+    .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
 
   // the legend color guide
   IndicatorNode.append("rect")
@@ -492,7 +499,7 @@ function ShowLineChart() {
       x: width + 100,
       y: function(d, i) { return (10 + i*20); }
     })
-    .style("fill", function(d) { if(IsTarget1Base) return color(d.Target2Index); else return color(d.Target1Index); });
+    .style("fill", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
   
   // legend labels  
     IndicatorNode.append("text")
@@ -512,10 +519,10 @@ function ShowLineChart() {
      .data(function(d) {return d.Datas; })
      .enter().append("circle")
      .attr('class', 'data-point')
-     .style("stroke", function(d) { if(IsTarget1Base) return color(d.Target2Index); else return color(d.Target1Index); })
+     .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
-     .attr("r", function(d, i) { return 2 })
+     .attr("r", function(d, i) { return 4 })
      .on("mouseover", function(d) {      
         div.transition()        
             .duration(200)      
@@ -545,7 +552,7 @@ function ShowBarChart()
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
-  if (Target2Indexs.length <= 1) {IsTarget1Base = false; IsTarget2Base = true;}
+  if (Target2Indexs.length <= 1  && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
   var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
   if(MetaData.length == 0)
@@ -617,11 +624,11 @@ function ShowBarChart()
       .attr("width", function(d) { return x(d.Value);})
       .style("fill", function(d, i) {
         if(IsTarget1Base){
-          return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
+          return color2(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
         }
         else{
-            if (Target1IsArea) {return color(GetTarget1IndexByName(MetaData[i].AreaNameLoc, true));}
-            else {return color(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
+            if (Target1IsArea) {return color2(GetTarget1IndexByName(MetaData[i].AreaNameLoc, true));}
+            else {return color1(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
           }
         })
 
@@ -672,11 +679,11 @@ var arc = d3.svg.arc()
       .attr("d", arc)
       .style("fill", function(d, i) {
         if(IsTarget1Base){
-          return color(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
+          return color2(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
         }
         else{
-            if (Target1IsArea) {return color(GetTarget1IndexByName(MetaData[i].AreaNameLoc, true));}
-            else {return color(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
+            if (Target1IsArea) {return color2(GetTarget1IndexByName(MetaData[i].AreaNameLoc, true));}
+            else {return color1(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
           }
         })
   
@@ -694,7 +701,6 @@ var arc = d3.svg.arc()
       if(IsTarget1Base) 
         return MetaData[i].Target2NameLoc;
       else {
-        alert(MetaData[i].Target2NameLoc);
         if (Target1IsArea) return ("(" + MetaData[i].AreaNameLoc + ")" + MetaData[i].Target2NameLoc);
         else return ("(" + MetaData[i].Target1NameLoc + ")" + dMetaData[i].Target2NameLoc);
       }});
@@ -818,7 +824,7 @@ function ShowTimeChart() {
   IndicatorNode.append("path")
     .attr("class", "line")
     .attr("d", function(d) {return line(d.Datas); })
-    .style("stroke", function(d) {return color(d.Target2Index); });
+    .style("stroke", function(d) {return color2(d.Target2Index); });
 
   // create rect underlays that will be used for mouseovers
   var underlay = svg.selectAll(".underlay").data(DataDates);

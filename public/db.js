@@ -48,7 +48,7 @@ $(document).ready(function(){
   });
 
    $("#page_catalog_list").bind("pagehide", function(event,ui){
-      $("#list_catalog li").remove();
+      //$("#list_catalog li").remove();
   });
 
   $("#page_d3").bind("pagehide", function(event,ui){    
