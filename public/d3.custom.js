@@ -94,6 +94,7 @@ function ShowChart() {
     };
   }
   else{
+
     for (var i = 0; i <= AreaData.length - 1; i++) {
       Target1IsArea = true;
       $('#select_d3_target1').append("<option value=" + AreaData[i] + ">" + AreaData[i]+ "</option>");
@@ -105,6 +106,7 @@ function ShowChart() {
       $('#select_d3_target2').append("<option value=" + Target2Data[i] + ">" + Target2Data[i]+ "</option>");
     };
   };
+
 
   // Set default select option
   if (nMetaDatasNum >= 1) {
@@ -316,13 +318,14 @@ function ResetChart(){
   clearInterval(PlayTimerID);
   PlayTimerID = -1;
   CurTimeIndex = 0;
+  Target1IsArea = false;
 }
 
 function PrepareData(){
 
  $('#svg_d3_msg').html('');
  clearInterval(PlayTimerID);
- 
+
   if (MetaDataArr.length > 0) return;
   for (var i = 0; i < Target1Data.length; i++) {
       color1(i);// store color by index
@@ -722,7 +725,7 @@ function ShowTimeChart_Play() {
     return;
   };
   SelectedDate = DataDates[CurTimeIndex].DateStr
-  ShowChartFuncs[CurChartTypeIndex]();
+  UpdateChartFuncs[CurChartTypeIndex]();
   CurTimeIndex += 1;
 }
 
@@ -865,8 +868,10 @@ var ShowTimeChart_Click = function() {
   selectHoverRect.style("visibility", "visible")
   var hoverYear = hoverRect.datum()
   SelectedDate = hoverYear.DateStr;
-  ShowChartFuncs[CurChartTypeIndex]();
+
+  UpdateChartFuncs[CurChartTypeIndex]();
 }
+
 
 var ShowTimeChart_MouseOut = function() {
   if (selectHoverRect == undefined) { return; }
@@ -884,9 +889,9 @@ var ShowTimeChart_MouseOver = function() {
   var hoverYear = hoverRect.datum()
 }
 
-function GetValueByAreas(theDate, T2Index, minR, maxR){
+function GetValueByAreas(theDate, T2Index, minR, maxR, initValues){
   values = {};
-
+  var initValues = {};
   if (Target1IsArea == false) {return values};
   
   for (var i = CombinedData.MetaDatas.length - 1; i >= 0; i--) {
@@ -905,6 +910,8 @@ function GetValueByAreas(theDate, T2Index, minR, maxR){
           };
         }
   };
+  for (var i in values)
+    initValues[i] = values[i];
 
   var keys = Object.keys(values);
   values['max'] = Math.max.apply(null, keys.map(function(v) {return values[v]; }));
@@ -913,9 +920,53 @@ function GetValueByAreas(theDate, T2Index, minR, maxR){
     if(values[v] > 0) return values[v]; 
     else return values['min'];}));
   for (key in values){
-    values[key] = minR + (values[key] - values.min)  * (maxR - minR) / (values.max - values.min);
+    if(values.max == values.min) values[key] = minR;
+    else if(values[key] > 0 )values[key] = minR + (values[key] - values.min)  * (maxR - minR) / (values.max - values.min);
   }
+
+  values['initValues'] = initValues;
   return values;
+}
+
+function UpdateMapChart(){
+  var svg = d3.select("#svg_d3");
+  var paths = svg.selectAll("path")
+  var cycles = svg.selectAll("circle")
+  var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+  var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
+  cscale = d3.scale.pow().exponent(.5).domain([values.min, values.max])
+                        .range(["#FFBBC9", "#88001B"]);
+
+   paths.transition()
+      .attr("fill", function(d,i) { 
+        var c = '#fff';
+        if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { c = '#666';}
+        else c = cscale(values[d.properties.name]); 
+        return c;
+      })
+  cycles
+  .on("mouseover", function(d) {      
+        div.transition()        
+            .duration(200)      
+            .style("opacity", .9);      
+        div .html(d.properties.name + "<br/>"  + values['initValues'][d.properties.name])  
+            .style("left", (d3.event.pageX) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px");    
+        })                  
+    .on("mouseout", function(d) {       
+        div.transition()        
+            .duration(500)      
+            .style("opacity", 0);   
+    })
+  .transition()
+  .attr("r", function(d,i) {
+          if (d.properties == undefined || d.properties.name == undefined) { return 0;};
+          if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
+          return Math.sqrt(Math.abs(values[d.properties.name])); })
+    
 }
 
 function ShowMapChart()
@@ -935,32 +986,27 @@ function ShowMapChart()
    if (SelectedDate == undefined) {
       SelectedDate = DataDates[DataDates.length - 1].DateStr;
    };
-
-  var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
+  
   var width = 960,  height = 500;
   
   var proj = d3.geo.mercator().center([120, 40]).scale(500);
   var path = d3.geo.path().projection(proj);
-  //var path = d3.geo.path()
 
   var svg = d3.select("#svg_d3")
       .attr("width", width)
       .attr("height", height)
+  
 
   d3.json("china_topo.json", function(error, topology) {
+  var p = topojson.feature(topology, topology.objects.china);
 
-    var p = topojson.feature(topology, topology.objects.china);
-    cscale = d3.scale.pow().exponent(.5).domain([0, values.max])
-                        .range(["#fae893", "#756518"]);
+  var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
+    
   svg.selectAll("path")
       .data(p.features)
     .enter().append("path")
       .attr("d", path)
       .attr("class", "states")
-      .attr("fill", function(d,i) { 
-        if (values[d.properties.name] == undefined) { return '#fff';}
-
-        return cscale(values[d.properties.name]); })
 
     svg.selectAll("text")
       .data(p.features)
@@ -974,12 +1020,12 @@ function ShowMapChart()
       .enter().append("circle")
         .attr("cx", function(d) { return path.centroid(d)[0]; })
         .attr("cy", function(d) { return path.centroid(d)[1]; })
-        .attr("r", function(d,i) { 
-          if (d.properties == undefined || d.properties.name == undefined) { return 0;};
-          if (values[d.properties.name] == undefined) { return 0;}
-          return Math.sqrt(values[d.properties.name]); })
+        
+      UpdateMapChart();
   });
 }
+
+
 
 function HideD3()
 {
@@ -987,3 +1033,4 @@ function HideD3()
 }
 
 var ShowChartFuncs = [ShowLineChart, ShowBarChart, ShowMapChart];
+var UpdateChartFuncs = [ShowLineChart, ShowBarChart, UpdateMapChart]
