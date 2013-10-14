@@ -543,8 +543,62 @@ function ShowLineChart() {
     });
 }
 
-function ShowBarChart()
-{
+// Bar-Pie chart
+var xBar;
+var xAxisBar;
+var pieRadius
+var BarChartWidth;
+function UpdateBarChart(){
+  // clone data
+  var IsTarget1Base = false, IsTarget2Base = true;
+  if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
+  if (Target2Indexs.length <= 1  && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
+
+  var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
+  if(MetaData.length == 0){
+    return;
+  }
+  var pie = d3.layout.pie()
+    .sort(null)
+    .value(function(d) { return d.Value; });
+
+  var svg = d3.select("#svg_d3");
+  xBar.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
+
+  svg.select(".x.axis").transition().call(xAxisBar);
+
+  svg.selectAll(".barRect").data(MetaData)
+    .transition().attr("width", function(d) { return xBar(d.Value);})
+
+  svg.selectAll(".barRule").data(MetaData)
+    .text(function(d) { return d.Value; });
+
+  svg.select(".pieYear")
+    .text(function(d) { return SelectedDate; })
+
+  var arc = d3.svg.arc()
+    .outerRadius(pieRadius - 10)
+    .innerRadius((pieRadius - 10)/3);
+
+  var path = svg.selectAll("arc").data(pie(MetaData));
+  svg.selectAll(".piePath").attr("d", arc);
+
+  var vTotal = 0;
+  for (var i = 0; i < MetaData.length; i++) {
+    vTotal += MetaData[i].Value;
+  };
+
+  svg.selectAll(".piePercent")
+    .transition()
+    .attr("transform", function(d) { 
+        return "translate(" + ( (pieRadius - 12) * Math.sin( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + "," + ( -1 * (pieRadius - 12) * Math.cos( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + ")"; })
+    .text(function(d,i) {
+      return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; 
+    });
+}
+
+function ShowBarChart(){
+
    $('#svg_d3').empty();
    $('#svg_d3').show();
 
@@ -564,29 +618,27 @@ function ShowBarChart()
     
     return;
   }
-
+  var PieChartWidth = 0;
   var barHeight = 30;
   var barHeightMargin = 8;
   var barHeightStart = 50;
-
+  
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
   var padding = 200;
-  var PieChartWidth = 0.5 * width;
-  var radius = PieChartWidth * 0.25;
+  PieChartWidth = 0.5 * width;
+  pieRadius = PieChartWidth * 0.25;
 
-  height = height < radius * 2 ? radius * 2 : height;
-
-  if (MetaData.length == 0) return;
+  height = height < pieRadius * 2 ? pieRadius * 2 : height;
 
   // Bar
-  var BarChartWidth = width * 0.5;
-  var x = d3.scale.linear()
+  BarChartWidth = width * 0.5;
+  xBar = d3.scale.linear()
       .range([0, BarChartWidth]);
 
-  var xAxis = d3.svg.axis()
-    .scale(x)
+  xAxisBar = d3.svg.axis()
+    .scale(xBar)
     .orient("top");
 
   var t = d3.time.scale()
@@ -603,13 +655,13 @@ function ShowBarChart()
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  x.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
+  xBar.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
   t.domain([minDate, maxDate]);
   
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(" + padding + "," + (barHeightStart / 2) + ")")
-      .call(xAxis);
+      .call(xAxisBar);
 
   svg.append("g")
       .attr("class", "y axis")
@@ -617,14 +669,14 @@ function ShowBarChart()
       .attr("transform", "translate(" + (padding) + "," + barHeightStart / 2 + ")")
       .attr("y1", "100%");
 
-  var barContainer = svg.append("g");
+  var barContainer = svg.append("g").attr("class", "barUnit");
   
   barContainer.selectAll("rect").data(MetaData).enter().append("rect")
-      .attr("class", "bar")
+      .attr("class", "barRect")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight); })
       .attr("height", 20)
       .attr("x", padding)
-      .attr("width", function(d) { return x(d.Value);})
+      .attr("width", function(d) { return xBar(d.Value);})
       .style("fill", function(d, i) {
         if(IsTarget1Base){
           return color2(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
@@ -635,7 +687,8 @@ function ShowBarChart()
           }
         })
 
-  barContainer.selectAll("text").data(MetaData).enter().append("text")
+  barContainer.selectAll("name").data(MetaData).enter().append("text")
+      .attr("class", "barText")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight + barHeightMargin); })
       .attr("x", padding)
       .attr("dy", ".35em") // vertical-align: middle
@@ -648,7 +701,8 @@ function ShowBarChart()
         else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
       }});
 
-  barContainer.selectAll(".rule").data(MetaData).enter().append("text")
+  barContainer.selectAll("rule").data(MetaData).enter().append("text")
+      .attr("class", "barRule")
       .attr("y", function(d, i) { return (barHeightStart + i * barHeight + barHeightMargin); })
       .attr("x", function(d) { return BarChartWidth + padding;})
       .attr("dy", ".35em") // vertical-align: middle
@@ -660,25 +714,30 @@ function ShowBarChart()
     .sort(null)
     .value(function(d) { return d.Value; });
 
-  var g = svg.selectAll(".arc")
+  var pieContainer = svg.append("g").attr("class", "pieUnit");
+
+  var pieArc = pieContainer.selectAll("arc")
       .data(pie(MetaData))
     .enter().append("g")
-      .attr("class", "arc")
-      .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + radius * 1.2 + ")");
+      .attr("class", "pieArc")
+      .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + pieRadius * 1.2 + ")");
 
-var arc = d3.svg.arc()
-    .outerRadius(radius - 10)
-    .innerRadius((radius - 10)/3);
-
-  g.append("text")
+  pieContainer.append("text")
+      .attr("class", "pieYear")
       .attr("text-anchor", "middle")
       .attr("dy", ".3em")
       .attr("x", 0)
       .attr("y", 0)
+      .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + pieRadius * 1.2 + ")")
       .text(function(d) { return SelectedDate; })
       .style("font-size", "16px")
 
-  g.append("path")
+  var arc = d3.svg.arc()
+    .outerRadius(pieRadius - 10)
+    .innerRadius((pieRadius - 10)/3);
+
+  pieArc.append("path")
+      .attr("class", "piePath")
       .attr("d", arc)
       .style("fill", function(d, i) {
         if(IsTarget1Base){
@@ -694,21 +753,18 @@ var arc = d3.svg.arc()
   for (var i = 0; i < MetaData.length; i++) {
     vTotal += MetaData[i].Value;
   };
-  g.append("text")
+
+  pieArc.append("text")
+      .attr("class", "piePercent")
       .attr("transform", function(d) { 
-        return "translate(" + ( (radius - 12) * Math.sin( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + "," + ( -1 * (radius - 12) * Math.cos( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + ")"; })
+        return "translate(" + ( (pieRadius - 12) * Math.sin( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + "," + ( -1 * (pieRadius - 12) * Math.cos( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + ")"; })
       .attr("dy", ".35em")
       .style("text-anchor", "left")
       .text(function(d,i) {
-      return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; 
-      if(IsTarget1Base) 
-        return MetaData[i].Target2NameLoc;
-      else {
-        if (Target1IsArea) return ("(" + MetaData[i].AreaNameLoc + ")" + MetaData[i].Target2NameLoc);
-        else return ("(" + MetaData[i].Target1NameLoc + ")" + dMetaData[i].Target2NameLoc);
-      }});
+        return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; 
+      });
  
-
+  UpdateBarChart();
   ShowTimeChart();
 }
 
@@ -1023,9 +1079,9 @@ function ShowMapChart()
         
       UpdateMapChart();
   });
+
+  ShowTimeChart();
 }
-
-
 
 function HideD3()
 {
@@ -1033,4 +1089,4 @@ function HideD3()
 }
 
 var ShowChartFuncs = [ShowLineChart, ShowBarChart, ShowMapChart];
-var UpdateChartFuncs = [ShowLineChart, ShowBarChart, UpdateMapChart]
+var UpdateChartFuncs = [ShowLineChart, UpdateBarChart, UpdateMapChart]
