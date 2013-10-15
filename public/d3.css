@@ -105,8 +105,6 @@ div.tooltip {
     border-bottom-width: 0;
 }
 
-
-
 .counties {
   fill: none;
 }
@@ -115,7 +113,6 @@ div.tooltip {
   stroke: #fff;
   stroke-width: .5px;
 }
-
 
 circle {
   fill: steelblue;
@@ -135,4 +132,9 @@ circle {
 #slider_axe {
   position: absolute;
   top: 12px;
+}
+
+.piePercent1{
+  font-size:12px;
+  //fill: #fff;
 }

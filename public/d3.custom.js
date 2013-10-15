@@ -580,8 +580,8 @@ function UpdateBarChart(){
     .outerRadius(pieRadius - 10)
     .innerRadius((pieRadius - 10)/3);
 
-  var path = svg.selectAll("arc").data(pie(MetaData));
-  svg.selectAll(".piePath").attr("d", arc);
+  var path = svg.selectAll(".pieArc").data(pie(MetaData))//.transition()
+          .attr("d", arc);
 
   var vTotal = 0;
   for (var i = 0; i < MetaData.length; i++) {
@@ -589,12 +589,20 @@ function UpdateBarChart(){
   };
 
   svg.selectAll(".piePercent")
-    .transition()
-    .attr("transform", function(d) { 
-        return "translate(" + ( (pieRadius - 12) * Math.sin( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + "," + ( -1 * (pieRadius - 12) * Math.cos( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + ")"; })
-    .text(function(d,i) {
-      return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; 
-    });
+      .attr("transform", function(d) {
+    var c = arc.centroid(d),
+        x = c[0],
+        y = c[1],
+        // pythagorean theorem for hypotenuse
+        h = Math.sqrt(x*x + y*y);
+        alert(d.endAngle);
+    return "translate(" + (x/h * pieRadius) +  ',' +
+       (y/h * pieRadius) +  ")"; })
+      .text(function(d,i) {
+        return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; })
+      .attr("text-anchor", function(d) {
+        // are we past the center?
+        return (d.endAngle + d.startAngle)/2 > Math.PI ? "end" : "start";})
 }
 
 function ShowBarChart(){
@@ -714,31 +722,16 @@ function ShowBarChart(){
     .sort(null)
     .value(function(d) { return d.Value; });
 
-  var pieContainer = svg.append("g").attr("class", "pieUnit");
-
-  var pieArc = pieContainer.selectAll("arc")
-      .data(pie(MetaData))
-    .enter().append("g")
-      .attr("class", "pieArc")
-      .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + pieRadius * 1.2 + ")");
-
-  pieContainer.append("text")
-      .attr("class", "pieYear")
-      .attr("text-anchor", "middle")
-      .attr("dy", ".3em")
-      .attr("x", 0)
-      .attr("y", 0)
+  var pieContainer = svg.append("g").attr("class", "pieUnit")
       .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + pieRadius * 1.2 + ")")
-      .text(function(d) { return SelectedDate; })
-      .style("font-size", "16px")
 
-  var arc = d3.svg.arc()
-    .outerRadius(pieRadius - 10)
-    .innerRadius((pieRadius - 10)/3);
 
-  pieArc.append("path")
-      .attr("class", "piePath")
-      .attr("d", arc)
+  var pieArc = pieContainer.selectAll("pieArc")
+      .data(pie(MetaData))
+    .enter().append("g");
+
+  var piePath = pieArc.append("path")
+      .attr("class", "pieArc")
       .style("fill", function(d, i) {
         if(IsTarget1Base){
           return color2(GetTarget2IndexByName(MetaData[i].Target2NameLoc));
@@ -748,30 +741,24 @@ function ShowBarChart(){
             else {return color1(GetTarget1IndexByName(MetaData[i].Target1NameLoc, false));}
           }
         })
-  
-  var vTotal = 0;
-  for (var i = 0; i < MetaData.length; i++) {
-    vTotal += MetaData[i].Value;
-  };
+
+  pieContainer.append("text")
+      .attr("class", "pieYear")
+      .attr("text-anchor", "middle")
+      .attr("dy", ".3em")
+      .attr("x", 0)
+      .attr("y", 0)
+      .text(function(d) { return SelectedDate; })
+      .style("font-size", "16px")
 
   pieArc.append("text")
-      .attr("class", "piePercent")
-      .attr("transform", function(d) { 
-        return "translate(" + ( (pieRadius - 12) * Math.sin( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + "," + ( -1 * (pieRadius - 12) * Math.cos( ((d.endAngle - d.startAngle) / 2) + d.startAngle ) ) + ")"; })
-      .attr("dy", ".35em")
-      .style("text-anchor", "left")
-      .text(function(d,i) {
-        return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; 
-      });
+     .attr("class", "piePercent")
+     .attr("text-anchor", "middle")
+     .attr("dy", ".25em")
  
   UpdateBarChart();
   ShowTimeChart();
 }
-
-function RedrawBarChart(){
-
-}
-
 
 function ShowTimeChart_Play() {
   if (CurTimeIndex >= DataDates.length) {
