@@ -15,6 +15,8 @@ var parseDate = undefined;
 var DataDates = [];
 var CurTimeIndex = 0;
 var PlayTimerID = -1;
+var ChartAspects = [0.5, 0.5, 0.5,0.1]; // line, bar, map,time
+var margin = {top: 10, right: 10, bottom: 20, left: 30};
 
 function SetTitle() {
    // if has only one area data, show the area name in title
@@ -28,7 +30,7 @@ function SetTitle() {
   return AreaData.length;
 }
 
-function ShowPrevChartType(){
+function ShowPrevChartType() {
   for (var i = 0; i < ShowChartFuncs.length; i++) {
     if (i == CurChartTypeIndex) {
       CurChartTypeIndex -= 1;
@@ -41,7 +43,7 @@ function ShowPrevChartType(){
   ShowChartByCurChartTypeIndex();
 }
 
-function ShowNextChartType(){
+function ShowNextChartType() {
   for (var i = 0; i < ShowChartFuncs.length; i++) {
     if (i == CurChartTypeIndex) {
       CurChartTypeIndex += 1;
@@ -55,7 +57,6 @@ function ShowNextChartType(){
 }
 
 function ShowChart() {
-
   ResetChart();
 
   if (CombinedData.MetaDatas.length == 0) { return; }
@@ -64,13 +65,14 @@ function ShowChart() {
   for (var i = nMetaDatasNum - 1; i >= 0; i--) {
     if (CombinedData.MetaDatas[i].Target1NameLoc != undefined &&
      Target1Data.indexOf(CombinedData.MetaDatas[i].Target1NameLoc) == -1) {
-        
         Target1Data.push(CombinedData.MetaDatas[i].Target1NameLoc);
     };
+
     if (CombinedData.MetaDatas[i].Target2NameLoc != undefined &&
      Target2Data.indexOf(CombinedData.MetaDatas[i].Target2NameLoc) == -1) {
       Target2Data.push(CombinedData.MetaDatas[i].Target2NameLoc);
     };
+
     if(CombinedData.MetaDatas[i].AreaNameLoc != undefined && 
       AreaData.indexOf(CombinedData.MetaDatas[i].AreaNameLoc) == -1) {
       AreaData.push(CombinedData.MetaDatas[i].AreaNameLoc);
@@ -80,6 +82,7 @@ function ShowChart() {
   // Initialize the params
   Target1Indexs = [0]
   Target2Indexs = [0]
+
   // Set page_d3 title
   SetTitle();
 
@@ -94,7 +97,6 @@ function ShowChart() {
     };
   }
   else{
-
     for (var i = 0; i <= AreaData.length - 1; i++) {
       Target1IsArea = true;
       $('#select_d3_target1').append("<option value=" + AreaData[i] + ">" + AreaData[i]+ "</option>");
@@ -180,16 +182,15 @@ function SetIndexByTarget2Names(names) {
   if (names == null) {
     return;
   };
-  for(var j = 0; j < names.length; j++)
-  {
+  for(var j = 0; j < names.length; j++) {
     name = names[j];
     for (var i = 0; i < Target2Data.length; i++) {
-      if(Target2Data[i] == name){
+      if(Target2Data[i] == name) {
         Target2Indexs.push(i);
         break;
       }
     }
-}
+  }
 
   if (Target2Indexs.length == 0) {
     Target2Indexs = [0]
@@ -203,7 +204,7 @@ function CloneMetaDataBySelectIndex(T1Index, T2Index) {
           CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index])
           return jQuery.extend(true, {}, CombinedData.MetaDatas[i]);
     }
-    else{
+    else {
        if(CombinedData.MetaDatas[i].Target1NameLoc == Target1Data[T1Index] && 
           CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index])
           return jQuery.extend(true, {}, CombinedData.MetaDatas[i]);
@@ -396,9 +397,8 @@ function ShowLineChart() {
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
 
-  var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+  var width = window.innerWidth - margin.left - margin.right;
+  var height = window.innerWidth * ChartAspects[0] - margin.top - margin.bottom;
   var padding = 100;
   
   var IsTarget1Base = false, IsTarget2Base = true;
@@ -417,9 +417,13 @@ function ShowLineChart() {
       .scale(x)
       .orient("bottom");
 
-  var yAxis = d3.svg.axis()
+  var yAxisLeft = d3.svg.axis()
       .scale(y)
       .orient("left");
+
+  var yAxisRight = d3.svg.axis()
+      .scale(y)
+      .orient("right");
 
   var line = d3.svg.line()
       .interpolate("cardinal")
@@ -429,12 +433,25 @@ function ShowLineChart() {
   var svg = d3.select("#svg_d3")
       .on("click", function(d) {});
 
-  svg.attr("width", width + margin.left + margin.right + padding * 2)
-     .attr("height", height + margin.top + margin.bottom)
+  var svgWidth = width + margin.left + margin.right + padding * 2;
+  var svgHeight = height + margin.top + margin.bottom;
+  svg.attr("width", svgWidth)
+     .attr("height", svgHeight)
+     .attr("preserveAspectRatio", "xMidYMid")
+     .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
- 
+   $(window).on("resize", function() {
+    d3.select("#svg_d3")
+      .attr("width", window.innerWidth)
+      .attr("height", Math.round(window.innerWidth * ChartAspects[0] ));
+    d3.select("#svg_d3_time")
+      .attr("width", window.innerWidth)
+      .attr("height", Math.round(window.innerWidth * ChartAspects[3] ));  
+  }
+  ).trigger("resize");
+
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
@@ -446,15 +463,27 @@ function ShowLineChart() {
   svg.append("g")
       .attr("class", "y axis")
       .attr("transform", "translate(" + padding  + ",0)")
-      .call(yAxis)
-    .append("text")
+      .call(yAxisLeft)
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".7em")
       .style("text-anchor", "end")
       .text("");
 
-  
+  /*
+  var yRightAlign = padding + width;
+  svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + yRightAlign  + ",0)")
+      .call(yAxisRight)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".7em")
+      .style("text-anchor", "end")
+      .text("");
+  */
   // Draw X-axis grid lines
     svg.selectAll("line.x")
     .data(x.ticks(10))
@@ -518,19 +547,30 @@ function ShowLineChart() {
         else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
       }});
 
+  var datai = 0;
   IndicatorNode.selectAll("circle")
-     .data(function(d) {return d.Datas; })
+     .data(function(d, i) {datai = i; return d.Datas; })
      .enter().append("circle")
      .attr('class', 'data-point')
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
      .attr("r", function(d, i) { return 4 })
-     .on("mouseover", function(d) {      
+     .on("mouseover", function(d, i) {
+        var fPercent = 0;
+        if (i > 0 && (MetaDataArr[datai].Datas[i-1].Value) != 0) {
+          fPercent = (d.Value - (MetaDataArr[datai].Datas[i-1].Value)) / (MetaDataArr[datai].Datas[i-1].Value);
+          fPercent = fPercent.toFixed(4);
+
+        };
+       if(fPercent > 0) {
+          fPercent = "+" + fPercent;
+        }
+        fPercent = "(" + fPercent * 100 + "%)";
         div.transition()        
             .duration(200)      
             .style("opacity", .9);      
-        div .html(d.DateStr + "<br/>"  + d.Value)  
+        div.html(d.DateStr + "<br/>"  + d.Value + fPercent + "<br/>")  
             .style("left", (d3.event.pageX) + "px")     
             .style("top", (d3.event.pageY - 28) + "px");    
         })                  
@@ -541,13 +581,14 @@ function ShowLineChart() {
     })
     .on("click", function(d) {
     });
-}
+} 
 
 // Bar-Pie chart
 var xBar;
 var xAxisBar;
 var pieRadius
 var BarChartWidth;
+
 function UpdateBarChart(){
   // clone data
   var IsTarget1Base = false, IsTarget2Base = true;
@@ -555,9 +596,9 @@ function UpdateBarChart(){
   if (Target2Indexs.length <= 1  && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
   var MetaData = CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base); 
-  if(MetaData.length == 0){
-    return;
-  }
+  
+  if(MetaData.length == 0) return;
+
   var pie = d3.layout.pie()
     .sort(null)
     .value(function(d) { return d.Value; });
@@ -595,7 +636,6 @@ function UpdateBarChart(){
         y = c[1],
         // pythagorean theorem for hypotenuse
         h = Math.sqrt(x*x + y*y);
-        alert(d.endAngle);
     return "translate(" + (x/h * pieRadius) +  ',' +
        (y/h * pieRadius) +  ")"; })
       .text(function(d,i) {
@@ -631,9 +671,8 @@ function ShowBarChart(){
   var barHeightMargin = 8;
   var barHeightStart = 50;
   
-  var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
+  var  width = window.innerWidth - margin.left - margin.right;
+  var  height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
   var padding = 200;
   PieChartWidth = 0.5 * width;
   pieRadius = PieChartWidth * 0.25;
@@ -781,9 +820,8 @@ function ShowTimeChart_OnClick() {
 function ShowTimeChart() {
   $('#svg_d3_time').empty();
 
-  var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 860 - margin.left - margin.right,
-    height = 100 - margin.top - margin.bottom;
+  var width = window.innerWidth - margin.left - margin.right;
+  var height = window.innerHeight * ChartAspects[3] - margin.top - margin.bottom;
   var padding = 100;
 
   if (MetaDataArr.length == 0) return;
@@ -809,13 +847,15 @@ function ShowTimeChart() {
 
   var svg = d3.select("#svg_d3_time")
       .on("click", function(d) {});
-
-  svg.attr("width", width + margin.left + margin.right + padding)
-     .attr("height", height + margin.top + margin.bottom)
+  var svgWidth = width + margin.left + margin.right + padding * 2;
+  var svgHeight = height + margin.top + margin.bottom;
+  svg.attr("width", svgWidth)
+     .attr("height", svgHeight)
+     .attr("preserveAspectRatio", "xMidYMid")
+     .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
- 
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
@@ -1030,7 +1070,7 @@ function ShowMapChart()
       SelectedDate = DataDates[DataDates.length - 1].DateStr;
    };
   
-  var width = 960,  height = 500;
+  var width = window.innerWidth,  height = window.innerWidth * ChartAspects[2];
   
   var proj = d3.geo.mercator().center([120, 40]).scale(500);
   var path = d3.geo.path().projection(proj);

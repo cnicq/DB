@@ -77,9 +77,9 @@ function LoadData(){
         '<li><a href="#page_d3" onclick="CombinedListItemClicked(\'{0}\')">\
           <h3>[{1}] &nbsp {2}</h3>\
           <p>{3}</p>\
-          <p class="ui-li-aside">评论 &nbsp<strong>{4}</strong>\
-          浏览 &nbsp<strong>{5}</strong><br>\
-          更新时间 &nbsp<strong>{6}</strong></p>\
+          <p class="ui-li-aside">查阅:<strong>{5}</strong>\
+           评论:<strong>{4}</strong><br><br>\
+           <strong>{6}</strong></p>\
         </a>\
       </li>', 
       u['_id'], u['CombinedType'] == 0 ? "基础数据":"组合数据",
