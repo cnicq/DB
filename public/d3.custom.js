@@ -17,6 +17,7 @@ var CurTimeIndex = 0;
 var PlayTimerID = -1;
 var ChartAspects = [0.5, 0.5, 0.5,0.1]; // line, bar, map,time
 var margin = {top: 10, right: 10, bottom: 20, left: 30};
+var PaddingRate = 0.1, TextPaddingRate = 0.15;
 
 function SetTitle() {
    // if has only one area data, show the area name in title
@@ -391,15 +392,27 @@ function PrepareData(){
   minDate = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Date; })});
 }
 
-function ShowLineChart() {
+function ResetLineChartSize() {
+  var textWidth = window.innerWidth * PaddingRate * 2;
+  var width = window.innerWidth - margin.left - margin.right - textWidth;
+  var height = window.innerHeight * ChartAspects[0] - margin.top - margin.bottom;
+  var viewboxW = width + margin.left + margin.right + textWidth;
+  var viewboxH = height + margin.top + margin.bottom;
+  d3.select("#svg_d3")
+      .attr("width", viewboxW)
+      .attr("height", viewboxH)
+}
 
+function ShowLineChart() {
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
+  $('#svg_d3_time').hide();
 
-  var width = window.innerWidth - margin.left - margin.right;
-  var height = window.innerWidth * ChartAspects[0] - margin.top - margin.bottom;
-  var padding = 100;
+  var textWidth = window.innerWidth * PaddingRate * 2;
+  var width = window.innerWidth - margin.left - margin.right - textWidth;
+  var height = window.innerHeight * ChartAspects[0] - margin.top - margin.bottom;
+  var padding = window.innerWidth * PaddingRate;
   
   var IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
@@ -433,24 +446,19 @@ function ShowLineChart() {
   var svg = d3.select("#svg_d3")
       .on("click", function(d) {});
 
-  var svgWidth = width + margin.left + margin.right + padding * 2;
-  var svgHeight = height + margin.top + margin.bottom;
-  svg.attr("width", svgWidth)
-     .attr("height", svgHeight)
+  var viewboxW = width + margin.left + margin.right + textWidth;
+  var viewboxH = height + margin.top + margin.bottom;
+  svg.attr("width", viewboxW)
+     .attr("height", viewboxH)
      .attr("preserveAspectRatio", "xMidYMid")
-     .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
+     .attr("viewBox", "0 0 " + viewboxW + " " + viewboxH)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
    $(window).on("resize", function() {
-    d3.select("#svg_d3")
-      .attr("width", window.innerWidth)
-      .attr("height", Math.round(window.innerWidth * ChartAspects[0] ));
-    d3.select("#svg_d3_time")
-      .attr("width", window.innerWidth)
-      .attr("height", Math.round(window.innerWidth * ChartAspects[3] ));  
-  }
-  ).trigger("resize");
+      ResetLineChartSize();
+      }
+    ).trigger("resize");
 
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
@@ -485,6 +493,7 @@ function ShowLineChart() {
       .text("");
   */
   // Draw X-axis grid lines
+  /*
     svg.selectAll("line.x")
     .data(x.ticks(10))
     .enter().append("line")
@@ -495,7 +504,7 @@ function ShowLineChart() {
     .attr("y2", height)
     .attr("transform", "translate(" + padding  + ",0)")
     .style("stroke", "#ccc");
-   
+   */
   // Draw Y-axis grid lines
     svg.selectAll("line.y")
     .data(y.ticks(10))
@@ -528,16 +537,16 @@ function ShowLineChart() {
     .attr({
       width: 25,
       height: 12,
-      x: width + 100,
-      y: function(d, i) { return (10 + i*20); }
+      x: width + width * TextPaddingRate,
+      y: function(d, i) { return (10 + i * 20); }
     })
     .style("fill", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
   
   // legend labels  
     IndicatorNode.append("text")
     .attr({
-      x: width + 130,
-      y: function(d, i) { return (20 + i*20); },
+      x: width + width * TextPaddingRate + 40,
+      y: function(d, i) { return (20 + i * 20); },
     })
     .text(function(d) { 
       if(IsTarget1Base) 
@@ -560,13 +569,13 @@ function ShowLineChart() {
         var fPercent = 0;
         if (i > 0 && (MetaDataArr[datai].Datas[i-1].Value) != 0) {
           fPercent = (d.Value - (MetaDataArr[datai].Datas[i-1].Value)) / (MetaDataArr[datai].Datas[i-1].Value);
-          fPercent = fPercent.toFixed(4);
-
         };
+
        if(fPercent > 0) {
           fPercent = "+" + fPercent;
         }
-        fPercent = "(" + fPercent * 100 + "%)";
+        fPercent = (fPercent * 100).toFixed(2);
+        fPercent = "(" + fPercent + "%)";
         div.transition()        
             .duration(200)      
             .style("opacity", .9);      
@@ -649,6 +658,7 @@ function ShowBarChart(){
 
    $('#svg_d3').empty();
    $('#svg_d3').show();
+   $('#svg_d3_time').show();
 
    if (SelectedDate == undefined) {
       SelectedDate = DataDates[DataDates.length - 1].DateStr
@@ -673,7 +683,7 @@ function ShowBarChart(){
   
   var  width = window.innerWidth - margin.left - margin.right;
   var  height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
-  var padding = 200;
+  var padding = window.innerWidth  * PaddingRate;
   PieChartWidth = 0.5 * width;
   pieRadius = PieChartWidth * 0.25;
 
@@ -822,7 +832,7 @@ function ShowTimeChart() {
 
   var width = window.innerWidth - margin.left - margin.right;
   var height = window.innerHeight * ChartAspects[3] - margin.top - margin.bottom;
-  var padding = 100;
+  var padding = window.innerHeight * PaddingRate;
 
   if (MetaDataArr.length == 0) return;
 
@@ -1049,7 +1059,13 @@ function UpdateMapChart(){
           if (d.properties == undefined || d.properties.name == undefined) { return 0;};
           if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
           return Math.sqrt(Math.abs(values[d.properties.name])); })
-    
+}
+
+function ResetMapChartSize(){
+  var width = window.innerWidth,  height = window.innerWidth * ChartAspects[2];
+  d3.select("#svg_d3")
+      .attr("width", width)
+      .attr("height", height)
 }
 
 function ShowMapChart()
@@ -1057,28 +1073,34 @@ function ShowMapChart()
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
+  $('#svg_d3_time').show();
   
   if(Target1IsArea == false || DataDates[0] == undefined || DataDates[0].DateStr == undefined || AreaData.length <= 1) { 
-     $("#svg_d3_msg").html('不支持地图显示');
+    $("#svg_d3_msg").html('不支持地图显示');
     return;
   }
-  if (Target2Indexs.length != 1) {
-     $("#svg_d3_msg").html('只能选择一种数据显示');
+  if(Target2Indexs.length != 1) {
+    $("#svg_d3_msg").html('只能选择一种数据显示');
     return;
-  };
-   if (SelectedDate == undefined) {
-      SelectedDate = DataDates[DataDates.length - 1].DateStr;
-   };
+  }
+  if(SelectedDate == undefined) {
+    SelectedDate = DataDates[DataDates.length - 1].DateStr;
+  }
   
   var width = window.innerWidth,  height = window.innerWidth * ChartAspects[2];
   
-  var proj = d3.geo.mercator().center([120, 40]).scale(500);
+  var proj = d3.geo.mercator().center([130, 35]).scale(530);
   var path = d3.geo.path().projection(proj);
 
   var svg = d3.select("#svg_d3")
       .attr("width", width)
       .attr("height", height)
-  
+      .attr("preserveAspectRatio", "xMidYMid")
+      .attr("viewBox", "0 0 " + width + " " + height)
+  $(window).on("resize", function() {
+      ResetMapChartSize();
+      }
+    ).trigger("resize");
 
   d3.json("china_topo.json", function(error, topology) {
   var p = topojson.feature(topology, topology.objects.china);
