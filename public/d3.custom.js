@@ -556,9 +556,8 @@ function ShowLineChart() {
         else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
       }});
 
-  var datai = 0;
   IndicatorNode.selectAll("circle")
-     .data(function(d, i) {datai = i; return d.Datas; })
+     .data(function(d, i) {return d.Datas; })
      .enter().append("circle")
      .attr('class', 'data-point')
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
@@ -567,6 +566,8 @@ function ShowLineChart() {
      .attr("r", function(d, i) { return 4 })
      .on("mouseover", function(d, i) {
         var fPercent = 0;
+        var datai = 0;
+        if(IsTarget1Base) datai = (d.Target2Index); else datai = (d.Target1Index); 
         if (i > 0 && (MetaDataArr[datai].Datas[i-1].Value) != 0) {
           fPercent = (d.Value - (MetaDataArr[datai].Datas[i-1].Value)) / (MetaDataArr[datai].Datas[i-1].Value);
         };
@@ -833,7 +834,7 @@ function ShowTimeChart() {
   var width = window.innerWidth - margin.left - margin.right;
   var height = window.innerHeight * ChartAspects[3] - margin.top - margin.bottom;
   var padding = window.innerHeight * PaddingRate;
-
+  if(height <= 10) height = 10;
   if (MetaDataArr.length == 0) return;
 
   var x = d3.time.scale()
@@ -1086,26 +1087,27 @@ function ShowMapChart()
   if(SelectedDate == undefined) {
     SelectedDate = DataDates[DataDates.length - 1].DateStr;
   }
-  
   var width = window.innerWidth,  height = window.innerWidth * ChartAspects[2];
-  
-  var proj = d3.geo.mercator().center([130, 35]).scale(530);
-  var path = d3.geo.path().projection(proj);
-
   var svg = d3.select("#svg_d3")
       .attr("width", width)
       .attr("height", height)
       .attr("preserveAspectRatio", "xMidYMid")
       .attr("viewBox", "0 0 " + width + " " + height)
-  $(window).on("resize", function() {
+
+   $(window).on("resize", function() {
       ResetMapChartSize();
       }
     ).trigger("resize");
 
   d3.json("china_topo.json", function(error, topology) {
-  var p = topojson.feature(topology, topology.objects.china);
-
-  var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
+    var p = topojson.feature(topology, topology.objects.china);
+    var center = d3.geo.centroid(p)
+    var offset = [width/2, height/2];
+    var scale = width / 2;
+    var proj = d3.geo.mercator().scale(scale).center(center).translate(offset);
+    var path = d3.geo.path().projection(proj);
+    
+    var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
     
   svg.selectAll("path")
       .data(p.features)
