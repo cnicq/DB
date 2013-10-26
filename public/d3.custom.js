@@ -557,7 +557,7 @@ function ShowLineChart() {
       }});
 
   IndicatorNode.selectAll("circle")
-     .data(function(d, i) {return d.Datas; })
+     .data(function(d, i) {d.datai = i; return d.Datas; })
      .enter().append("circle")
      .attr('class', 'data-point')
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
@@ -566,10 +566,9 @@ function ShowLineChart() {
      .attr("r", function(d, i) { return 4 })
      .on("mouseover", function(d, i) {
         var fPercent = 0;
-        var datai = 0;
-        if(IsTarget1Base) datai = (d.Target2Index); else datai = (d.Target1Index); 
-        if (i > 0 && (MetaDataArr[datai].Datas[i-1].Value) != 0) {
-          fPercent = (d.Value - (MetaDataArr[datai].Datas[i-1].Value)) / (MetaDataArr[datai].Datas[i-1].Value);
+        alert(d.datai);
+        if (MetaDataArr[d.datai] != undefined && i > 0 && (MetaDataArr[d.datai].Datas[i-1].Value) != 0) {
+          fPercent = (d.Value - (MetaDataArr[d.datai].Datas[i-1].Value)) / (MetaDataArr[d.datai].Datas[i-1].Value);
         };
 
        if(fPercent > 0) {
@@ -631,28 +630,25 @@ function UpdateBarChart(){
     .outerRadius(pieRadius - 10)
     .innerRadius((pieRadius - 10)/3);
 
-  var path = svg.selectAll(".pieArc").data(pie(MetaData))//.transition()
-          .attr("d", arc);
+  svg.selectAll(".pieArc").data(pie(MetaData))//.transition()
+      .attr("d", arc);
 
   var vTotal = 0;
   for (var i = 0; i < MetaData.length; i++) {
     vTotal += MetaData[i].Value;
   };
 
-  svg.selectAll(".piePercent")
-      .attr("transform", function(d) {
-    var c = arc.centroid(d),
-        x = c[0],
-        y = c[1],
-        // pythagorean theorem for hypotenuse
-        h = Math.sqrt(x*x + y*y);
-    return "translate(" + (x/h * pieRadius) +  ',' +
-       (y/h * pieRadius) +  ")"; })
-      .text(function(d,i) {
-        return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; })
-      .attr("text-anchor", function(d) {
-        // are we past the center?
-        return (d.endAngle + d.startAngle)/2 > Math.PI ? "end" : "start";})
+  svg.selectAll(".piePercent").data(pie(MetaData))
+    .transition()
+    .attr("transform", function(d) {
+      var c = arc.centroid(d),
+          x = c[0],
+          y = c[1],
+          // pythagorean theorem for hypotenuse
+          h = Math.sqrt(x*x + y*y);
+      return "translate(" + (x/h * pieRadius) +  ',' + (y/h * pieRadius) +  ")"; })
+    .text(function(d,i) { return (MetaData[i].Value * 100 / vTotal).toFixed(2) + "%"; })
+    .attr("text-anchor", function(d) { return (d.endAngle + d.startAngle)/2 > Math.PI ? "end" : "start";})
 }
 
 function ShowBarChart(){
@@ -677,13 +673,14 @@ function ShowBarChart(){
     
     return;
   }
+
   var PieChartWidth = 0;
   var barHeight = 30;
   var barHeightMargin = 8;
   var barHeightStart = 50;
   
-  var  width = window.innerWidth - margin.left - margin.right;
-  var  height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
+  var width = window.innerWidth - margin.left - margin.right;
+  var height = (barHeight + barHeightMargin) * MetaData.length - margin.top - margin.bottom;
   var padding = window.innerWidth  * PaddingRate;
   PieChartWidth = 0.5 * width;
   pieRadius = PieChartWidth * 0.25;
@@ -708,8 +705,12 @@ function ShowBarChart(){
   
   var svg = d3.select("#svg_d3").on("click", function(d) {});
 
-  svg.attr("width", width + margin.left + margin.right)
-     .attr("height", height + margin.top + margin.bottom)
+  var svgWidth = width + margin.left + margin.right + padding * 2;
+  var svgHeight = height + margin.top + margin.bottom;
+  svg.attr("width", svgWidth)
+     .attr("height", svgHeight)
+     .attr("preserveAspectRatio", "xMidYMid")
+     .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -773,7 +774,7 @@ function ShowBarChart(){
     .value(function(d) { return d.Value; });
 
   var pieContainer = svg.append("g").attr("class", "pieUnit")
-      .attr("transform", "translate(" + BarChartWidth * 1.8 + "," + pieRadius * 1.2 + ")")
+      .attr("transform", "translate(" + BarChartWidth * 1.6 + "," + pieRadius * 1.2 + ")")
 
 
   var pieArc = pieContainer.selectAll("pieArc")
@@ -1106,7 +1107,7 @@ function ShowMapChart()
     var scale = width / 2;
     var proj = d3.geo.mercator().scale(scale).center(center).translate(offset);
     var path = d3.geo.path().projection(proj);
-    
+
     var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
     
   svg.selectAll("path")
