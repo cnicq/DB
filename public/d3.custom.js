@@ -555,20 +555,23 @@ function ShowLineChart() {
         if (Target1IsArea) return ("(" + d.AreaNameLoc + ")" + d.Target2NameLoc);
         else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
       }});
-
+  
   IndicatorNode.selectAll("circle")
-     .data(function(d, i) {d.datai = i; return d.Datas; })
+     .data(function(d, i) {return d.Datas; })
      .enter().append("circle")
      .attr('class', 'data-point')
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
-     .attr("r", function(d, i) { return 4 })
-     .on("mouseover", function(d, i) {
+     .attr("r", function(d) { return 4 })
+     .on("mouseover", function(d, i, j) {
+        d3.select(this).transition()
+           .duration(500)
+           .attr("r", function(d) { return 30 });
+
         var fPercent = 0;
-        alert(d.datai);
-        if (MetaDataArr[d.datai] != undefined && i > 0 && (MetaDataArr[d.datai].Datas[i-1].Value) != 0) {
-          fPercent = (d.Value - (MetaDataArr[d.datai].Datas[i-1].Value)) / (MetaDataArr[d.datai].Datas[i-1].Value);
+        if (MetaDataArr[j] != undefined && i > 0 && (MetaDataArr[j].Datas[i-1].Value) != 0) {
+          fPercent = (d.Value - (MetaDataArr[j].Datas[i-1].Value)) / (MetaDataArr[j].Datas[i-1].Value);
         };
 
        if(fPercent > 0) {
@@ -583,12 +586,13 @@ function ShowLineChart() {
             .style("left", (d3.event.pageX) + "px")     
             .style("top", (d3.event.pageY - 28) + "px");    
         })                  
-    .on("mouseout", function(d) {       
+    .on("mouseout", function(d) {   
+        d3.select(this).transition()
+           .duration(500)
+           .attr("r", function(d) { return 4 });    
         div.transition()        
             .duration(500)      
             .style("opacity", 0);   
-    })
-    .on("click", function(d) {
     });
 } 
 

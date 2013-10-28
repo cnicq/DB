@@ -155,6 +155,12 @@ function CombinedListItemClicked(sID)
     type: 'GET',
     
     success: function(Data){
+      // reorde data by dates
+      for (var i = 0; i < Data.MetaDatas.length; i++) {
+        Data.MetaDatas[i].Datas.sort(function(a, b){
+            return new Date(a.Date).getTime() - new Date(b.Date).getTime();
+        });
+      };
       CombinedData = Data
       if (CombinedData.MetaDatas.length == 0) {
         $('#svg_d3_msg').html('没有数据可供显示');
