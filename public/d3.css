@@ -26,11 +26,10 @@ div.tooltip {
   width: 120px;                  
   height: 40px;                 
   padding: 2px;             
-  font: 12px sans-serif;        
-  background: lightsteelblue;   
+  font: 8px sans-serif;        
   border: 0px;      
   border-radius: 8px;           
-  pointer-events: none;         
+  pointer-events: none;   
 }
 
 .arc path {

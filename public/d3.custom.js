@@ -299,7 +299,7 @@ function CloneMetaDataBySelectDate(IsTarget1Base, IsTarget2Base){
 }
 
 function ResetChart(){
-  $("#svg_d3_msg").html('');
+  $("#svg_d3_msg").html(' ');
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
 
@@ -325,7 +325,7 @@ function ResetChart(){
 
 function PrepareData(){
 
- $('#svg_d3_msg').html('');
+ $("#svg_d3_msg").html(' ');
  clearInterval(PlayTimerID);
 
   if (MetaDataArr.length > 0) return;
@@ -426,9 +426,28 @@ function ShowLineChart() {
   var y = d3.scale.linear()
       .range([height, 0]);
 
+var customTimeFormat = timeFormat([
+  [d3.time.format("%Y"), function() { return true; }],
+  [d3.time.format("%B"), function(d) { return d.getMonth(); }],
+  [d3.time.format("%b %d"), function(d) { return d.getDate() != 1; }],
+  [d3.time.format("%a %d"), function(d) { return d.getDay() && d.getDate() != 1; }],
+  [d3.time.format("%I %p"), function(d) { return d.getHours(); }],
+  [d3.time.format("%I:%M"), function(d) { return d.getMinutes(); }],
+  [d3.time.format(":%S"), function(d) { return d.getSeconds(); }],
+  [d3.time.format(".%L"), function(d) { return d.getMilliseconds(); }]
+]);
+function timeFormat(formats) {
+  return function(date) {
+    var i = formats.length - 1, f = formats[i];
+    while (!f[1](date)) f = formats[--i];
+    return f[0](date);
+  };
+}
   var xAxis = d3.svg.axis()
       .scale(x)
-      .orient("bottom");
+      .orient("bottom")
+      .tickFormat(customTimeFormat);
+
 
   var yAxisLeft = d3.svg.axis()
       .scale(y)
@@ -555,7 +574,8 @@ function ShowLineChart() {
         if (Target1IsArea) return ("(" + d.AreaNameLoc + ")" + d.Target2NameLoc);
         else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
       }});
-  
+
+  var PrevCircle = undefined;
   IndicatorNode.selectAll("circle")
      .data(function(d, i) {return d.Datas; })
      .enter().append("circle")
@@ -563,38 +583,61 @@ function ShowLineChart() {
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
-     .attr("r", function(d) { return 4 })
-     .on("mouseover", function(d, i, j) {
-        d3.select(this).transition()
-           .duration(500)
-           .attr("r", function(d) { return 30 });
+     .attr("r", function(d,i,j) { 
+        if (PrevCircle != undefined) {
+          PrevCircle.transition()
+            .duration(500)
+            .attr("r", function(d) { return 4 })
+            .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
+        };
 
+        PrevCircle = d3.select(this);
+        PrevCircle.transition()
+           .duration(500)
+           .attr("r", function(d) { return 8 })
+           .style("stroke", function(d) { return "#f00" })
         var fPercent = 0;
         if (MetaDataArr[j] != undefined && i > 0 && (MetaDataArr[j].Datas[i-1].Value) != 0) {
           fPercent = (d.Value - (MetaDataArr[j].Datas[i-1].Value)) / (MetaDataArr[j].Datas[i-1].Value);
         };
-
-       if(fPercent > 0) {
-          fPercent = "+" + fPercent;
-        }
+        
+        if(fPercent > 0) { fPercent = "+" + fPercent; }
         fPercent = (fPercent * 100).toFixed(2);
-        fPercent = "(" + fPercent + "%)";
-        div.transition()        
-            .duration(200)      
-            .style("opacity", .9);      
-        div.html(d.DateStr + "<br/>"  + d.Value + fPercent + "<br/>")  
-            .style("left", (d3.event.pageX) + "px")     
-            .style("top", (d3.event.pageY - 28) + "px");    
-        })                  
-    .on("mouseout", function(d) {   
-        d3.select(this).transition()
+        if (fPercent > 0) { fPercent = "增长率:<font color='red'>" +  fPercent + "%" + "</font>,"; }
+        else if(fPercent < 0){ fPercent = "增长率:<font color='blue'>" +  fPercent + "%" + "</font>,"; }
+        $("#svg_d3_msg").html("时间:" + d.DateStr + "," + fPercent + "数值:" + d.Value);
+      return 4; })
+     .on("mouseover", function(d, i, j) {
+        if (PrevCircle != undefined) {
+          PrevCircle.transition()
+            .duration(500)
+            .attr("r", function(d) { return 4 })
+            .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
+        };
+
+        PrevCircle = d3.select(this);
+        PrevCircle.transition()
            .duration(500)
-           .attr("r", function(d) { return 4 });    
-        div.transition()        
-            .duration(500)      
-            .style("opacity", 0);   
-    });
+           .attr("r", function(d) { return 8 })
+           .style("stroke", function(d) { return "#f00" })
+        var fPercent = 0;
+        if (MetaDataArr[j] != undefined && i > 0 && (MetaDataArr[j].Datas[i-1].Value) != 0) {
+          fPercent = (d.Value - (MetaDataArr[j].Datas[i-1].Value)) / (MetaDataArr[j].Datas[i-1].Value);
+        };
+        
+        if(fPercent > 0) { fPercent = "+" + fPercent; }
+        fPercent = (fPercent * 100).toFixed(2);
+        if (fPercent > 0) { fPercent = "增长率:<font color='red'>" +  fPercent + "%" + "</font>,"; }
+        else if(fPercent < 0){ fPercent = "增长率:<font color='blue'>" +  fPercent + "%" + "</font>,"; }
+        $("#svg_d3_msg").html("时间:" + d.DateStr + "," + fPercent + "数值:" + d.Value);
+      }
+      )              
+     .on("mouseout", function(d) {});
 } 
+
+function SetLableText(d, i, j){
+
+}
 
 // Bar-Pie chart
 var xBar;

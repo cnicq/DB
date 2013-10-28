@@ -9,7 +9,6 @@ var html_linkkeyworld = '';
 var html_catalogs = [];
 var html_index_keyword = ''
 $(document).ready(function(){
-
   String.format = function(src){
       if (arguments.length == 0) return null;
       var args = Array.prototype.slice.call(arguments, 1);
@@ -58,7 +57,7 @@ $(document).ready(function(){
 
 function LoadData(){
   if (html_linkkeyworld == '') { return; }
-
+  moment.lang('zh-cn');
   if (html_content_page[html_linkkeyworld] == undefined) {
     html_content_page[html_linkkeyworld] = 0;
   };
@@ -73,6 +72,13 @@ function LoadData(){
       }
       html_content[html_linkkeyworld] = "";
       $(data).each(function(te, u) {
+      if(moment(u["UpdateTime"]).add("days", 3) > moment()){
+        u['time'] = moment(u["UpdateTime"]).fromNow()
+      }
+      else{
+        u['time'] = moment(u["UpdateTime"]).format('YYYY-MM-DD');  
+      }
+      
       html_content[html_linkkeyworld] += String.format( 
         '<li><a href="#page_d3" onclick="CombinedListItemClicked(\'{0}\')">\
           <h3>[{1}] &nbsp {2}</h3>\
@@ -87,7 +93,7 @@ function LoadData(){
       u.NoteLoc['Chinese'],
       u["Comments"],
       u["Views"],
-      u["UpdateTime"]);
+      u['time']);
       });
 
       if (html_linkkeyworld == html_search) {
