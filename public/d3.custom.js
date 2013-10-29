@@ -18,6 +18,7 @@ var PlayTimerID = -1;
 var ChartAspects = [0.5, 0.5, 0.5,0.1]; // line, bar, map,time
 var margin = {top: 10, right: 10, bottom: 20, left: 30};
 var PaddingRate = 0.1, TextPaddingRate = 0.15;
+var MouseoverCircle = undefined;
 
 function SetTitle() {
    // if has only one area data, show the area name in title
@@ -576,7 +577,7 @@ function timeFormat(formats) {
         else return ("(" + d.Target1NameLoc + ")" + d.Target2NameLoc);
       }});
 
-  var PrevCircle = undefined;
+  MouseoverCircle = undefined;
   IndicatorNode.selectAll("circle")
      .data(function(d, i) {return d.Datas; })
      .enter().append("circle")
@@ -585,15 +586,15 @@ function timeFormat(formats) {
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
      .attr("r", function(d,i,j) { 
-        if (PrevCircle != undefined) {
-          PrevCircle.transition()
+        if (MouseoverCircle != undefined) {
+          MouseoverCircle.transition()
             .duration(500)
             .attr("r", function(d) { return 4 })
             .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
         };
 
-        PrevCircle = d3.select(this);
-        PrevCircle.transition()
+        MouseoverCircle = d3.select(this);
+        MouseoverCircle.transition()
            .duration(500)
            .attr("r", function(d) { return 8 })
            .style("stroke", function(d) { return "#f00" })
@@ -609,15 +610,15 @@ function timeFormat(formats) {
         $("#svg_d3_msg").html("时间:" + d.DateStr + "," + fPercent + "数值:" + d.Value);
       return 4; })
      .on("mouseover", function(d, i, j) {
-        if (PrevCircle != undefined) {
-          PrevCircle.transition()
+        if (MouseoverCircle != undefined) {
+          MouseoverCircle.transition()
             .duration(500)
             .attr("r", function(d) { return 4 })
             .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
         };
 
-        PrevCircle = d3.select(this);
-        PrevCircle.transition()
+        MouseoverCircle = d3.select(this);
+        MouseoverCircle.transition()
            .duration(500)
            .attr("r", function(d) { return 8 })
            .style("stroke", function(d) { return "#f00" })
@@ -1083,6 +1084,15 @@ function UpdateMapChart(){
   cscale = d3.scale.pow().exponent(.5).domain([values.min, values.max])
                         .range(["#FFBBC9", "#88001B"]);
 
+$('svg circle').tipsy({ 
+  gravity: 'w', 
+  html: true, 
+  title: function() {
+    var d = this.__data__;
+    return d.properties.name + ":" + values['initValues'][d.properties.name]; 
+  }
+});
+
    paths.transition()
       .attr("fill", function(d,i) { 
         var c = '#fff';
@@ -1091,24 +1101,11 @@ function UpdateMapChart(){
         return c;
       })
   cycles
-  .on("mouseover", function(d) {      
-        div.transition()        
-            .duration(200)      
-            .style("opacity", .9);      
-        div .html(d.properties.name + "<br/>"  + values['initValues'][d.properties.name])  
-            .style("left", (d3.event.pageX) + "px")     
-            .style("top", (d3.event.pageY - 28) + "px");    
-        })                  
-    .on("mouseout", function(d) {       
-        div.transition()        
-            .duration(500)      
-            .style("opacity", 0);   
-    })
-  .transition()
-  .attr("r", function(d,i) {
-          if (d.properties == undefined || d.properties.name == undefined) { return 0;};
-          if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
-          return Math.sqrt(Math.abs(values[d.properties.name])); })
+    .transition()
+    .attr("r", function(d,i) {
+            if (d.properties == undefined || d.properties.name == undefined) { return 0;};
+            if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
+            return Math.sqrt(Math.abs(values[d.properties.name])); })
 }
 
 function ResetMapChartSize(){
