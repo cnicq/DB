@@ -394,9 +394,9 @@ function PrepareData(){
 }
 
 function ResetLineChartSize() {
-  var textWidth = window.innerWidth * PaddingRate * 2;
+  var textWidth = window.innerWidth *0.15;
   var width = window.innerWidth - margin.left - margin.right - textWidth;
-  var height = window.innerHeight * ChartAspects[0] - margin.top - margin.bottom;
+  var height = window.innerHeight * 0.7 - margin.top - margin.bottom;
   var viewboxW = width + margin.left + margin.right + textWidth;
   var viewboxH = height + margin.top + margin.bottom;
   d3.select("#svg_d3")
@@ -585,61 +585,54 @@ function timeFormat(formats) {
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
      .attr("cy", function(d) { return y(d.Value) })
-     .attr("r", function(d,i,j) { 
-        if (MouseoverCircle != undefined) {
-          MouseoverCircle.transition()
-            .duration(500)
-            .attr("r", function(d) { return 4 })
-            .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
-        };
-
-        MouseoverCircle = d3.select(this);
-        MouseoverCircle.transition()
-           .duration(500)
-           .attr("r", function(d) { return 8 })
-           .style("stroke", function(d) { return "#f00" })
-        var fPercent = 0;
+     .attr("r", function(d,i,j) {
+       var name = "";
+       if(IsTarget1Base) 
+        name = MetaDataArr[j].Target2NameLoc;
+      else {
+        if (Target1IsArea) name = ("(" + MetaDataArr[j].AreaNameLoc + ")" + MetaDataArr[j].Target2NameLoc);
+        else name = ("(" + MetaDataArr[j].Target1NameLoc + ")" + MetaDataArr[j].Target2NameLoc);
+      }
+      name = "<font style='font-weight:bold;font-size: 14px'>" + name + "</font>"
+       var fPercent = 0;
         if (MetaDataArr[j] != undefined && i > 0 && (MetaDataArr[j].Datas[i-1].Value) != 0) {
           fPercent = (d.Value - (MetaDataArr[j].Datas[i-1].Value)) / (MetaDataArr[j].Datas[i-1].Value);
         };
         
         if(fPercent > 0) { fPercent = "+" + fPercent; }
         fPercent = (fPercent * 100).toFixed(2);
-        if (fPercent > 0) { fPercent = "增长率:<font color='red'>" +  fPercent + "%" + "</font>,"; }
-        else if(fPercent < 0){ fPercent = "增长率:<font color='blue'>" +  fPercent + "%" + "</font>,"; }
-        $("#svg_d3_msg").html("时间:" + d.DateStr + "," + fPercent + "数值:" + d.Value);
-      return 4; })
+        if (fPercent > 0)    { fPercent = "增长:<font color='red'>" +  fPercent + "%" + "</font>"; }
+        else if(fPercent < 0){ fPercent = "减少:<font color='green'>" +  fPercent + "%" + "</font>"; }
+        this.__data__['html'] =  (name + "<br><font style='text-align: left'>时间:" + d.DateStr + "</font><br><font style='text-align: left'>" + fPercent + "</font><br><font style='text-align: left'>数值:" + d.Value + "</font>");
+        return 8; 
+      })
      .on("mouseover", function(d, i, j) {
         if (MouseoverCircle != undefined) {
           MouseoverCircle.transition()
             .duration(500)
-            .attr("r", function(d) { return 4 })
+            .attr("r", function(d) { return 8 })
             .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
         };
 
         MouseoverCircle = d3.select(this);
         MouseoverCircle.transition()
            .duration(500)
-           .attr("r", function(d) { return 8 })
+           .attr("r", function(d) { return 10 })
            .style("stroke", function(d) { return "#f00" })
-        var fPercent = 0;
-        if (MetaDataArr[j] != undefined && i > 0 && (MetaDataArr[j].Datas[i-1].Value) != 0) {
-          fPercent = (d.Value - (MetaDataArr[j].Datas[i-1].Value)) / (MetaDataArr[j].Datas[i-1].Value);
-        };
-        
-        if(fPercent > 0) { fPercent = "+" + fPercent; }
-        fPercent = (fPercent * 100).toFixed(2);
-        if (fPercent > 0) { fPercent = "增长率:<font color='red'>" +  fPercent + "%" + "</font>,"; }
-        else if(fPercent < 0){ fPercent = "增长率:<font color='blue'>" +  fPercent + "%" + "</font>,"; }
-        $("#svg_d3_msg").html("时间:" + d.DateStr + "," + fPercent + "数值:" + d.Value);
-      }
+        }
       )              
-     .on("mouseout", function(d) {});
+
+     $('svg circle').tipsy({
+      trigger: 'hover',
+      gravity: 's', 
+      html: true, 
+      title: function() {
+        var d = this.__data__;
+        return d.html;
+      }
+    });
 } 
 
-function SetLableText(d, i, j){
-
-}
 
 // Bar-Pie chart
 var xBar;
@@ -1085,7 +1078,7 @@ function UpdateMapChart(){
                         .range(["#FFBBC9", "#88001B"]);
 
 $('svg circle').tipsy({ 
-  gravity: 'w', 
+  gravity: 's', 
   html: true, 
   title: function() {
     var d = this.__data__;
@@ -1109,7 +1102,7 @@ $('svg circle').tipsy({
 }
 
 function ResetMapChartSize(){
-  var width = window.innerWidth,  height = window.innerWidth * ChartAspects[2];
+  var width = window.innerWidth,  height = window.innerHeight * 0.7;
   d3.select("#svg_d3")
       .attr("width", width)
       .attr("height", height)
@@ -1149,7 +1142,7 @@ function ShowMapChart()
     var p = topojson.feature(topology, topology.objects.china);
     var center = d3.geo.centroid(p)
     var offset = [width/2, height/2];
-    var scale = width / 2;
+    var scale = width / 1.8;
     var proj = d3.geo.mercator().scale(scale).center(center).translate(offset);
     var path = d3.geo.path().projection(proj);
 
@@ -1171,7 +1164,7 @@ function ShowMapChart()
     svg.selectAll("circle")
        .data(p.features)
       .enter().append("circle")
-        .attr("cx", function(d) { return path.centroid(d)[0]; })
+        .attr("cx", function(d) { return path.centroid(d)[0] - 10; })
         .attr("cy", function(d) { return path.centroid(d)[1]; })
         
       UpdateMapChart();
