@@ -603,6 +603,7 @@ function timeFormat(formats) {
         fPercent = (fPercent * 100).toFixed(2);
         if (fPercent > 0)    { fPercent = "增长:<font color='red'>" +  fPercent + "%" + "</font>"; }
         else if(fPercent < 0){ fPercent = "减少:<font color='green'>" +  fPercent + "%" + "</font>"; }
+        else fPercent = '增长:无数据';
         this.__data__['html'] =  (name + "<br><font style='text-align: left'>时间:" + d.DateStr + "</font><br><font style='text-align: left'>" + fPercent + "</font><br><font style='text-align: left'>数值:" + d.Value + "</font>");
         return 8; 
       })
@@ -816,7 +817,7 @@ function ShowBarChart(){
     .value(function(d) { return d.Value; });
 
   var pieContainer = svg.append("g").attr("class", "pieUnit")
-      .attr("transform", "translate(" + BarChartWidth * 1.6 + "," + pieRadius * 1.2 + ")")
+      .attr("transform", "translate(" + BarChartWidth * 1.6 + "," + pieRadius + ")")
 
 
   var pieArc = pieContainer.selectAll("pieArc")
