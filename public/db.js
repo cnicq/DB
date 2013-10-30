@@ -7,7 +7,9 @@ var html_catalog_item = "/combined/catalog/"
 var html_search = "/combined/search/"
 var html_linkkeyworld = '';
 var html_catalogs = [];
-var html_index_keyword = ''
+var html_index_keyword = '';
+var html_catalog_name = '';
+
 $(document).ready(function(){
   String.format = function(src){
       if (arguments.length == 0) return null;
@@ -17,8 +19,9 @@ $(document).ready(function(){
       });
   };
 
+  // init stuff.
   html_linkkeyworld = html_newest;
-
+  moment.lang('zh-cn');
   LoadData();
 
   $("#page_combineddata").bind("pageshow", function(event,ui){
@@ -41,13 +44,13 @@ $(document).ready(function(){
   });
 
   $("#page_catalog").bind("pageshow", function(event,ui){
-    $("#catalog_collapsible").show();
+    html_catalog_name = '';
     $("#list_catalog").hide();
-      OnClickCatalog();
+    OnClickCatalog();
   });
 
-   $("#page_catalog_list").bind("pagehide", function(event,ui){
-      //$("#list_catalog li").remove();
+  $("#page_catalog_list").bind("pagehide", function(event,ui){
+    html_catalog_name = '';
   });
 
   $("#page_d3").bind("pagehide", function(event,ui){    
@@ -56,95 +59,77 @@ $(document).ready(function(){
 })
 
 function LoadData(){
-  if (html_linkkeyworld == '') { return; }
-  moment.lang('zh-cn');
-  if (html_content_page[html_linkkeyworld] == undefined) {
-    html_content_page[html_linkkeyworld] = 0;
-  };
-
- $.ajax({
-    url: html_linkkeyworld + (html_content_page[html_linkkeyworld]),
+  if (html_linkkeyworld == '')                           return;
+  if (html_content_page[html_linkkeyworld] == undefined) html_content_page[html_linkkeyworld] = 0;
+  var param = html_content_page[html_linkkeyworld];
+  if (html_catalog_name != '') {  param = html_catalog_name + '/' + html_content_page[html_linkkeyworld]; }
+  $.ajax({
+    url: html_linkkeyworld + param,
     type: 'GET',
     success: function(data){
-      if(html_content[html_linkkeyworld] == undefined){
-          html_content[html_linkkeyworld] = "";
-          html_content_page[html_linkkeyworld] = 0;
-      }
+      if(html_content[html_linkkeyworld] == undefined) html_content_page[""] = 0;
       html_content[html_linkkeyworld] = "";
       $(data).each(function(te, u) {
-      if(moment(u["UpdateTime"]).add("days", 3) > moment()){
-        u['time'] = moment(u["UpdateTime"]).fromNow()
-      }
-      else{
-        u['time'] = moment(u["UpdateTime"]).format('YYYY-MM-DD');  
-      }
+        if(moment(u["UpdateTime"]).add("days", 3) > moment()){ u['time'] = moment(u["UpdateTime"]).fromNow(); }
+        else{ u['time'] = moment(u["UpdateTime"]).format('YYYY-MM-DD'); }
       
-      html_content[html_linkkeyworld] += String.format( 
-        '<li><a href="#page_d3" onclick="CombinedListItemClicked(\'{0}\')">\
-          <h3>{1}{2}</h3>\
-          <p>{3}</p>\
-          <p class="ui-li-aside">查阅:<strong>{5}</strong>\
-           评论:<strong>{4}</strong><br><br>\
-           <strong>{6}</strong></p>\
-        </a>\
-      </li>', 
-      u['_id'], 
-      //u['CombinedType'] == 0 ? "基础数据":"组合数据",
-      //u.CatalogNames[0],
-      '',
-      u.NameLoc["Chinese"],
-      u.NoteLoc['Chinese'],
-      u["Comments"],
-      u["Views"],
-      u['time']);
+        html_content[html_linkkeyworld] += String.format( 
+          '<li><a href="#page_d3" onclick="CombinedListItemClicked(\'{0}\')">\
+            <h3>{1}{2}</h3>\
+            <p>{3}</p>\
+            <p class="ui-li-aside">查阅:<strong>{5}</strong>\
+             评论:<strong>{4}</strong><br><br>\
+             <strong>{6}</strong></p>\
+          </a>\
+        </li>', 
+        u['_id'], 
+        //u['CombinedType'] == 0 ? "基础数据":"组合数据",
+        //u.CatalogNames[0],
+        '',
+        u.NameLoc["Chinese"],
+        u.NoteLoc['Chinese'],
+        u["Comments"],
+        u["Views"],
+        u['time']);
       });
 
       if (html_linkkeyworld == html_search) {
-        if(html_content[html_linkkeyworld] == ''){
-          html_content[html_linkkeyworld] = '<li>无记录</li>'
-        }
-        if (html_content[html_linkkeyworld] != '') {
-        $("#list_search li").remove();
-        $("#list_search").append(html_content[html_linkkeyworld]);
-        $("#list_search").listview('refresh');
+        if(html_content[html_linkkeyworld] == ''){ html_content[html_linkkeyworld] = '<li>无记录</li>'}
+        if(html_content[html_linkkeyworld] != '') {
+          $("#list_search li").remove();
+          $("#list_search").append(html_content[html_linkkeyworld]);
+          $("#list_search").listview('refresh');
         }
         else{
-          if (html_content_page[html_linkkeyworld] > 0) {
-            html_content_page[html_linkkeyworld] -= 1
-          };
+          if (html_content_page[html_linkkeyworld] > 0) { html_content_page[html_linkkeyworld] -= 1 };
         }
+
         $("#search_page").text("第" + (html_content_page[html_linkkeyworld] + 1) + "页");
       }
       else if (html_linkkeyworld == html_catalog_item){
-       if (html_content[html_linkkeyworld] != '') {
-        $("#list_catalog li").remove();
-        $("#list_catalog").append(html_content[html_linkkeyworld]);
-        $("#list_catalog").listview('refresh');
+        if (html_content[html_linkkeyworld] != '') {
+          $("#list_catalog li").remove();
+          $("#list_catalog").append(html_content[html_linkkeyworld]);
+          $("#list_catalog").listview('refresh');
         }
         else{
-          if (html_content_page[html_linkkeyworld] > 0) {
-            html_content_page[html_linkkeyworld] -= 1
-          };
+          if (html_content_page[html_linkkeyworld] > 0) { html_content_page[html_linkkeyworld] -= 1 };
         }
-        $("#catalog_page").text("第" + (html_content_page[html_linkkeyworld] + 1) + "页");
-        $("#catalog_collapsible").hide();
-        $("#list_catalog").show();
         
+        $("#catalog_page").text("第" + (html_content_page[html_linkkeyworld] + 1) + "页");
+        $("#list_catalog").show();
       }
       else{
         if (html_content[html_linkkeyworld] != '') {
-        $("#list_combineddata li").remove();
-        $("#list_combineddata").append(html_content[html_linkkeyworld]);
-        $("#list_combineddata").listview('refresh');
+          $("#list_combineddata li").remove();
+          $("#list_combineddata").append(html_content[html_linkkeyworld]);
+          $("#list_combineddata").listview('refresh');
         }
         else{
-          if (html_content_page[html_linkkeyworld] > 0) {
-            html_content_page[html_linkkeyworld] -= 1
-          };
+          if (html_content_page[html_linkkeyworld] > 0) { html_content_page[html_linkkeyworld] -= 1 };
         }
         $("#combineddata_page").text("第" + (html_content_page[html_linkkeyworld] + 1) + "页");
       }
-
     },
     error: function(xmlHTTPRequest, status, error){
         alert("Error : " + error);
@@ -164,7 +149,7 @@ function CombinedListItemClicked(sID)
     type: 'GET',
     
     success: function(Data){
-      // reorde data by dates
+      // reorde data by date
       for (var i = 0; i < Data.MetaDatas.length; i++) {
         Data.MetaDatas[i].Datas.sort(function(a, b){
             return new Date(a.Date).getTime() - new Date(b.Date).getTime();
@@ -225,7 +210,9 @@ function OnClickHotest(){
 
 function OnClickCatalogItem(catalogName){
   html_linkkeyworld = html_catalog_item;
-  html_content_page[html_linkkeyworld] = catalogName;
+  html_catalog_name = catalogName;
+  html_content_page[html_linkkeyworld] = 0;
+  $("#list_catalog li").remove();
   var subtitle = '';
   for (key in html_catalogs){
     $(html_catalogs[key]).each(function(te, u) {
@@ -240,49 +227,44 @@ function OnClickCatalogItem(catalogName){
 }
 
 function OnClickCatalog(){
-
   html_linkkeyworld = html_catalog;
   if (html_catalogs.length == 0) {
-     $.ajax({
-    url: html_linkkeyworld,
-    type: 'GET',
-    success: function(data){
-      html_catalogs = data;
-
-      if(html_content[html_linkkeyworld] == undefined){
-          html_content[html_linkkeyworld] = "";
-      }
-      html_content[html_linkkeyworld] = "";
-      for (key in data){
-        var title = '';
-        var body = '<ul>';
-        
-        $(data[key]).each(function(te, u) {
-          if (u.ParentName == undefined || u.ParentName == '') {
-           title = '<li>' + u.NameLoc['Chinese']}
-          else{
-            body += String.format('<li><a href="#page_catalog_list" onclick="OnClickCatalogItem(\'{0}\')">{1}</a></li>',u.Name, u.NameLoc['Chinese']);
-          }
-        });
-        body += '</li></ul>';
-        html_content[html_linkkeyworld] += title + 
-        body;
-      }
-     if (html_content[html_linkkeyworld] != '') {
-        $("#list_catalogs").append(html_content[html_linkkeyworld]);
+    $.ajax({
+      url: html_linkkeyworld,
+      type: 'GET',
+      success: function(data){
+        html_catalogs = data;
+        html_content[html_linkkeyworld] = "";
+        for (key in data){
+          var title = '';
+          var body = '<ul>';
+          $(data[key]).each(function(te, u) {
+            if (u.ParentName == undefined || u.ParentName == '') {
+             title = '<li>' + u.NameLoc['Chinese']}
+            else{
+              body += String.format('<li><a href="#page_catalog_list" onclick="OnClickCatalogItem(\'{0}\')">{1}</a></li>'
+                ,u.Name, u.NameLoc['Chinese']);
+            }
+          });
+          body += '</li></ul>';
+          html_content[html_linkkeyworld] += title + 
+          body;
+        }
+        if (html_content[html_linkkeyworld] != '') {
+          $("#list_catalogs").append(html_content[html_linkkeyworld]);
+        }
         $("#list_catalogs").listview('refresh');
+      },
+      error: function(xmlHTTPRequest, status, error){
+          alert("Error : " + error);
+      },
+      beforeSend: function(){
+        $.mobile.showPageLoadingMsg();
+      },
+      complete: function(){
+       $.mobile.hidePageLoadingMsg();
       }
-    },
-    error: function(xmlHTTPRequest, status, error){
-        alert("Error : " + error);
-    },
-    beforeSend: function(){
-      $.mobile.showPageLoadingMsg();
-    },
-    complete: function(){
-     $.mobile.hidePageLoadingMsg();
-    }
-  }); 
+    }); 
   };
 }
 
@@ -293,4 +275,3 @@ function OnClickSearch(){
   LoadData();
   html_content_page[html_search] = ''
 }
-
