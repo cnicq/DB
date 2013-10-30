@@ -445,11 +445,11 @@ function timeFormat(formats) {
     return f[0](date);
   };
 }
+
   var xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom")
       .tickFormat(customTimeFormat);
-
 
   var yAxisLeft = d3.svg.axis()
       .scale(y)
@@ -481,6 +481,12 @@ function timeFormat(formats) {
       }
     ).trigger("resize");
 
+  if (minDate == maxDate) {
+    minDate = moment(minDate).subtract('years', 1);
+    maxDate = moment(maxDate).add('years', 1);
+    minValue = minValue / 2;
+    maxValue = maxValue * 1.25;
+  };
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
