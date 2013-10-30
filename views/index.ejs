@@ -86,7 +86,7 @@
 	  	<div data-role="header" data-position="fixed" >
 		    <span class="ui-title" >数据百科 - 分类</span>
 		</div><!-- /header -->
-		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_catalog" >
+		<div data-role="content" class="jqm-content jqm-fullwidth" id="content_catalogs" >
 			<ul data-role="listview" data-theme="d" data-dividertheme="d" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_catalogs" >
 			</ul>
 		</div><!-- /content_catalog -->
@@ -102,6 +102,17 @@
         	<ul data-role="listview" data-theme="d" data-dividertheme="d" data-filter="false" data-filter-theme="d" data-filter-placeholder="Search messages..." id="list_catalog">
 			</ul>
 		</div><!-- /content_catalog -->
+
+		<div data-role="footer" data-id="foo1" data-position="fixed">
+			<ul data-role="content" >
+				<li data-role="list-divider">
+					<a href="" onclick="OnClickFirstPage()">首页</a>
+					<a href="" onclick="OnClickPrevPage()">前一页</a> 
+					<span id = "catalog_page">第N页</span>
+					<a href="" onclick="OnClickNextPage()">后一页</a>
+					<span class="ui-li-count"></span></li>
+			</ul>
+		</div>
 		
 	</div>
 	<!-- page_catalog_list end -->

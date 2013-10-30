@@ -95,10 +95,14 @@ exports.search = function(req, res, next){
 };
 
 exports.catalog = function(req, res, next){
-
+	var limit = 10;
 	var catalog = req.params.catalog;
+	var page = req.params.page;
+	if (page == undefined) {
+		page = 0;
+	};
 	var conditions = { "CatalogNames" : {'$in' : [catalog]} };
-	var options = { sort: [ ['UpdateTime', 'desc' ]] };
+	var options = { skip: (page) * limit, limit: limit, sort: [ ['UpdateTime', 'desc' ]] };
 	Combined.getCombinedsByQuery(conditions, options, function (err, combineds) {
 		if (err) {
 			return next(err);

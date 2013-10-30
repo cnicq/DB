@@ -10,7 +10,7 @@ module.exports = function(app){
   app.get('/combined/newest/:page', combined.newest);
   app.get('/combined/hotest/:page', combined.hotest);
   app.get('/combined/search/:keyword', combined.search);
-  app.get('/combined/catalog/:catalog', combined.catalog);
+  app.get('/combined/catalog/:catalog/:page', combined.catalog);
   app.get('/combined/byid/:id', combined.byid);
   app.get('/catalog', catalog.datas);
   
