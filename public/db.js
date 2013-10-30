@@ -155,6 +155,7 @@ function CombinedListItemClicked(sID)
             return new Date(a.Date).getTime() - new Date(b.Date).getTime();
         });
       };
+
       CombinedData = Data
       if (CombinedData.MetaDatas.length == 0) {
         $('#svg_d3').empty();

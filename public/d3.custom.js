@@ -1016,7 +1016,6 @@ var ShowTimeChart_Click = function() {
   UpdateChartFuncs[CurChartTypeIndex]();
 }
 
-
 var ShowTimeChart_MouseOut = function() {
   if (selectHoverRect == undefined) { return; }
 
@@ -1042,7 +1041,8 @@ function GetValueByAreas(theDate, T2Index, minR, maxR, initValues){
         if(CombinedData.MetaDatas[i].Target2NameLoc == Target2Data[T2Index]){
           var bFind = false;
           for (var j = 0; j < CombinedData.MetaDatas[i].Datas.length; j++) {
-            if (CombinedData.MetaDatas[i].Datas[j].Date == theDate) {
+            if (CombinedData.MetaDatas[i].Datas[j].Date == theDate &&
+               (CombinedData.MetaDatas[i].AreaNameLoc != '中国' && CombinedData.MetaDatas[i].AreaNameLoc != '全国' ) ) {
               
               values[CombinedData.MetaDatas[i].AreaNameLoc] = CombinedData.MetaDatas[i].Datas[j].Value;
               bFind = true;
@@ -1083,25 +1083,23 @@ function UpdateMapChart(){
   var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
   cscale = d3.scale.pow().exponent(.5).domain([values.min, values.max])
                         .range(["#FFBBC9", "#88001B"]);
+  $('svg circle').tipsy({ 
+    gravity: 's', 
+    html: true, 
+    title: function() {
+      var d = this.__data__;
+      return d.properties.name + ":" + values['initValues'][d.properties.name]; 
+    }
+  });
 
-$('svg circle').tipsy({ 
-  gravity: 's', 
-  html: true, 
-  title: function() {
-    var d = this.__data__;
-    return d.properties.name + ":" + values['initValues'][d.properties.name]; 
-  }
-});
-
-   paths.transition()
+  paths.transition()
       .attr("fill", function(d,i) { 
         var c = '#fff';
         if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { c = '#666';}
         else c = cscale(values[d.properties.name]); 
         return c;
       })
-  cycles
-    .transition()
+  cycles.transition()
     .attr("r", function(d,i) {
             if (d.properties == undefined || d.properties.name == undefined) { return 0;};
             if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
@@ -1110,13 +1108,10 @@ $('svg circle').tipsy({
 
 function ResetMapChartSize(){
   var width = window.innerWidth,  height = window.innerHeight * 0.7;
-  d3.select("#svg_d3")
-      .attr("width", width)
-      .attr("height", height)
+  d3.select("#svg_d3").attr("width", width).attr("height", height)
 }
 
-function ShowMapChart()
-{
+function ShowMapChart() {
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
@@ -1153,8 +1148,6 @@ function ShowMapChart()
     var proj = d3.geo.mercator().scale(scale).center(center).translate(offset);
     var path = d3.geo.path().projection(proj);
 
-    var values = GetValueByAreas(SelectedDate, Target2Indexs[0], 20, 200);
-    
   svg.selectAll("path")
       .data(p.features)
     .enter().append("path")
@@ -1171,18 +1164,13 @@ function ShowMapChart()
     svg.selectAll("circle")
        .data(p.features)
       .enter().append("circle")
-        .attr("cx", function(d) { return path.centroid(d)[0] - 10; })
+        .attr("cx", function(d) { return path.centroid(d)[0]; })
         .attr("cy", function(d) { return path.centroid(d)[1]; })
         
       UpdateMapChart();
   });
 
   ShowTimeChart();
-}
-
-function HideD3()
-{
-
 }
 
 var ShowChartFuncs = [ShowLineChart, ShowBarChart, ShowMapChart];
