@@ -764,6 +764,12 @@ function ShowBarChart(){
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   xBar.domain([0, d3.max(MetaData, function(d) { return d.Value; })]).nice();
+
+  if (minDate == maxDate) {
+    minDate = moment(minDate).subtract('years', 1);
+    maxDate = moment(maxDate).add('years', 1);
+  };
+
   t.domain([minDate, maxDate]);
   
   svg.append("g")
@@ -916,6 +922,13 @@ function ShowTimeChart() {
      .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
     .append("g")
      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  if (minDate == maxDate) {
+    minDate = moment(minDate).subtract('years', 1);
+    maxDate = moment(maxDate).add('years', 1);
+    minValue = minValue / 2;
+    maxValue = maxValue * 1.25;
+  };
 
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
