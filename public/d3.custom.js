@@ -19,7 +19,11 @@ var ChartAspects = [0.5, 0.5, 0.5,0.1]; // line, bar, map,time
 var margin = {top: 10, right: 10, bottom: 20, left: 30};
 var PaddingRate = 0.1, TextPaddingRate = 0.15;
 var MouseoverCircle = undefined;
-
+var MaxTime, MinTime;
+var x,y;
+var xAxis, yAxisLeft, yAxisRight;
+var xAxisSVG;
+var zoom;
 function SetTitle() {
    // if has only one area data, show the area name in title
   var title = CombinedData.IndicatorData.NameLoc['Chinese'];
@@ -404,6 +408,46 @@ function ResetLineChartSize() {
       .attr("height", viewboxH)
 }
 
+function OnTimeSliderChanged(){
+  var bChanged = false;
+  if(MinTime != $('#range-1a').val()){ MinTime = $('#range-1a').val(); bChanged = true; }
+  if(MaxTime != $('#range-1b').val()){ MaxTime = $('#range-1b').val(); bChanged = true; }
+
+  if(bChanged && x != undefined) {
+    var unit = moment(maxDate).diff(moment(minDate), 'd') / 100.0;
+    var starday = moment(minDate).add(unit * MinTime, 'days');
+    var endday = moment(minDate).add(unit * MaxTime, 'days');
+    if (starday == endday) {
+    starday = moment(starday).subtract('years', 1);
+    endday = moment(endday).add('years', 1);
+    starday = starday / 2;
+    endday = endday * 1.25;
+    };
+    x.domain([starday, endday]);
+    xAxisSVG.call(xAxis);
+    }
+}
+
+function UpdateLineChart(){
+  var svg = d3.select("#svg_d3");
+  var paths = svg.selectAll("path")
+  var cycles = svg.selectAll("circle")
+  var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+  paths.transition()
+      .attr("fill", function(d,i) { 
+        var c = '#fff';
+        if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { c = '#666';}
+        else c = cscale(values[d.properties.name]); 
+        return c;
+      })
+  cycles.transition()
+    .attr("r", function(d,i) {
+            if (d.properties == undefined || d.properties.name == undefined) { return 0;};
+            if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
+            return Math.sqrt(Math.abs(values[d.properties.name])); })
+}
+
 function ShowLineChart() {
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
@@ -421,10 +465,10 @@ function ShowLineChart() {
  
   if (MetaDataArr.length == 0) return;
 
-  var x = d3.time.scale()
+  x = d3.time.scale()
       .range([0, width]);
 
-  var y = d3.scale.linear()
+  y = d3.scale.linear()
       .range([height, 0]);
 
 var customTimeFormat = timeFormat([
@@ -446,16 +490,16 @@ function timeFormat(formats) {
   };
 }
 
-  var xAxis = d3.svg.axis()
+  xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom")
       .tickFormat(customTimeFormat);
 
-  var yAxisLeft = d3.svg.axis()
+  yAxisLeft = d3.svg.axis()
       .scale(y)
       .orient("left");
 
-  var yAxisRight = d3.svg.axis()
+  yAxisRight = d3.svg.axis()
       .scale(y)
       .orient("right");
 
@@ -464,8 +508,7 @@ function timeFormat(formats) {
       .x(function(d) { return x(d.Date) + padding; })
       .y(function(d) { return y(d.Value); });
 
-  var svg = d3.select("#svg_d3")
-      .on("click", function(d) {});
+  var svg = d3.select("#svg_d3");
 
   var viewboxW = width + margin.left + margin.right + textWidth;
   var viewboxH = height + margin.top + margin.bottom;
@@ -490,7 +533,7 @@ function timeFormat(formats) {
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
-  svg.append("g")
+  xAxisSVG = svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(" + padding + "," + height + ")")
       .call(xAxis);
@@ -893,13 +936,13 @@ function ShowTimeChart() {
   if(height <= 10) height = 10;
   if (MetaDataArr.length == 0) return;
 
-  var x = d3.time.scale()
+  x = d3.time.scale()
       .range([0, width]);
 
-  var y = d3.scale.linear()
+  y = d3.scale.linear()
       .range([height, 0]);
 
-  var xAxis = d3.svg.axis()
+  xAxisLeft = d3.svg.axis()
       .scale(x)
       .orient("bottom");
 
@@ -1187,4 +1230,4 @@ function ShowMapChart() {
 }
 
 var ShowChartFuncs = [ShowLineChart, ShowBarChart, ShowMapChart];
-var UpdateChartFuncs = [ShowLineChart, UpdateBarChart, UpdateMapChart]
+var UpdateChartFuncs = [UpdateLineChart, UpdateBarChart, UpdateMapChart]

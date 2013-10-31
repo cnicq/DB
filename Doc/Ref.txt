@@ -5,3 +5,9 @@ http://bl.ocks.org/nsonnad/4175202
 http://theoldbeggar.com/visuals
 
 http://jsfiddle.net/kPM5L/1/
+
+http://bl.ocks.org/dem42/3878029
+// d3 samples gallery
+http://christopheviau.com/d3list/
+http://bl.ocks.org/mbostock/1667367
+http://www.humblesoftware.com/finance/index
