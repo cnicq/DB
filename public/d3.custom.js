@@ -17,13 +17,14 @@ var CurTimeIndex = 0;
 var PlayTimerID = -1;
 var ChartAspects = [0.5, 0.5, 0.5,0.1]; // line, bar, map,time
 var margin = {top: 10, right: 10, bottom: 20, left: 30};
-var PaddingRate = 0.1, TextPaddingRate = 0.15;
+var PaddingRate = 0.1, TextPaddingRate = 0.15, padding = 0;
 var MouseoverCircle = undefined;
 var MaxTime, MinTime;
 var x,y;
 var xAxis, yAxisLeft, yAxisRight;
 var xAxisSVG;
 var zoom;
+var IsTarget1Base = false, IsTarget2Base = true;
 function SetTitle() {
    // if has only one area data, show the area name in title
   var title = CombinedData.IndicatorData.NameLoc['Chinese'];
@@ -423,29 +424,25 @@ function OnTimeSliderChanged(){
     starday = starday / 2;
     endday = endday * 1.25;
     };
+    
     x.domain([starday, endday]);
     xAxisSVG.call(xAxis);
-    }
+
+    var line = d3.svg.line()
+      .interpolate("monotone")
+      .x(function(d) { return x(d.Date) + padding; })
+      .y(function(d) { return y(d.Value); });
+
+    d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('path')
+      .attr("d", function(d) {return line(d.Datas); })
+      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
+    d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('circle')
+        .attr("cx", function(d) { return x(d.Date) + padding })
+        .attr("cy", function(d) { return y(d.Value) })
+  }
 }
 
 function UpdateLineChart(){
-  var svg = d3.select("#svg_d3");
-  var paths = svg.selectAll("path")
-  var cycles = svg.selectAll("circle")
-  var div = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
-
-  paths.transition()
-      .attr("fill", function(d,i) { 
-        var c = '#fff';
-        if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { c = '#666';}
-        else c = cscale(values[d.properties.name]); 
-        return c;
-      })
-  cycles.transition()
-    .attr("r", function(d,i) {
-            if (d.properties == undefined || d.properties.name == undefined) { return 0;};
-            if (values[d.properties.name] == undefined || values[d.properties.name] == 0) { return 0;}
-            return Math.sqrt(Math.abs(values[d.properties.name])); })
 }
 
 function ShowLineChart() {
@@ -457,9 +454,9 @@ function ShowLineChart() {
   var textWidth = window.innerWidth * PaddingRate * 2;
   var width = window.innerWidth - margin.left - margin.right - textWidth;
   var height = window.innerHeight * ChartAspects[0] - margin.top - margin.bottom;
-  var padding = window.innerWidth * PaddingRate;
+  padding = window.innerWidth * PaddingRate;
   
-  var IsTarget1Base = false, IsTarget2Base = true;
+  IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
   if (Target2Indexs.length <= 1 && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
  
@@ -504,7 +501,7 @@ function timeFormat(formats) {
       .orient("right");
 
   var line = d3.svg.line()
-      .interpolate("cardinal")
+      .interpolate("monotone")
       .x(function(d) { return x(d.Date) + padding; })
       .y(function(d) { return y(d.Value); });
 
@@ -530,6 +527,7 @@ function timeFormat(formats) {
     minValue = minValue / 2;
     maxValue = maxValue * 1.25;
   };
+
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
@@ -692,7 +690,7 @@ var BarChartWidth;
 
 function UpdateBarChart(){
   // clone data
-  var IsTarget1Base = false, IsTarget2Base = true;
+  IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
   if (Target2Indexs.length <= 1  && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
@@ -754,7 +752,7 @@ function ShowBarChart(){
    };
 
   // clone data
-  var IsTarget1Base = false, IsTarget2Base = true;
+  IsTarget1Base = false, IsTarget2Base = true;
   if (Target1Indexs.length <= 1) {IsTarget1Base = true; IsTarget2Base = false;}
   if (Target2Indexs.length <= 1  && Target1Indexs.length > 1) {IsTarget1Base = false; IsTarget2Base = true;}
 
