@@ -14,7 +14,7 @@ var MetaDataArr = [];
 var parseDate = undefined;
 var DataDates = [];
 var CurTimeIndex = 0;
-var PlayTimerID = -1;
+var PlayTimerID = -1, ZoomLineChartTimeID = -1;
 var ChartAspects = [0.5, 0.5, 0.5,0.1]; // line, bar, map,time
 var margin = {top: 10, right: 10, bottom: 20, left: 30};
 var PaddingRate = 0.1, TextPaddingRate = 0.15, padding = 0;
@@ -22,8 +22,6 @@ var MouseoverCircle = undefined;
 var MaxTime, MinTime;
 var x,y;
 var xAxis, yAxisLeft, yAxisRight;
-var xAxisSVG;
-var zoom;
 var IsTarget1Base = false, IsTarget2Base = true;
 function SetTitle() {
    // if has only one area data, show the area name in title
@@ -388,14 +386,23 @@ function PrepareData(){
     };
   };
 
-  maxValue = d3.max(MetaDataArr, function(m){ return d3.max(m.Datas, function(d) { return d.Value; })});
-  minValue = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Value; })});
+  maxDate = d3.max(MetaDataArr, function(m){ return d3.max(m.Datas, function(d) { return d.Date; })});
+  minDate = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Date; })});
+
+  CalcValueRange(MetaDataArr);
+}
+
+function CalcValueRange(Arr){
+  maxValue = d3.max(Arr, function(m){ return d3.max(m.Datas, function(d) { return d.Value; })});
+  minValue = d3.min(Arr, function(m){ return d3.min(m.Datas, function(d) { return d.Value; })});
 
   maxValue = maxValue + (maxValue - minValue)/5;
   minValue = minValue - (maxValue - minValue)/5
 
-  maxDate = d3.max(MetaDataArr, function(m){ return d3.max(m.Datas, function(d) { return d.Date; })});
-  minDate = d3.min(MetaDataArr, function(m){ return d3.min(m.Datas, function(d) { return d.Date; })});
+  if (minValue == maxValue) {
+    minValue /= 2;
+    maxValue *= 2;
+  };
 }
 
 function ResetLineChartSize() {
@@ -409,40 +416,70 @@ function ResetLineChartSize() {
       .attr("height", viewboxH)
 }
 
-function OnTimeSliderChanged(){
-  var bChanged = false;
-  if(MinTime != $('#range-1a').val()){ MinTime = $('#range-1a').val(); bChanged = true; }
-  if(MaxTime != $('#range-1b').val()){ MaxTime = $('#range-1b').val(); bChanged = true; }
+function DoZoomLineChart(){
 
-  if(bChanged && x != undefined) {
+    if(MinTime != $('#range-1a').val()){ MinTime = $('#range-1a').val();}
+    if(MaxTime != $('#range-1b').val()){ MaxTime = $('#range-1b').val();}
+
     var unit = moment(maxDate).diff(moment(minDate), 'd') / 100.0;
     var starday = moment(minDate).add(unit * MinTime, 'days');
     var endday = moment(minDate).add(unit * MaxTime, 'days');
-    if (starday == endday) {
-    starday = moment(starday).subtract('years', 1);
-    endday = moment(endday).add('years', 1);
-    starday = starday / 2;
-    endday = endday * 1.25;
+
+    // clone data
+    var Arr = [];
+    for (var i = 0; i < MetaDataArr.length; i++) {
+      Arr.push(jQuery.extend(true, {}, MetaDataArr[i]));
     };
-    
+
+    for (var i = 0; i < Arr.length; i++) {
+      var filtervalues = Arr[i].Datas.filter(function(obj) {
+        return (moment(obj.Date).isBefore(endday) && moment(obj.Date).isAfter(starday) ||
+          moment(obj.Date).isSame(endday) || moment(obj.Date).isSame(starday) );
+      });
+      Arr[i].Datas = filtervalues;
+    };
+
+    CalcValueRange(Arr);
+
+    if (starday == endday) {
+      starday = moment(starday).subtract('years', 1);
+      endday = moment(endday).add('years', 1);
+      starday = starday / 2;
+      endday = endday * 1.25;
+    };
+
     x.domain([starday, endday]);
-    xAxisSVG.call(xAxis);
+    y.domain([minValue, maxValue]);
+    d3.select("#svg_d3").select('.x.axis').call(xAxis);
+    d3.select("#svg_d3").select('.y.axis').call(yAxisLeft)
 
     var line = d3.svg.line()
       .interpolate("monotone")
       .x(function(d) { return x(d.Date) + padding; })
       .y(function(d) { return y(d.Value); });
 
-    d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('path')
+    d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('path').transition()
       .attr("d", function(d) {return line(d.Datas); })
       .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
-    d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('circle')
+
+    d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('circle').transition()
         .attr("cx", function(d) { return x(d.Date) + padding })
         .attr("cy", function(d) { return y(d.Value) })
-  }
+
+    ZoomLineChartTimeID = -1;
 }
 
-function UpdateLineChart(){
+function OnTimeSliderChanged(){
+  var bChanged = false;
+  if(MinTime != $('#range-1a').val()){ MinTime = $('#range-1a').val(); bChanged = true; }
+  if(MaxTime != $('#range-1b').val()){ MaxTime = $('#range-1b').val(); bChanged = true; }
+
+  if(bChanged && x != undefined) {
+    if(ZoomLineChartTimeID != -1)
+      window.clearTimeout(ZoomLineChartTimeID);
+    // Delay 0.5S to change, for better performance.
+    ZoomLineChartTimeID = window.setTimeout(DoZoomLineChart, 500);
+  }
 }
 
 function ShowLineChart() {
@@ -450,6 +487,9 @@ function ShowLineChart() {
   $('#svg_d3_2').empty();
   $('#svg_d3_2').hide();
   $('#svg_d3_time').hide();
+
+  $('#range-1a').val(50);
+  $('#range-1b').val(100);
 
   var textWidth = window.innerWidth * PaddingRate * 2;
   var width = window.innerWidth - margin.left - margin.right - textWidth;
@@ -531,7 +571,7 @@ function timeFormat(formats) {
   x.domain([minDate, maxDate]);
   y.domain([minValue, maxValue]);
 
-  xAxisSVG = svg.append("g")
+  svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(" + padding + "," + height + ")")
       .call(xAxis);
@@ -589,7 +629,19 @@ function timeFormat(formats) {
     .attr("class", "tooltip")               
     .style("opacity", 0);
 
-  var IndicatorNodes = svg.selectAll(".IndicatorNodes")
+   var clip = svg.append('clipPath')
+      .attr('id', 'clip')
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr("transform", "translate(" + padding  + ",0)")
+      .attr('width', width + 10)
+      .attr('height', height);
+      
+    var chartBody = svg.append('g')
+      .attr('clip-path', 'url(#clip)');
+
+  var IndicatorNodes = chartBody.selectAll(".IndicatorNodes")
         .data(MetaDataArr)
 
   var IndicatorNode = IndicatorNodes.enter().append("g")
@@ -679,6 +731,8 @@ function timeFormat(formats) {
         return d.html;
       }
     });
+
+     DoZoomLineChart();
 } 
 
 
@@ -1228,4 +1282,4 @@ function ShowMapChart() {
 }
 
 var ShowChartFuncs = [ShowLineChart, ShowBarChart, ShowMapChart];
-var UpdateChartFuncs = [UpdateLineChart, UpdateBarChart, UpdateMapChart]
+var UpdateChartFuncs = [ShowLineChart, UpdateBarChart, UpdateMapChart]
