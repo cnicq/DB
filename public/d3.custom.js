@@ -629,7 +629,15 @@ function timeFormat(formats) {
     .attr("class", "tooltip")               
     .style("opacity", 0);
 
-   var clip = svg.append('clipPath')
+   
+
+  var IndicatorNodes = svg.selectAll(".IndicatorNodes")
+        .data(MetaDataArr)
+
+  var IndicatorNode = IndicatorNodes.enter().append("g")
+      .attr("class", "IndicatorNode")
+
+  var clip = svg.append('clipPath')
       .attr('id', 'clip')
       .append('rect')
       .attr('x', 0)
@@ -637,17 +645,9 @@ function timeFormat(formats) {
       .attr("transform", "translate(" + padding  + ",0)")
       .attr('width', width + 10)
       .attr('height', height);
-      
-    var chartBody = svg.append('g')
-      .attr('clip-path', 'url(#clip)');
-
-  var IndicatorNodes = chartBody.selectAll(".IndicatorNodes")
-        .data(MetaDataArr)
-
-  var IndicatorNode = IndicatorNodes.enter().append("g")
-      .attr("class", "IndicatorNode")
 
   IndicatorNode.append("path")
+    .attr('clip-path', 'url(#clip)')
     .attr("class", "line")
     .attr("d", function(d) {return line(d.Datas); })
     .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
@@ -680,6 +680,7 @@ function timeFormat(formats) {
   IndicatorNode.selectAll("circle")
      .data(function(d, i) {return d.Datas; })
      .enter().append("circle")
+     .attr('clip-path', 'url(#clip)')
      .attr('class', 'data-point')
      .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); })
      .attr("cx", function(d) { return x(d.Date) + padding })
