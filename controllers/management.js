@@ -219,9 +219,9 @@ exports.metadata_update = function (req, res, next) {
   }
   else if (oper == 'edit') {
     var opt = {};
-    if (req.body.AreaID != '' ) {opt['AreaID'] = req.body.AreaID;};
-    if (req.body.Target1 != '' ) {opt['Target1ID'] = req.body.Target1;};
-    if (req.body.Target2 != '' ) {opt['Target2ID'] = req.body.Target2;};
+    if (req.body.AreaID != '' ) {opt['AreaID'] = req.body.AreaID;} else {opt['AreaID'] = null;}
+    if (req.body.Target1 != '' ) {opt['Target1ID'] = req.body.Target1;} else {opt['Target1ID'] = null;}
+    if (req.body.Target2 != '' ) {opt['Target2ID'] = req.body.Target2;} else {opt['Target2ID'] = null;}
     console.log(opt);
      Meta.updateByQuery(req.body.indicatorid, {_id:req.body.metaid}, {$set:opt}, function(err, rows){
       console.log(err);

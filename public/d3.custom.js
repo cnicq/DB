@@ -364,12 +364,30 @@ function PrepareData(){
            parseDate = d3.time.format("%Y.%m.%d").parse;
             break;
           default:
+          parseDate = d3.time.format("%Y.%m.%d").parse;
             break;
         }
       };
-      for (var k = 0; k <= MetaData.Datas.length - 1; k++) {
-        
+      if (parseDate == undefined) {
+        switch (sTimePeriod){
+          case 'year':
+            parseDate = d3.time.format("%Y").parse;
+            break;
+          case 'month':
+            parseDate = d3.time.format("%Y-%m").parse;
+            break;
+          case 'day':
+           parseDate = d3.time.format("%Y-%m-%d").parse;
+            break;
+          default:
+          parseDate = d3.time.format("%Y-%m-%d").parse;
+            break;
+        }
+      };
+      alert(parseDate);
+      for (var k = 0; k <= MetaData.Datas.length - 1; k++) {3
         MetaData.Datas[k].DateStr = MetaData.Datas[k].Date;
+        alert(MetaData.Datas[k].Date);
         MetaData.Datas[k].Date = parseDate(MetaData.Datas[k].Date);
         MetaData.Datas[k].Target1Index = Target1Indexs[i];
         MetaData.Datas[k].Target2Index = Target2Indexs[j];
@@ -393,11 +411,18 @@ function PrepareData(){
 }
 
 function CalcValueRange(Arr){
+
   maxValue = d3.max(Arr, function(m){ return d3.max(m.Datas, function(d) { return d.Value; })});
   minValue = d3.min(Arr, function(m){ return d3.min(m.Datas, function(d) { return d.Value; })});
 
-  maxValue = maxValue + (maxValue - minValue)/5;
-  minValue = minValue - (maxValue - minValue)/5
+  if (maxValue != undefined && minValue != undefined) {
+    maxValue = maxValue + (maxValue - minValue)/5;
+    minValue = minValue - (maxValue - minValue)/5
+  }
+  else{
+    maxValue = 0;
+    minValue = 0;
+  }
 
   if (minValue == maxValue) {
     minValue /= 2;
@@ -432,6 +457,7 @@ function DoZoomLineChart(){
     };
 
     for (var i = 0; i < Arr.length; i++) {
+
       var filtervalues = Arr[i].Datas.filter(function(obj) {
         return (moment(obj.Date).isBefore(endday) && moment(obj.Date).isAfter(starday) ||
           moment(obj.Date).isSame(endday) || moment(obj.Date).isSame(starday) );
