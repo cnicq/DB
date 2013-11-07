@@ -11,7 +11,7 @@ var color2 = d3.scale.category20();
 var maxDate, minDate;
 var maxValue, minValue;
 var MetaDataArr = [];
-var parseDate = undefined;
+var parseDate1 = undefined, parseDate2 = undefined;
 var DataDates = [];
 var CurTimeIndex = 0;
 var PlayTimerID = -1, ZoomLineChartTimeID = -1;
@@ -133,7 +133,8 @@ function ShowChart() {
     var $this = $(this);
     SetIndexByTarget1Names($this.val());
     MetaDataArr = [];
-    parseDate = undefined;
+    parseDate1 = undefined;
+    parseDate2 = undefined;
     ShowChartByCurChartTypeIndex();
   });
 
@@ -141,7 +142,8 @@ function ShowChart() {
     var $this = $(this);
     SetIndexByTarget2Names($this.val());
     MetaDataArr = [];
-    parseDate = undefined;
+    parseDate1 = undefined;
+    parseDate2 = undefined;
     ShowChartByCurChartTypeIndex();
   });
 }
@@ -319,7 +321,8 @@ function ResetChart(){
   AreaData.length = 0;
   CurChartTypeIndex = 0;
   MetaDataArr = [];
-  parseDate = undefined;
+  parseDate1 = undefined;
+  parseDate2 = undefined;
 
   clearInterval(PlayTimerID);
   PlayTimerID = -1;
@@ -352,43 +355,43 @@ function PrepareData(){
 
       if (MetaData == undefined) { continue; };
       sTimePeriod = MetaData.Period == undefined ? "year" : MetaData.Period;
-      if (parseDate == undefined) {
+      if (parseDate1 == undefined) {
         switch (sTimePeriod){
           case 'year':
-            parseDate = d3.time.format("%Y").parse;
+            parseDate1 = d3.time.format("%Y").parse;
             break;
           case 'month':
-            parseDate = d3.time.format("%Y.%m").parse;
+            parseDate1 = d3.time.format("%Y.%m").parse;
             break;
           case 'day':
-           parseDate = d3.time.format("%Y.%m.%d").parse;
+           parseDate1 = d3.time.format("%Y.%m.%d").parse;
             break;
           default:
-          parseDate = d3.time.format("%Y.%m.%d").parse;
+          parseDate1 = d3.time.format("%Y.%m.%d").parse;
             break;
         }
       };
-      if (parseDate == undefined) {
+      if (parseDate2 == undefined) {
         switch (sTimePeriod){
           case 'year':
-            parseDate = d3.time.format("%Y").parse;
+            parseDate2 = d3.time.format("%Y").parse;
             break;
           case 'month':
-            parseDate = d3.time.format("%Y-%m").parse;
+            parseDate2 = d3.time.format("%Y-%m").parse;
             break;
           case 'day':
-           parseDate = d3.time.format("%Y-%m-%d").parse;
+           parseDate2 = d3.time.format("%Y-%m-%d").parse;
             break;
           default:
-          parseDate = d3.time.format("%Y-%m-%d").parse;
+          parseDate2 = d3.time.format("%Y-%m-%d").parse;
             break;
         }
       };
-      alert(parseDate);
       for (var k = 0; k <= MetaData.Datas.length - 1; k++) {3
         MetaData.Datas[k].DateStr = MetaData.Datas[k].Date;
+        MetaData.Datas[k].Date = parseDate1(MetaData.Datas[k].DateStr);
         alert(MetaData.Datas[k].Date);
-        MetaData.Datas[k].Date = parseDate(MetaData.Datas[k].Date);
+        if (MetaData.Datas[k].Date == null) { MetaData.Datas[k].Date = parseDate2(MetaData.Datas[k].DateStr); }
         MetaData.Datas[k].Target1Index = Target1Indexs[i];
         MetaData.Datas[k].Target2Index = Target2Indexs[j];
 
