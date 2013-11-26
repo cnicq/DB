@@ -23,6 +23,8 @@ var MaxTime, MinTime;
 var x,y;
 var xAxis, yAxisLeft, yAxisRight;
 var IsTarget1Base = false, IsTarget2Base = true;
+var MaxDatasCnt = 0;
+
 function SetTitle() {
    // if has only one area data, show the area name in title
   var title = CombinedData.IndicatorData.NameLoc['Chinese'];
@@ -390,7 +392,6 @@ function PrepareData(){
       for (var k = 0; k <= MetaData.Datas.length - 1; k++) {3
         MetaData.Datas[k].DateStr = MetaData.Datas[k].Date;
         MetaData.Datas[k].Date = parseDate1(MetaData.Datas[k].DateStr);
-        alert(MetaData.Datas[k].Date);
         if (MetaData.Datas[k].Date == null) { MetaData.Datas[k].Date = parseDate2(MetaData.Datas[k].DateStr); }
         MetaData.Datas[k].Target1Index = Target1Indexs[i];
         MetaData.Datas[k].Target2Index = Target2Indexs[j];
@@ -414,7 +415,10 @@ function PrepareData(){
 }
 
 function CalcValueRange(Arr){
-
+  MaxDatasCnt = 0;
+  for (var i = 0; i < Arr.length; i++) {
+    MaxDatasCnt = Arr[i].Datas.length > MaxDatasCnt ? Arr[i].Datas.length : MaxDatasCnt;
+  };
   maxValue = d3.max(Arr, function(m){ return d3.max(m.Datas, function(d) { return d.Value; })});
   minValue = d3.min(Arr, function(m){ return d3.min(m.Datas, function(d) { return d.Value; })});
 
@@ -494,6 +498,7 @@ function DoZoomLineChart(){
     d3.select("#svg_d3").selectAll(".IndicatorNode").selectAll('circle').transition()
         .attr("cx", function(d) { return x(d.Date) + padding })
         .attr("cy", function(d) { return y(d.Value) })
+        .attr("r", function(d)  { return CircleUnSelected(); })
 
     ZoomLineChartTimeID = -1;
 }
@@ -511,6 +516,30 @@ function OnTimeSliderChanged(){
   }
 }
 
+function CircleSelected(){
+  var r = 10;
+
+  return r;
+
+  if (MaxDatasCnt > 0){
+    r = 300/MaxDatasCnt;
+  }
+
+  r = r > 8 ? 8 : r;
+  r = r < 1 ? 0 : r;
+  return r;
+}
+function CircleUnSelected(){
+  var r = 8;
+
+  if (MaxDatasCnt > 0) {
+      r = 240/MaxDatasCnt;
+  }
+
+  r = r > 8 ? 8 : r;
+  r = r < 1 ? 0 : r;
+  return r;
+}
 function ShowLineChart() {
   $('#svg_d3').empty();
   $('#svg_d3_2').empty();
@@ -734,23 +763,33 @@ function timeFormat(formats) {
         else if(fPercent < 0){ fPercent = "减少:<font color='green'>" +  fPercent + "%" + "</font>"; }
         else fPercent = '增长:无数据';
         this.__data__['html'] =  (name + "<br><font style='text-align: left'>时间:" + d.DateStr + "</font><br><font style='text-align: left'>" + fPercent + "</font><br><font style='text-align: left'>数值:" + d.Value + "</font>");
-        return 8; 
+        return CircleUnSelected(); 
       })
      .on("mouseover", function(d, i, j) {
         if (MouseoverCircle != undefined) {
           MouseoverCircle.transition()
             .duration(500)
-            .attr("r", function(d) { return 8 })
+            .attr("r", function(d) { return CircleUnSelected() })
             .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
         };
 
         MouseoverCircle = d3.select(this);
         MouseoverCircle.transition()
            .duration(500)
-           .attr("r", function(d) { return 10 })
+           .attr("r", function(d) { return CircleSelected() })
            .style("stroke", function(d) { return "#f00" })
         }
-      )              
+      )
+      .on("mouseout", function(d, i, j) {
+        if (MouseoverCircle != undefined) {
+          MouseoverCircle.transition()
+            .duration(500)
+            .attr("r", function(d) { return CircleUnSelected() })
+            .style("stroke", function(d) { if(IsTarget1Base) return color2(d.Target2Index); else return color1(d.Target1Index); });
+        };
+        MouseoverCircle = undefined;
+        }
+      )               
 
      $('svg circle').tipsy({
       trigger: 'hover',

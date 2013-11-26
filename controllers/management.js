@@ -222,6 +222,7 @@ exports.metadata_update = function (req, res, next) {
     if (req.body.AreaID != '' ) {opt['AreaID'] = req.body.AreaID;} else {opt['AreaID'] = null;}
     if (req.body.Target1 != '' ) {opt['Target1ID'] = req.body.Target1;} else {opt['Target1ID'] = null;}
     if (req.body.Target2 != '' ) {opt['Target2ID'] = req.body.Target2;} else {opt['Target2ID'] = null;}
+    if (req.body.Period != '' ) {opt['Period'] = req.body.Period;} else {opt['Period'] = null;}
     console.log(opt);
      Meta.updateByQuery(req.body.indicatorid, {_id:req.body.metaid}, {$set:opt}, function(err, rows){
       console.log(err);
